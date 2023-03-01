@@ -7,22 +7,22 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.sourcya.playx_model_viewer.core.utils.Resource
 import io.sourcya.playx_model_viewer.core.viewer.MyModelViewer
 import kotlinx.coroutines.*
-import timber.log.Timber
 
+/**
+ * class to handle method calls from the Flutter side of the plugin.
+ */
 class PlayXMethodHandler(
     private val messenger: BinaryMessenger,
     private val modelViewer: MyModelViewer?,
     private val id: Int,
 ) : MethodCallHandler {
 
-    private var job : Job = SupervisorJob()
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main +job)
-    private  var  methodChannel :MethodChannel? = null
+    private var job: Job = SupervisorJob()
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
+    private var methodChannel: MethodChannel? = null
 
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-
-
         when (call.method) {
             changeAnimationByIndex -> changeAnimationByIndex(call, result)
             changeAnimationByName -> changeAnimationByName(call, result)
@@ -40,14 +40,14 @@ class PlayXMethodHandler(
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
             else -> result.notImplemented()
-
-
         }
-
-
     }
 
-
+    /**
+     *  Changes the current animation by index.
+     *      it takes an Int? index as an argument.
+     *      and returns the new animation index.
+     */
     private fun changeAnimationByIndex(call: MethodCall, result: MethodChannel.Result) {
         val animationIndex = getValue<Int>(call, changeAnimationByIndexKey)
         when (val resource = modelViewer?.changeAnimation(animationIndex)) {
@@ -61,9 +61,63 @@ class PlayXMethodHandler(
         }
     }
 
+    /**
+     *  Changes the current animation by animation name.
+     *  it takes an String? animation name as an argument.
+     *  and returns the new animation index.
+     */
     private fun changeAnimationByName(call: MethodCall, result: MethodChannel.Result) {
         val animationName = getValue<String>(call, changeAnimationByNameKey)
         when (val resource = modelViewer?.changeAnimationByName(animationName)) {
+            is Resource.Success -> result.success(resource.data)
+            is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+            else -> result.error(
+                "Model viewer isn't initialized.",
+                "Model viewer isn't initialized.",
+                null
+            )
+        }
+    }
+
+    /**
+     *Get current model animation names.
+     */
+    private fun getAnimationNames(call: MethodCall, result: MethodChannel.Result) {
+        if (modelViewer != null) {
+            result.success(modelViewer.getAnimationNames())
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
+
+    /**
+     *Get current model animation count.
+     */
+    private fun getAnimationCount(call: MethodCall, result: MethodChannel.Result) {
+        if (modelViewer != null) {
+            result.success(modelViewer.getAnimationCount())
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
+
+    /**
+     *Get current model animation index.
+     */
+    private fun getCurrentAnimationIndex(call: MethodCall, result: MethodChannel.Result) {
+        if (modelViewer != null) {
+            result.success(modelViewer.getCurrentAnimationIndex())
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
+
+    /**
+     *Get animation name from index.
+     */
+    private fun getAnimationNameByIndex(call: MethodCall, result: MethodChannel.Result) {
+        val index = getValue<Int>(call, getAnimationNameByIndexKey)
+        when (val resource = modelViewer?.getAnimationNameByIndex(index)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
             else -> result.error(
@@ -75,44 +129,12 @@ class PlayXMethodHandler(
         }
     }
 
-    private fun getAnimationNames(call: MethodCall, result: MethodChannel.Result) {
-        if (modelViewer != null) {
-            result.success(modelViewer.getAnimationNames())
-        } else {
-            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
-        }
-    }
-
-
-    private fun getAnimationCount(call: MethodCall, result: MethodChannel.Result) {
-        if (modelViewer != null) {
-            result.success(modelViewer.getAnimationCount())
-        } else {
-            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
-        }
-    }
-
-    private fun getCurrentAnimationIndex(call: MethodCall, result: MethodChannel.Result) {
-        if (modelViewer != null) {
-            result.success(modelViewer.getCurrentAnimationIndex())
-        } else {
-            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
-        }
-    }
-
-    private fun getAnimationNameByIndex(call: MethodCall, result: MethodChannel.Result) {
-        val index = getValue<Int>(call, getAnimationNameByIndexKey)
-        when (val resource = modelViewer?.getAnimationNameByIndex(index)) {
-            is Resource.Success -> result.success(resource.data)
-            is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
-            else -> result.error(
-                "Model viewer isn't initialized.",
-                "Model viewer isn't initialized.",
-                null)
-
-        }
-    }
-
+    /**
+     *  change environment by given asset path.
+     *  it takes an String? asset path as an argument.
+     *  should be provided with the KTX skybox file.
+     *  so it can update the environment skybox with it.
+     */
     private fun changeEnvironmentByAsset(call: MethodCall, result: MethodChannel.Result) {
         coroutineScope.launch {
             val assetPath = getValue<String>(call, changeEnvironmentByAssetKey)
@@ -122,35 +144,49 @@ class PlayXMethodHandler(
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
-                    null)
+                    null
+                )
             }
         }
     }
 
-
+    /**  change environment by given color.
+     * it takes an Color?  as an argument.
+     * and updates the environment skybox color
+     */
     private fun changeEnvironmentColor(call: MethodCall, result: MethodChannel.Result) {
         val color: Int? = getValue<Long>(call, changeEnvironmentColorKey)?.toInt()
-        Timber.d("changeEnvironmentColor $color arguments :${call.arguments}")
-
         when (val resource = modelViewer?.changeEnvironmentColor(color)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
             else -> result.error(
-            "Model viewer isn't initialized.",
-            "Model viewer isn't initialized.",
-            null)
+                "Model viewer isn't initialized.",
+                "Model viewer isn't initialized.",
+                null
+            )
         }
     }
 
+    /**
+     * change environment to be transparent
+     */
     private fun changeToTransparentEnvironment(call: MethodCall, result: MethodChannel.Result) {
         if (modelViewer != null) {
             modelViewer.changeToTransparentEnvironment()
-             result.success("Environment changed to Transparent")
+            result.success("Environment changed to Transparent")
         } else {
             result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
         }
     }
 
+    /**
+     *change scene indirect light by given asset path.
+     * it takes an String? asset path as an argument.
+     * and can take light intensity as an argument.
+     * should be provided with the KTX image based lighting file.
+     * so it can update the scene light with it.
+     * if intensity is provide, it will update the scene light intensity with it.
+     */
     private fun changeLightByAsset(call: MethodCall, result: MethodChannel.Result) {
         val assetPath: String? = getValue(call, changeLightByAssetKey)
         val intensity: Double? = getValue(call, changeLightByAssetIntensityKey)
@@ -162,11 +198,18 @@ class PlayXMethodHandler(
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
-                    null)
+                    null
+                )
             }
 
         }
     }
+
+    /**
+     * change scene indirect light by given intensity.
+     * it takes light intensity as an argument.
+     * and update the scene light intensity with it.
+     */
 
     private fun changeLightByIntensity(call: MethodCall, result: MethodChannel.Result) {
         val intensity: Double? = getValue(call, changeLightByIntensityKey)
@@ -177,11 +220,15 @@ class PlayXMethodHandler(
             else -> result.error(
                 "Model viewer isn't initialized.",
                 "Model viewer isn't initialized.",
-                null)
+                null
+            )
         }
     }
 
 
+    /**
+     *change scene indirect light to the default intensity which is 40_000.0.
+     */
     private fun changeToDefaultLightIntensity(call: MethodCall, result: MethodChannel.Result) {
         if (modelViewer != null) {
             modelViewer.changeToDefaultLight()
@@ -192,6 +239,12 @@ class PlayXMethodHandler(
     }
 
 
+    /**
+     * Load glb model from assets.
+     * it takes asset path as an argument.
+     * and update the current model with it.
+
+     */
     private fun loadGlbModelFromAssets(call: MethodCall, result: MethodChannel.Result) {
         val assetPath: String? = getValue(call, loadGlbModelFromAssetsPathKey)
         coroutineScope.launch {
@@ -201,11 +254,17 @@ class PlayXMethodHandler(
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
-                    null)
+                    null
+                )
             }
         }
     }
 
+    /**
+     *   * Load glb model from url.
+     * it takes url as an argument.
+     * and update the current model with it.
+     */
     private fun loadGlbModelFromUrl(call: MethodCall, result: MethodChannel.Result) {
         val url: String? = getValue(call, loadGlbModelFromUrlKey)
         coroutineScope.launch {
@@ -215,15 +274,34 @@ class PlayXMethodHandler(
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
-                    null)
+                    null
+                )
             }
         }
     }
 
+
+    /**
+     * Load gltf  model from assets.
+     * it takes asset path as an argument.
+     * and prefix for gltf image assets.
+     * if the images path that in the gltf file different from the flutter asset path,
+     * you can add prefix to the images path to be before the image.
+     * LIKE if in the gltf file, the image path is textures/texture.png
+     * and in assets the image path is assets/models/textures/texture.png
+     * you will need to add prefix to be 'assets/models/'.
+     *and postfix path for gltf image assets.
+     * if the images path that in the gltf file different from the flutter asset path,
+     * you can add postfix to the images path to be after the image.
+     * LIKE if in the gltf file, the image path is assets/textures/texture
+     * and in assets the image path is assets/textures/texture.png
+     * you will need to add prefix to be '.png'.
+     * and update the current model with it.
+     */
     private fun loadGltfModelFromAssets(call: MethodCall, result: MethodChannel.Result) {
         val assetPath: String? = getValue(call, loadGltfModelFromAssetsPathKey)
-        val prefix :String = getValue(call, loadGltfModelFromAssetsPrefixPathKey) ?:""
-        val postfix:String = getValue(call, loadGltfModelFromAssetsPostfixPathKey) ?:""
+        val prefix: String = getValue(call, loadGltfModelFromAssetsPrefixPathKey) ?: ""
+        val postfix: String = getValue(call, loadGltfModelFromAssetsPostfixPathKey) ?: ""
         coroutineScope.launch {
             when (val resource = modelViewer?.loadGltfModelFromAssets(assetPath, prefix, postfix)) {
                 is Resource.Success -> result.success(resource.data)
@@ -231,7 +309,8 @@ class PlayXMethodHandler(
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
-                    null)
+                    null
+                )
             }
         }
     }
@@ -250,7 +329,7 @@ class PlayXMethodHandler(
     }
 
     fun startListeningToChannel() {
-       methodChannel = MethodChannel(messenger, "${PlayxModelViewerPlugin.channelName}_$id")
+        methodChannel = MethodChannel(messenger, "${PlayxModelViewerPlugin.channelName}_$id")
         methodChannel?.setMethodCallHandler(this)
         job = SupervisorJob()
 
@@ -305,8 +384,10 @@ class PlayXMethodHandler(
 
         const val loadGltfModelFromAssets = "LOAD_GLTF_MODEL_FROM_ASSETS"
         const val loadGltfModelFromAssetsPathKey = "LOAD_GLTF_MODEL_FROM_ASSETS_PATH_KEY"
-        const val loadGltfModelFromAssetsPrefixPathKey = "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY"
-        const val loadGltfModelFromAssetsPostfixPathKey = "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
+        const val loadGltfModelFromAssetsPrefixPathKey =
+            "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY"
+        const val loadGltfModelFromAssetsPostfixPathKey =
+            "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
 
 
     }

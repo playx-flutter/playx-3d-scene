@@ -23,6 +23,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
+/**
+ * This is the main class to handle filament engine.
+ * and provide the model viewer for a surface view.
+ */
 class MyModelViewer constructor(
     private val context: Context,
     private val engine:Engine,
@@ -36,7 +40,6 @@ class MyModelViewer constructor(
     private var lightIntensity: Double? = null,
     private var environmentAssetPath: String? = null,
     private var environmentColor: Int? = null,
-
     private val animationIndex: Int? = null,
     private val animationName: String? = null,
     private val autoPlay: Boolean = false,

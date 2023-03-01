@@ -9,18 +9,67 @@ typedef PlayXModelViewerCreatedCallback = void Function(
     PlayXModelViewerController controller);
 
 class PlayXModelViewer extends StatefulWidget {
+  /// glb asset path to be loaded from assets.
   final String? glbAssetPath;
+
+  /// glb model url to be loaded from url.
   final String? glbUrl;
+
+  /// gltf asset path to be loaded from assets.
   final String? gltfAssetPath;
+
+  /// prefix for gltf image assets.
+  /// if the images path that in the gltf file different from the flutter asset path,
+  /// you can add prefix to the images path to be before the image.
+  /// LIKE if in the gltf file, the image path is textures/texture.png
+  /// and in assets the image path is assets/models/textures/texture.png
+  /// you will need to add prefix to be 'assets/models/'.
   final String gltfImagePathPrefix;
+
+  /// postfix path for gltf image assets.
+  /// if the images path that in the gltf file different from the flutter asset path,
+  /// you can add postfix to the images path to be after the image.
+  /// LIKE if in the gltf file, the image path is assets/textures/texture
+  /// and in assets the image path is assets/textures/texture.png
+  /// you will need to add prefix to be '.png'.
   final String gltfImagePathPostfix;
+
+  /// light asset path used to load KTX FILE from assets.
+  /// used to change indirect lighting from Image-Based Light.
   final String? lightAssetPath;
+
+  /// indirect light intensity.
+  /// can be used with light asset path.
+  /// or create default light with certain intensity.
   final double? lightIntensity;
+
+  /// environment asset path used to load KTX FILE from assets.
+  /// changes scene skybox from images converted to KTX FILE.
+  /// Filament provides an offline tool called cmgen
+  /// that can consume an image
+  /// and produce Light and skybox ktx files in one fell swoop.
   final String? environmentAssetPath;
+
+  /// Environment Color.
+  /// Changes the background color for the scene.
+  /// if not provided and environment asset path is not provided,
+  /// A Transparent color will be used.
   final Color? environmentColor;
+
+  /// Animation Index of the Animation to be used.
   final int? animationIndex;
+
+  /// Animation Name of the Animation to be used.
   final String? animationName;
+
+  /// auto play : decides whether to play the animation automatically or not
+  /// default is false.
   final bool autoPlay;
+
+  /// onCreated callback provides PlayX Model viewer controller.
+  /// when the viewer is created.
+  /// provides utility methods to update the viewer.
+  /// you can use it to change the animation, environment, lightening, etc.
   final PlayXModelViewerCreatedCallback? onCreated;
 
   const PlayXModelViewer({
