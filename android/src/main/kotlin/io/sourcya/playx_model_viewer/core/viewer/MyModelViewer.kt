@@ -5,24 +5,27 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Choreographer
 import android.view.SurfaceView
+import com.google.android.filament.Engine
 import com.google.android.filament.View
 import com.google.android.filament.utils.Manipulator
 import com.google.android.filament.utils.Mat4
 import com.google.android.filament.utils.ModelViewer
-import com.google.android.filament.utils.Utils
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_model_viewer.core.animation.AnimationManger
 import io.sourcya.playx_model_viewer.core.environment.EnvironmentManger
 import io.sourcya.playx_model_viewer.core.light.LightManger
 import io.sourcya.playx_model_viewer.core.loader.GlbLoader
 import io.sourcya.playx_model_viewer.core.loader.GltfLoader
+import io.sourcya.playx_model_viewer.core.utils.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
 class MyModelViewer constructor(
     private val context: Context,
+    private val engine:Engine,
     private val flutterAssets: FlutterAssets,
     private val glbAssetPath: String? = null,
     private val glbUrl: String? = null,
@@ -57,6 +60,7 @@ class MyModelViewer constructor(
         EnvironmentManger.getInstance(modelViewer, context, flutterAssets)
     }
 
+    private var modelJob :Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val animationManger: AnimationManger by lazy {
@@ -72,14 +76,10 @@ class MyModelViewer constructor(
 
 
     init {
-
         setUpViewer()
         setUpEnvironment()
         setUpLight()
-        loadModel()
-        setUpAnimation()
-
-
+        setUpLoadingModel()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -88,7 +88,7 @@ class MyModelViewer constructor(
 
         choreographer = Choreographer.getInstance()
 
-        modelViewer = ModelViewer(surfaceView)
+        modelViewer = ModelViewer(surfaceView,engine)
 
 
         surfaceView.setOnTouchListener(modelViewer)
@@ -130,15 +130,22 @@ class MyModelViewer constructor(
 
     }
 
-    private fun loadModel() {
-        coroutineScope.launch {
+    private fun setUpLoadingModel() {
+        modelJob= coroutineScope.launch {
             if (!glbAssetPath.isNullOrEmpty()) {
                 glbLoader.loadGlbFromAsset(glbAssetPath)
             } else if (!glbUrl.isNullOrEmpty()) {
                 glbLoader.loadGlbFromUrl(glbUrl)
+
             } else if (!gltfAssetPath.isNullOrEmpty()) {
-                gltfLoader.loadGltfFromAsset(gltfAssetPath, gltfImagePathPrefix, gltfImagePathPostfix)
+                gltfLoader.loadGltfFromAsset(
+                    gltfAssetPath,
+                    gltfImagePathPrefix,
+                    gltfImagePathPostfix
+                )
+
             }
+            setUpAnimation()
 
         }
 
@@ -188,7 +195,7 @@ class MyModelViewer constructor(
     }
 
 
-    fun makeSurfaceViewTransparent() {
+    private fun makeSurfaceViewTransparent() {
         modelViewer.view.blendMode = View.BlendMode.TRANSLUCENT
         surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
 
@@ -199,7 +206,7 @@ class MyModelViewer constructor(
 
     }
 
-    fun makeSurfaceViewNotTransparent() {
+    private fun makeSurfaceViewNotTransparent() {
         modelViewer.view.blendMode = View.BlendMode.OPAQUE
         surfaceView.setZOrderOnTop(true) // necessary
         surfaceView.holder.setFormat(PixelFormat.OPAQUE)
@@ -207,40 +214,82 @@ class MyModelViewer constructor(
     }
 
 
-    fun changeAnimation(animationIndex: Int) {
-        currentAnimationIndex = animationIndex
+    fun getAnimationCount(): Int {
+        return animationManger.getAnimationCount()
     }
 
-    fun changeAnimation(animationName: String) {
-        currentAnimationIndex = animationManger.getAnimationIndexByName(animationName)
+    fun changeAnimation(animationIndex: Int?): Resource<Int> {
+        return if (animationIndex == null) {
+            Resource.Error("Animation index is not available")
+        } else if (animationIndex >= getAnimationCount() || animationIndex < 0) {
+            Resource.Error("Animation index is not valid")
+        } else {
+            currentAnimationIndex = animationIndex
+            Resource.Success(animationIndex.toInt())
+        }
+    }
+
+
+    fun changeAnimationByName(animationName: String?): Resource<Int> {
+        return if (animationName.isNullOrEmpty()) {
+            Resource.Error("Animation name is not valid")
+        } else {
+            val animationIndex = animationManger.getAnimationIndexByName(animationName)
+            if (animationIndex == -1) {
+                Resource.Error("Couldn't find animation with name $animationName")
+            } else {
+                currentAnimationIndex = animationIndex
+                Resource.Success(animationIndex)
+            }
+        }
+
     }
 
     fun getAnimationNames() = animationManger.getAnimationNames()
 
 
-    fun changeEnvironment(assetPath: String?) {
-        removeFrameCallback()
-        environmentAssetPath = assetPath
-        coroutineScope.launch {
-            if (assetPath != null) {
-                makeSurfaceViewNotTransparent()
-                environmentManger.setEnvironmentFromAsset(assetPath)
+    fun getCurrentAnimationIndex() = currentAnimationIndex
+
+
+    fun getAnimationNameByIndex(index: Int?): Resource<String> {
+        return if (index == null) {
+            Resource.Error("Animation index is not available")
+        } else if (index >= getAnimationCount() || index < 0) {
+            Resource.Error("Animation index is not valid")
+        } else {
+            val name = animationManger.getAnimationNameByIndex(index)
+            if (name.isNullOrEmpty()) {
+                Resource.Error("Couldn't find animation name with index $index")
+            } else {
+                Resource.Success(name)
             }
         }
-        addFrameCallback()
+
     }
 
 
-    fun changeEnvironmentColor(color: Int?) {
+    suspend fun changeEnvironment(assetPath: String?): Resource<String> {
         removeFrameCallback()
-        environmentColor = color
-        coroutineScope.launch {
-            if (color != null) {
-                makeSurfaceViewNotTransparent()
-                environmentManger.setEnvironmentFromColor(color)
-            }
+        val resource = environmentManger.setEnvironmentFromAsset(assetPath)
+        if (resource is Resource.Success) {
+            makeSurfaceViewNotTransparent()
+            environmentAssetPath = assetPath
         }
         addFrameCallback()
+        return resource
+    }
+
+
+    fun changeEnvironmentColor(color: Int?): Resource<String> {
+
+        removeFrameCallback()
+        val resource = environmentManger.setEnvironmentFromColor(color)
+        if(resource is Resource.Success) {
+            environmentColor = color
+            makeSurfaceViewNotTransparent()
+        }
+        addFrameCallback()
+        return resource
     }
 
     fun changeToTransparentEnvironment() {
@@ -250,27 +299,70 @@ class MyModelViewer constructor(
         addFrameCallback()
     }
 
-    fun changeLight(assetPath: String?, intensity: Double? = null) {
+    suspend fun changeLight(assetPath: String?, intensity: Double? = null): Resource<String> {
         removeFrameCallback()
-        lightAssetPath = assetPath
-        lightIntensity = intensity
-        coroutineScope.launch {
-            if (assetPath != null) {
-                lightManger.setIndirectLightFromAsset(assetPath, intensity)
-            }
-            addFrameCallback()
+        val resource = lightManger.setIndirectLightFromAsset(assetPath, intensity)
+        if (resource is Resource.Success) {
+            lightAssetPath = assetPath
+            lightIntensity = intensity
         }
+        addFrameCallback()
+        return resource
+
     }
 
-    fun changeLight(intensity: Double?) {
-        removeFrameCallback()
-        lightIntensity = intensity
-        coroutineScope.launch {
-            if (intensity != null) {
-                lightManger.setIndirectLight(intensity)
-            }
+    fun changeLight(intensity: Double?): Resource<String> {
+        return if (intensity != null) {
+            removeFrameCallback()
+            lightIntensity = intensity
+            lightManger.setIndirectLight(intensity)
             addFrameCallback()
+            Resource.Success("changed light Intensity successfully")
+        } else {
+            Resource.Error("light Intensity is invalid")
         }
+
+    }
+
+
+    fun changeToDefaultLight() {
+        removeFrameCallback()
+        lightIntensity = LightManger.DEFAULT_LIGHT_INTENSITY
+        lightManger.setDefaultLight()
+        addFrameCallback()
+
+    }
+
+
+    suspend fun loadGlbModelFromAssets(assetPath: String?): Resource<String> {
+        removeFrameCallback()
+        modelJob?.cancel()
+        val resource = glbLoader.loadGlbFromAsset(assetPath)
+        addFrameCallback()
+        return resource
+    }
+
+    suspend fun loadGlbModelFromUrl(url: String?): Resource<String> {
+        removeFrameCallback()
+        modelJob?.cancel()
+        val resource = glbLoader.loadGlbFromUrl(url)
+        addFrameCallback()
+        return resource
+    }
+
+    suspend fun loadGltfModelFromAssets(
+        assetPath: String?,
+        gltfImagePathPrefix: String = "",
+        gltfImagePathPostfix: String = ""
+    ): Resource<String> {
+        removeFrameCallback()
+        modelJob?.cancel()
+
+        val resource =
+            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix)
+        addFrameCallback()
+        return resource
+
     }
 
 
@@ -292,7 +384,10 @@ class MyModelViewer constructor(
 
 
     fun handleOnResume() {
+        surfaceView.invalidate()
+        surfaceView.setZOrderOnTop(true)
         addFrameCallback()
+
     }
 
     fun handleOnPause() {
@@ -312,18 +407,10 @@ class MyModelViewer constructor(
 
 
     fun destroy() {
-
+        removeFrameCallback()
     }
 
 
-    companion object {
-
-        init {
-            Utils.init()
-        }
-
-
-    }
 
     private fun Int.getTransform(): Mat4 {
         val tm = modelViewer.engine.transformManager

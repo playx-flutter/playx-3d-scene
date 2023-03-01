@@ -3,8 +3,9 @@ package io.sourcya.playx_model_viewer.core.animation
 import android.annotation.SuppressLint
 import android.content.Context
 import com.google.android.filament.utils.ModelViewer
+import java.util.*
 
-class AnimationManger  private constructor(
+internal class AnimationManger  private constructor(
     private val modelViewer: ModelViewer,
     private val context: Context
 ){
@@ -28,7 +29,7 @@ class AnimationManger  private constructor(
     fun getAnimationCount() =  modelViewer.animator?.animationCount ?: 0
 
 
-    fun getAnimationNameByIndex(index: Int) = modelViewer.animator?.getAnimationName(index)
+     fun getAnimationNameByIndex(index: Int) = modelViewer.animator?.getAnimationName(index)
 
     fun getAnimationNames(): List<String> {
         val names = mutableListOf<String>()
@@ -40,8 +41,10 @@ class AnimationManger  private constructor(
     }
 
     fun getAnimationIndexByName(name: String) :Int{
-        val names = getAnimationNames()
-        return names.indexOf(name)
+        val names = getAnimationNames().map {
+             it.lowercase()
+        }
+        return names.indexOf(name.lowercase())
     }
 
 

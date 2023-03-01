@@ -1,22 +1,15 @@
 package io.sourcya.playx_model_viewer.view
 
 import android.content.Context
-import android.graphics.Color
-import android.util.Log
-import android.view.SurfaceView
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.annotation.NonNull
-import io.flutter.embedding.android.FlutterView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.google.android.filament.Engine
+import com.google.android.filament.utils.Utils
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.renderer.FlutterRenderer
-import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import io.sourcya.playx_model_viewer.PlayXMethodHandler
-import io.sourcya.playx_model_viewer.PlayxModelViewerPlugin.Companion.channelName
 import io.sourcya.playx_model_viewer.core.viewer.MyModelViewer
 import timber.log.Timber
 
@@ -25,29 +18,29 @@ class PlayXModelViewer(
     private val context: Context,
     private val id: Int,
     private val creationParams: Map<String?, Any?>?,
-    private val binding: FlutterPlugin.FlutterPluginBinding
-) : PlatformView {
+    private val binding: FlutterPlugin.FlutterPluginBinding,
+    private val lifecycleProvider: LifecycleProvider
+) : PlatformView, LifecycleEventObserver {
 
-    private lateinit var modelViewer: MyModelViewer
-    private lateinit var methodChannel: MethodChannel
+    private var modelViewer: MyModelViewer? = null
+    private var playXMethodHandler: PlayXMethodHandler? = null
+    private val engine = Engine.create()
 
     init {
         setUpModelViewer()
-        setUpChannel()
     }
 
 
     private fun setUpModelViewer() {
-        Timber.d("PLAYX MODEL VIEWER 1: #setUpModelViewer $creationParams")
-
         modelViewer = MyModelViewer(
             context,
+            engine,
             binding.flutterAssets,
             glbAssetPath = getValue(glbAssetPathKey),
             glbUrl = getValue(glbUrlKey),
             gltfAssetPath = getValue(gltfAssetPathKey),
-            gltfImagePathPrefix = getValue(gltfImagePathPrefixKey)?:"",
-            gltfImagePathPostfix = getValue(gltfImagePathPostfixKey) ?:"",
+            gltfImagePathPrefix = getValue(gltfImagePathPrefixKey) ?: "",
+            gltfImagePathPostfix = getValue(gltfImagePathPostfixKey) ?: "",
             lightAssetPath = getValue(lightAssetPathKey),
             lightIntensity = getValue(lightIntensityKey),
             environmentAssetPath = getValue(environmentAssetPathKey),
@@ -60,77 +53,62 @@ class PlayXModelViewer(
 
     }
 
-    private fun setUpChannel() {
-        Timber.d("PLAYX MODEL VIEWER : #setUpChannel")
+    private fun listenToChannel() {
 
-        methodChannel = MethodChannel(binding.binaryMessenger, "${channelName}_$id")
-        methodChannel.setMethodCallHandler(PlayXMethodHandler(binding.flutterAssets))
+        playXMethodHandler = PlayXMethodHandler(binding.binaryMessenger, modelViewer, id)
+        playXMethodHandler?.startListeningToChannel()
+        lifecycleProvider.getLifecycle()?.addObserver(this)
 
     }
+
+    private fun stopListeningToChannel() {
+
+        playXMethodHandler?.stopListeningToChannel()
+        playXMethodHandler = null
+        lifecycleProvider.getLifecycle()?.removeObserver(this)
+
+    }
+
 
     override fun onFlutterViewAttached(flutterView: View) {
+        listenToChannel()
+        modelViewer?.handleOnResume()
+
         super.onFlutterViewAttached(flutterView)
-        modelViewer.handleOnResume()
     }
+
 
     override fun onFlutterViewDetached() {
+        stopListeningToChannel()
+        modelViewer?.handleOnPause()
         super.onFlutterViewDetached()
-        modelViewer.handleOnPause()
+
     }
 
-    override fun getView(): View {
-        Timber.d("PLAYX MODEL VIEWER : #getView")
-
-        return modelViewer.surfaceView
+    override fun getView(): View? {
+        return modelViewer?.surfaceView
     }
 
     override fun dispose() {
-        modelViewer.destroy()
+        modelViewer?.destroy()
+        stopListeningToChannel()
     }
 
 
     private inline fun <reified T> getValue(key: String, default: T? = null): T? {
-
         val item = creationParams?.get(key)
-        Timber.d(
-            "MY PLAYX MODEL VIEWER 1: getValue " +
-                    ":$key : item :$item "
-        )
 
-        if (item != null) {
-
-
-            try {
-                Timber.d(
-                    "MY PLAYX MODEL VIEWER 4: getValue :$key :" +
-                            " item :${item as T?}"
-                )
-
-            } catch (e: Throwable) {
-                Timber.d(
-                    "MY PLAYX MODEL VIEWER 5: getValue :$key :" +
-                            " message :${e.message}"
-                )
-
-            }
-
-            if (item is T) {
-                Timber.d(
-                    "MY PLAYX MODEL VIEWER 2: getValue :$key :" +
-                            " item :$item value $item"
-                )
-                return item
-            }
-            Timber.d(
-                "MY PLAYX MODEL VIEWER 3: getValue :$key :" +
-                        " item :$item value $item"
-            )
-
+        if (item is T) {
+            return item
         }
         return default
     }
 
     companion object {
+
+        init {
+            Utils.init()
+        }
 
         const val glbAssetPathKey = "GLB_ASSET_PATH_KEY"
         const val glbUrlKey = "GLB_URL_KEY"
@@ -145,6 +123,14 @@ class PlayXModelViewer(
         const val animationNameKey = "ANIMATION_NAME_KEY"
         const val autoPlayKey = "AUTO_PLAY_KEY"
 
+
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            modelViewer?.handleOnResume()
+        }
+        else if (event == Lifecycle.Event.ON_PAUSE) modelViewer?.handleOnPause()
 
     }
 }

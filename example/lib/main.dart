@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:playx_model_viewer/controller/playx_model_viewer_controller.dart';
 import 'package:playx_model_viewer/view/playx_model_viewer.dart';
 
 void main() {
@@ -26,20 +25,10 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Container(
             color: Colors.yellow,
-            child: PlayXModelViewer(
+            child: const PlayXModelViewer(
               glbAssetPath: "assets/models/Fox.glb",
-              environmentAssetPath:
-                  "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx",
-              onCreated: (PlayXModelViewerController controller) {},
               autoPlay: true,
               animationIndex: 0,
-              // lightIntensity: 30000.0,
-              // gltfAssetPath: "assets/models/BusterDrone.gltf",
-              //   gltfImagePathPrefix: "assets/models/",
-              // environmentColor: Colors.white,
-              //  lightIntensity: 50000.0,
-              // lightAssetPath:
-              // "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx",
             ),
           ),
         ),

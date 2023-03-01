@@ -9,9 +9,6 @@ typedef PlayXModelViewerCreatedCallback = void Function(
     PlayXModelViewerController controller);
 
 class PlayXModelViewer extends StatefulWidget {
-  // This is used in the platform side to register the view.
-// Pass parameters to the platform side.
-
   final String? glbAssetPath;
   final String? glbUrl;
   final String? gltfAssetPath;
@@ -24,7 +21,7 @@ class PlayXModelViewer extends StatefulWidget {
   final int? animationIndex;
   final String? animationName;
   final bool autoPlay;
-  final PlayXModelViewerCreatedCallback onCreated;
+  final PlayXModelViewerCreatedCallback? onCreated;
 
   const PlayXModelViewer({
     super.key,
@@ -40,7 +37,7 @@ class PlayXModelViewer extends StatefulWidget {
     this.animationIndex,
     this.animationName,
     this.autoPlay = false,
-    required this.onCreated,
+    this.onCreated,
   });
 
   @override
@@ -90,31 +87,6 @@ class PlayxModelViewerState extends State<PlayXModelViewer> {
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      //   return PlatformViewLink(
-      //     viewType: viewType,
-      //     surfaceFactory: (context, controller) {
-      //       return AndroidViewSurface(
-      //         controller: controller as AndroidViewController,
-      //         gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
-      //         hitTestBehavior: PlatformViewHitTestBehavior.opaque,
-      //       );
-      //     },
-      //     onCreatePlatformView: (params) {
-      //       return PlatformViewsService.initExpensiveAndroidView(
-      //         id: params.id,
-      //         viewType: viewType,
-      //         layoutDirection: TextDirection.ltr,
-      //         creationParams: creationParams,
-      //         creationParamsCodec: const StandardMessageCodec(),
-      //         onFocus: () {
-      //           params.onFocusChanged(true);
-      //         },
-      //       )
-      //         ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-      //         ..create();
-      //     },
-      //   );
-      // }
       return AndroidView(
         viewType: viewType,
         creationParams: creationParams,
@@ -126,6 +98,8 @@ class PlayxModelViewerState extends State<PlayXModelViewer> {
   }
 
   void _onPlatformViewCreated(int id) {
-    widget.onCreated(PlayXModelViewerController(id: id));
+    if (widget.onCreated != null) {
+      widget.onCreated!(PlayXModelViewerController(id: id));
+    }
   }
 }
