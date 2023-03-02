@@ -9,11 +9,12 @@ import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.sourcya.playx_model_viewer.core.utils.Resource
 import io.sourcya.playx_model_viewer.core.utils.readAsset
+import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal class EnvironmentManger private constructor(
-    private val modelViewer: ModelViewer,
+internal class EnvironmentManger  constructor(
+    private val modelViewer: CustomModelViewer?,
     private val context: Context,
     private val flutterAssets: FlutterPlugin.FlutterAssets
 
@@ -26,6 +27,11 @@ internal class EnvironmentManger private constructor(
 
     suspend fun setEnvironmentFromAsset(path: String?): Resource<String> {
      return   withContext(Dispatchers.IO) {
+         if(modelViewer == null) {
+             return@withContext Resource.Error(
+                 "model viewer is not initialized"
+             )
+         }else {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
@@ -35,17 +41,25 @@ internal class EnvironmentManger private constructor(
                             modelViewer.scene.skybox = skybox
                         }
                     }
-                  return@withContext  Resource.Success("Loaded environment successfully from ${path?:""}")
+                    return@withContext Resource.Success("Loaded environment successfully from ${path ?: ""}")
                 }
                 is Resource.Error -> {
-                    return@withContext Resource.Error(bufferResource.message ?:"Couldn't change environment from asset")
+                    return@withContext Resource.Error(
+                        bufferResource.message ?: "Couldn't change environment from asset"
+                    )
                 }
+            }
             }
         }
     }
 
 
      fun setEnvironmentFromColor(color: Int?) : Resource<String> {
+         if(modelViewer == null) {
+             return Resource.Error(
+                 "model viewer is not initialized"
+             )
+         }
         if (color == null) return Resource.Error("Color is Invalid" )
         val red: Float = Color.red(color) / 255f
         val green: Float = Color.green(color) / 255f
@@ -60,7 +74,7 @@ internal class EnvironmentManger private constructor(
     }
 
     fun setTransparentEnvironment() {
-        modelViewer.scene.skybox = null
+        modelViewer?.scene?.skybox = null
     }
 
 
@@ -70,7 +84,7 @@ internal class EnvironmentManger private constructor(
         private var INSTANCE: EnvironmentManger? = null
 
         fun getInstance(
-            modelViewer: ModelViewer,
+            modelViewer: CustomModelViewer,
             context: Context,
             flutterAssets: FlutterPlugin.FlutterAssets
         ): EnvironmentManger =

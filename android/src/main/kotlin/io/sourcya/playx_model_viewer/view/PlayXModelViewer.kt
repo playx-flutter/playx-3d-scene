@@ -6,12 +6,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
-import com.google.android.filament.utils.Utils
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
-import io.sourcya.playx_model_viewer.PlayXMethodHandler
-import io.sourcya.playx_model_viewer.core.viewer.MyModelViewer
-import timber.log.Timber
+import io.sourcya.playx_model_viewer.method_handler.PlayXMethodHandler
+import io.sourcya.playx_model_viewer.core.controller.ModelViewerController
+import io.sourcya.playx_model_viewer.utils.LifecycleProvider
 
 
 class PlayXModelViewer(
@@ -19,12 +18,12 @@ class PlayXModelViewer(
     private val id: Int,
     private val creationParams: Map<String?, Any?>?,
     private val binding: FlutterPlugin.FlutterPluginBinding,
+    private val engine: Engine,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
 
-    private var modelViewer: MyModelViewer? = null
+    private var modelViewer: ModelViewerController? = null
     private var playXMethodHandler: PlayXMethodHandler? = null
-    private val engine = Engine.create()
 
     init {
         setUpModelViewer()
@@ -32,7 +31,7 @@ class PlayXModelViewer(
 
 
     private fun setUpModelViewer() {
-        modelViewer = MyModelViewer(
+        modelViewer = ModelViewerController(
             context,
             engine,
             binding.flutterAssets,
@@ -54,15 +53,12 @@ class PlayXModelViewer(
     }
 
     private fun listenToChannel() {
-
         playXMethodHandler = PlayXMethodHandler(binding.binaryMessenger, modelViewer, id)
         playXMethodHandler?.startListeningToChannel()
         lifecycleProvider.getLifecycle()?.addObserver(this)
-
     }
 
     private fun stopListeningToChannel() {
-
         playXMethodHandler?.stopListeningToChannel()
         playXMethodHandler = null
         lifecycleProvider.getLifecycle()?.removeObserver(this)
@@ -86,14 +82,13 @@ class PlayXModelViewer(
     }
 
     override fun getView(): View? {
-        return modelViewer?.surfaceView
+        return modelViewer?.getView()
     }
 
     override fun dispose() {
         modelViewer?.destroy()
         stopListeningToChannel()
     }
-
 
     private inline fun <reified T> getValue(key: String, default: T? = null): T? {
         val item = creationParams?.get(key)
@@ -106,9 +101,6 @@ class PlayXModelViewer(
 
     companion object {
 
-        init {
-            Utils.init()
-        }
 
         const val glbAssetPathKey = "GLB_ASSET_PATH_KEY"
         const val glbUrlKey = "GLB_URL_KEY"
@@ -128,9 +120,12 @@ class PlayXModelViewer(
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
-            modelViewer?.handleOnResume()
+             modelViewer?.handleOnResume()
+
         }
-        else if (event == Lifecycle.Event.ON_PAUSE) modelViewer?.handleOnPause()
+        else if (event == Lifecycle.Event.ON_PAUSE){
+            modelViewer?.handleOnPause()
+        }
 
     }
 }

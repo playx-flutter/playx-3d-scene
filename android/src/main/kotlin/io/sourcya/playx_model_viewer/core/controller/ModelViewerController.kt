@@ -1,4 +1,4 @@
-package io.sourcya.playx_model_viewer.core.viewer
+package io.sourcya.playx_model_viewer.core.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,9 +7,6 @@ import android.view.Choreographer
 import android.view.SurfaceView
 import com.google.android.filament.Engine
 import com.google.android.filament.View
-import com.google.android.filament.utils.Manipulator
-import com.google.android.filament.utils.Mat4
-import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_model_viewer.core.animation.AnimationManger
 import io.sourcya.playx_model_viewer.core.environment.EnvironmentManger
@@ -17,6 +14,7 @@ import io.sourcya.playx_model_viewer.core.light.LightManger
 import io.sourcya.playx_model_viewer.core.loader.GlbLoader
 import io.sourcya.playx_model_viewer.core.loader.GltfLoader
 import io.sourcya.playx_model_viewer.core.utils.Resource
+import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,9 +25,9 @@ import kotlinx.coroutines.launch
  * This is the main class to handle filament engine.
  * and provide the model viewer for a surface view.
  */
-class MyModelViewer constructor(
+class ModelViewerController constructor(
     private val context: Context,
-    private val engine:Engine,
+    private var engine: Engine,
     private val flutterAssets: FlutterAssets,
     private val glbAssetPath: String? = null,
     private val glbUrl: String? = null,
@@ -45,37 +43,25 @@ class MyModelViewer constructor(
     private val autoPlay: Boolean = false,
 
     ) {
-    private lateinit var modelViewer: ModelViewer
-    private lateinit var choreographer: Choreographer
+    private var modelViewer: CustomModelViewer? = null
+    private val choreographer: Choreographer = Choreographer.getInstance()
 
-    private val glbLoader: GlbLoader by lazy {
-        GlbLoader.getInstance(modelViewer, context, flutterAssets)
-    }
-    private val gltfLoader: GltfLoader by lazy {
-        GltfLoader.getInstance(modelViewer, context, flutterAssets)
-    }
-
-    private val lightManger by lazy {
-        LightManger.getInstance(modelViewer, context, flutterAssets)
-    }
-
-    private val environmentManger by lazy {
-        EnvironmentManger.getInstance(modelViewer, context, flutterAssets)
-    }
-
-    private var modelJob :Job? = null
+    private var modelJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-    private val animationManger: AnimationManger by lazy {
-        AnimationManger.getInstance(modelViewer, context)
-    }
 
     private var currentAnimationIndex: Int? = null
 
+   private val surfaceView: SurfaceView = SurfaceView(context)
 
-    private lateinit var manip: Manipulator
+    private var glbLoader: GlbLoader? = null
 
-    lateinit var surfaceView: SurfaceView
+    private var gltfLoader: GltfLoader? = null
+
+    private var lightManger: LightManger? = null
+
+    private var environmentManger: EnvironmentManger? = null
+
+    private var animationManger: AnimationManger? = null
 
 
     init {
@@ -87,42 +73,50 @@ class MyModelViewer constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
-        surfaceView = SurfaceView(context)
-
-        choreographer = Choreographer.getInstance()
-
-        modelViewer = ModelViewer(surfaceView,engine)
-
+        modelViewer = CustomModelViewer(surfaceView, engine)
 
         surfaceView.setOnTouchListener(modelViewer)
         surfaceView.setZOrderOnTop(true) // necessary
 
 
-        val view = modelViewer.view
+        val view = modelViewer?.view
 
-        // on mobile, better use lower quality color buffer
-        view.renderQuality = view.renderQuality.apply {
-            hdrColorBuffer = View.QualityLevel.MEDIUM
+        view?.let {
+            // on mobile, better use lower quality color buffer
+            view.renderQuality = view.renderQuality.apply {
+                hdrColorBuffer = View.QualityLevel.MEDIUM
+            }
+
+            // dynamic resolution often helps a lot
+            view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
+                enabled = true
+                quality = View.QualityLevel.MEDIUM
+            }
+
+            // MSAA is needed with dynamic resolution MEDIUM
+            view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
+                enabled = true
+            }
+
+            // FXAA is pretty cheap and helps a lot
+            view.antiAliasing = View.AntiAliasing.FXAA
+
+            // ambient occlusion is the cheapest effect that adds a lot of quality
+            view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
+                enabled = true
+            }
         }
 
-        // dynamic resolution often helps a lot
-        view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
-            enabled = true
-            quality = View.QualityLevel.MEDIUM
-        }
 
-        // MSAA is needed with dynamic resolution MEDIUM
-        view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
-            enabled = true
-        }
+        glbLoader = GlbLoader(modelViewer, context, flutterAssets)
 
-        // FXAA is pretty cheap and helps a lot
-        view.antiAliasing = View.AntiAliasing.FXAA
+        gltfLoader = GltfLoader(modelViewer, context, flutterAssets)
 
-        // ambient occlusion is the cheapest effect that adds a lot of quality
-        view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
-            enabled = true
-        }
+        lightManger = LightManger(modelViewer, context, flutterAssets)
+
+        environmentManger = EnvironmentManger(modelViewer, context, flutterAssets)
+
+        animationManger = AnimationManger(modelViewer, context)
 
 
 //        // bloom is pretty expensive but adds a fair amount of realism
@@ -134,14 +128,14 @@ class MyModelViewer constructor(
     }
 
     private fun setUpLoadingModel() {
-        modelJob= coroutineScope.launch {
+        modelJob = coroutineScope.launch {
             if (!glbAssetPath.isNullOrEmpty()) {
-                glbLoader.loadGlbFromAsset(glbAssetPath)
+                glbLoader?.loadGlbFromAsset(glbAssetPath)
             } else if (!glbUrl.isNullOrEmpty()) {
-                glbLoader.loadGlbFromUrl(glbUrl)
+                glbLoader?.loadGlbFromUrl(glbUrl)
 
             } else if (!gltfAssetPath.isNullOrEmpty()) {
-                gltfLoader.loadGltfFromAsset(
+                gltfLoader?.loadGltfFromAsset(
                     gltfAssetPath,
                     gltfImagePathPrefix,
                     gltfImagePathPostfix
@@ -158,14 +152,14 @@ class MyModelViewer constructor(
     private fun setUpLight() {
         coroutineScope.launch {
             if (!lightAssetPath.isNullOrEmpty()) {
-                lightManger.setIndirectLightFromAsset(
+                lightManger?.setIndirectLightFromAsset(
                     lightAssetPath ?: "",
                     lightIntensity
                 )
             } else if (lightIntensity != null) {
-                lightManger.setIndirectLight(intensity = lightIntensity)
+                lightManger?.setIndirectLight(intensity = lightIntensity)
             } else {
-                lightManger.setDefaultLight()
+                lightManger?.setDefaultLight()
             }
         }
     }
@@ -173,11 +167,11 @@ class MyModelViewer constructor(
     private fun setUpEnvironment() {
         coroutineScope.launch {
             if (!environmentAssetPath.isNullOrEmpty()) {
-                environmentManger.setEnvironmentFromAsset(environmentAssetPath ?: "")
+                environmentManger?.setEnvironmentFromAsset(environmentAssetPath ?: "")
             } else if (environmentColor != null) {
-                environmentManger.setEnvironmentFromColor(environmentColor)
+                environmentManger?.setEnvironmentFromColor(environmentColor)
             } else {
-                environmentManger.setDefaultEnvironment()
+                environmentManger?.setDefaultEnvironment()
                 makeSurfaceViewTransparent()
             }
         }
@@ -190,7 +184,7 @@ class MyModelViewer constructor(
             if (animationIndex != null) {
                 currentAnimationIndex = animationIndex.toInt()
             } else if (!animationName.isNullOrEmpty()) {
-                currentAnimationIndex = animationManger.getAnimationIndexByName(animationName)
+                currentAnimationIndex = animationManger?.getAnimationIndexByName(animationName)
             }
         } else {
             currentAnimationIndex = null
@@ -199,18 +193,19 @@ class MyModelViewer constructor(
 
 
     private fun makeSurfaceViewTransparent() {
-        modelViewer.view.blendMode = View.BlendMode.TRANSLUCENT
-        surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
-
-        val options = modelViewer.renderer.clearOptions
-        options.clear = true
-        modelViewer.renderer.clearOptions = options
+        modelViewer?.let {
+            it.view.blendMode = View.BlendMode.TRANSLUCENT
+            surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
+            val options = it.renderer.clearOptions
+            options.clear = true
+            it.renderer.clearOptions = options
+        }
 
 
     }
 
     private fun makeSurfaceViewNotTransparent() {
-        modelViewer.view.blendMode = View.BlendMode.OPAQUE
+        modelViewer?.view?.blendMode = View.BlendMode.OPAQUE
         surfaceView.setZOrderOnTop(true) // necessary
         surfaceView.holder.setFormat(PixelFormat.OPAQUE)
 
@@ -218,7 +213,7 @@ class MyModelViewer constructor(
 
 
     fun getAnimationCount(): Int {
-        return animationManger.getAnimationCount()
+        return animationManger?.getAnimationCount() ?: 0
     }
 
     fun changeAnimation(animationIndex: Int?): Resource<Int> {
@@ -234,21 +229,25 @@ class MyModelViewer constructor(
 
 
     fun changeAnimationByName(animationName: String?): Resource<Int> {
-        return if (animationName.isNullOrEmpty()) {
-            Resource.Error("Animation name is not valid")
+        return if (animationManger == null) {
+            Resource.Error("Model viewer is not initialized")
         } else {
-            val animationIndex = animationManger.getAnimationIndexByName(animationName)
-            if (animationIndex == -1) {
-                Resource.Error("Couldn't find animation with name $animationName")
+            if (animationName.isNullOrEmpty()) {
+                Resource.Error("Animation name is not valid")
             } else {
-                currentAnimationIndex = animationIndex
-                Resource.Success(animationIndex)
+                val animationIndex = animationManger?.getAnimationIndexByName(animationName) ?: -1
+                if (animationIndex == -1) {
+                    Resource.Error("Couldn't find animation with name $animationName")
+                } else {
+                    currentAnimationIndex = animationIndex
+                    Resource.Success(animationIndex)
+                }
             }
         }
 
     }
 
-    fun getAnimationNames() = animationManger.getAnimationNames()
+    fun getAnimationNames() = animationManger?.getAnimationNames()
 
 
     fun getCurrentAnimationIndex() = currentAnimationIndex
@@ -260,7 +259,7 @@ class MyModelViewer constructor(
         } else if (index >= getAnimationCount() || index < 0) {
             Resource.Error("Animation index is not valid")
         } else {
-            val name = animationManger.getAnimationNameByIndex(index)
+            val name = animationManger?.getAnimationNameByIndex(index)
             if (name.isNullOrEmpty()) {
                 Resource.Error("Couldn't find animation name with index $index")
             } else {
@@ -272,8 +271,10 @@ class MyModelViewer constructor(
 
 
     suspend fun changeEnvironment(assetPath: String?): Resource<String> {
+        if (environmentManger == null) return Resource.Error("Model viewer is not initialized")
+
         removeFrameCallback()
-        val resource = environmentManger.setEnvironmentFromAsset(assetPath)
+        val resource = environmentManger!!.setEnvironmentFromAsset(assetPath)
         if (resource is Resource.Success) {
             makeSurfaceViewNotTransparent()
             environmentAssetPath = assetPath
@@ -284,10 +285,11 @@ class MyModelViewer constructor(
 
 
     fun changeEnvironmentColor(color: Int?): Resource<String> {
+        if (environmentManger == null) return Resource.Error("Model viewer is not initialized")
 
         removeFrameCallback()
-        val resource = environmentManger.setEnvironmentFromColor(color)
-        if(resource is Resource.Success) {
+        val resource = environmentManger!!.setEnvironmentFromColor(color)
+        if (resource is Resource.Success) {
             environmentColor = color
             makeSurfaceViewNotTransparent()
         }
@@ -297,14 +299,16 @@ class MyModelViewer constructor(
 
     fun changeToTransparentEnvironment() {
         removeFrameCallback()
-        environmentManger.setTransparentEnvironment()
+        environmentManger?.setTransparentEnvironment()
         makeSurfaceViewTransparent()
         addFrameCallback()
     }
 
     suspend fun changeLight(assetPath: String?, intensity: Double? = null): Resource<String> {
+        if (lightManger == null) return Resource.Error("Model viewer is not initialized")
+
         removeFrameCallback()
-        val resource = lightManger.setIndirectLightFromAsset(assetPath, intensity)
+        val resource = lightManger!!.setIndirectLightFromAsset(assetPath, intensity)
         if (resource is Resource.Success) {
             lightAssetPath = assetPath
             lightIntensity = intensity
@@ -315,10 +319,12 @@ class MyModelViewer constructor(
     }
 
     fun changeLight(intensity: Double?): Resource<String> {
+        if (lightManger == null) return Resource.Error("Model viewer is not initialized")
+
         return if (intensity != null) {
             removeFrameCallback()
             lightIntensity = intensity
-            lightManger.setIndirectLight(intensity)
+            lightManger!!.setIndirectLight(intensity)
             addFrameCallback()
             Resource.Success("changed light Intensity successfully")
         } else {
@@ -329,26 +335,31 @@ class MyModelViewer constructor(
 
 
     fun changeToDefaultLight() {
+
         removeFrameCallback()
         lightIntensity = LightManger.DEFAULT_LIGHT_INTENSITY
-        lightManger.setDefaultLight()
+        lightManger?.setDefaultLight()
         addFrameCallback()
 
     }
 
 
     suspend fun loadGlbModelFromAssets(assetPath: String?): Resource<String> {
+        if (glbLoader == null) return Resource.Error("Model viewer is not initialized")
+
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromAsset(assetPath)
+        val resource = glbLoader!!.loadGlbFromAsset(assetPath)
         addFrameCallback()
         return resource
     }
 
     suspend fun loadGlbModelFromUrl(url: String?): Resource<String> {
+        if (glbLoader == null) return Resource.Error("Model viewer is not initialized")
+
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromUrl(url)
+        val resource = glbLoader!!.loadGlbFromUrl(url)
         addFrameCallback()
         return resource
     }
@@ -358,11 +369,13 @@ class MyModelViewer constructor(
         gltfImagePathPrefix: String = "",
         gltfImagePathPostfix: String = ""
     ): Resource<String> {
+        if (gltfLoader == null) return Resource.Error("Model viewer is not initialized")
+
         removeFrameCallback()
         modelJob?.cancel()
 
         val resource =
-            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix)
+            gltfLoader!!.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix)
         addFrameCallback()
         return resource
 
@@ -376,10 +389,10 @@ class MyModelViewer constructor(
             val seconds = (currentTime - startTime).toDouble() / 1_000_000_000
             choreographer.postFrameCallback(this)
             if (currentAnimationIndex != null) {
-                animationManger.showAnimation(currentAnimationIndex ?: -1, seconds)
+                animationManger?.showAnimation(currentAnimationIndex ?: -1, seconds)
             }
             try {
-                modelViewer.render(currentTime)
+                modelViewer?.render(currentTime)
             } catch (_: Exception) {
             }
         }
@@ -397,6 +410,7 @@ class MyModelViewer constructor(
         removeFrameCallback()
     }
 
+    fun getView() = surfaceView
 
     private fun removeFrameCallback() {
         choreographer.removeFrameCallback(frameCallback)
@@ -411,24 +425,10 @@ class MyModelViewer constructor(
 
     fun destroy() {
         removeFrameCallback()
+        modelViewer?.destroy()
     }
 
 
-
-    private fun Int.getTransform(): Mat4 {
-        val tm = modelViewer.engine.transformManager
-        return Mat4.of(*tm.getTransform(tm.getInstance(this), null as FloatArray?))
-    }
-
-    private fun Int.setTransform(mat: Mat4) {
-        val tm = modelViewer.engine.transformManager
-        tm.setTransform(tm.getInstance(this), mat.toFloatArray())
-    }
-
-    private fun Int.setTransform(mat: FloatArray) {
-        val tm = modelViewer.engine.transformManager
-        tm.setTransform(tm.getInstance(this), mat)
-    }
 
 }
 

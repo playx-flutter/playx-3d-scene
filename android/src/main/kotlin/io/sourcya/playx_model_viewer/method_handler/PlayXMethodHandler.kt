@@ -1,11 +1,12 @@
-package io.sourcya.playx_model_viewer
+package io.sourcya.playx_model_viewer.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.sourcya.playx_model_viewer.PlayxModelViewerPlugin
 import io.sourcya.playx_model_viewer.core.utils.Resource
-import io.sourcya.playx_model_viewer.core.viewer.MyModelViewer
+import io.sourcya.playx_model_viewer.core.controller.ModelViewerController
 import kotlinx.coroutines.*
 
 /**
@@ -13,7 +14,7 @@ import kotlinx.coroutines.*
  */
 class PlayXMethodHandler(
     private val messenger: BinaryMessenger,
-    private val modelViewer: MyModelViewer?,
+    private val modelViewer: ModelViewerController?,
     private val id: Int,
 ) : MethodCallHandler {
 

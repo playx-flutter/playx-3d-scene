@@ -6,6 +6,7 @@ import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_model_viewer.core.utils.Resource
 import io.sourcya.playx_model_viewer.core.utils.readAsset
+import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
@@ -14,8 +15,8 @@ import java.net.URL
 import java.nio.ByteBuffer
 
 
-internal class GltfLoader private constructor(
-    private val modelViewer: ModelViewer,
+internal class GltfLoader  constructor(
+    private val modelViewer: CustomModelViewer?,
     private val context: Context,
     private val flutterAssets: FlutterAssets
 
@@ -27,23 +28,25 @@ internal class GltfLoader private constructor(
     ) :Resource<String>{
 
         return withContext(Dispatchers.IO) {
+            if(modelViewer == null) {
+                return@withContext Resource.Error(
+                    "model viewer is not initialized"
+                )
+            }else {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
-                            try {
-                                withContext(Dispatchers.Main){
-                                    modelViewer.destroyModel()
-                                    modelViewer.loadModelGltf(it){ uri ->
-                                        val assetPath = gltfImagePathPrefix + uri + gltfImagePathPostfix
-                                        val assetResource =  readAsset(assetPath, flutterAssets, context)
-                                        assetResource.data
-                                    }
-                                    modelViewer.transformToUnitCube()
-
+                        try {
+                                modelViewer.modelLoader.loadModelGltfAsync(it,true) { uri ->
+                                    val assetPath = gltfImagePathPrefix + uri + gltfImagePathPostfix
+                                    val assetResource = readAsset(assetPath, flutterAssets, context)
+                                    assetResource.data
                                 }
-                            }catch (t:Throwable){
-                                return@withContext Resource.Error("Failed to load gltf")
-                            }
+
+
+                        } catch (t: Throwable) {
+                            return@withContext Resource.Error("Failed to load gltf")
+                        }
                     }
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
                 }
@@ -53,6 +56,7 @@ internal class GltfLoader private constructor(
                     )
                 }
             }
+            }
 
         }
 
@@ -61,6 +65,7 @@ internal class GltfLoader private constructor(
 
     suspend fun loadGltfFromUrl(url: String) {
         withContext(Dispatchers.IO) {
+
             URL(url).openStream().use { inputStream: InputStream ->
                 val stream = BufferedInputStream(inputStream)
                 ByteArrayOutputStream().use { output ->
@@ -69,9 +74,9 @@ internal class GltfLoader private constructor(
                     val byteBuffer = ByteBuffer.wrap(byteArr)
                     val rewound = byteBuffer.rewind()
                     withContext(Dispatchers.Main) {
-                        modelViewer.destroyModel()
-                        modelViewer.loadModelGlb(rewound)
-                        modelViewer.transformToUnitCube()
+                        modelViewer?.destroyModel()
+                        modelViewer?.modelLoader?.loadModelGlb(rewound)
+                        modelViewer?.transformToUnitCube()
                     }
                 }
             }
@@ -84,7 +89,7 @@ internal class GltfLoader private constructor(
         @Volatile
         private var INSTANCE: GltfLoader? = null
 
-        fun getInstance(modelViewer: ModelViewer, context: Context,  flutterAssets :FlutterAssets): GltfLoader =
+        fun getInstance(modelViewer: CustomModelViewer, context: Context,  flutterAssets :FlutterAssets): GltfLoader =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: GltfLoader(modelViewer, context,flutterAssets).also {
                     INSTANCE = it

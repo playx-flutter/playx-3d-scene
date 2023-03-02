@@ -8,11 +8,12 @@ import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.sourcya.playx_model_viewer.core.utils.Resource
 import io.sourcya.playx_model_viewer.core.utils.readAsset
+import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal class LightManger private constructor(
-    private val modelViewer: ModelViewer,
+internal class LightManger  constructor(
+    private val modelViewer: CustomModelViewer?,
     private val context: Context,
     private val flutterAssets: FlutterPlugin.FlutterAssets
 
@@ -23,23 +24,31 @@ internal class LightManger private constructor(
     }
     suspend fun setIndirectLightFromAsset(path: String?, intensity: Double? ): Resource<String> {
         return   withContext(Dispatchers.IO) {
-            when (val bufferResource = readAsset(path, flutterAssets, context)) {
-                is Resource.Success -> {
-                    bufferResource.data?.let {
-                        val light = KTX1Loader.createIndirectLight(modelViewer.engine, it)
-                        light.intensity = intensity?.toFloat() ?: 50_000f
+            if(modelViewer == null) {
+                return@withContext Resource.Error(
+                    "model viewer is not initialized"
+                )
+            }else {
+                when (val bufferResource = readAsset(path, flutterAssets, context)) {
+                    is Resource.Success -> {
+                        bufferResource.data?.let {
+                            val light = KTX1Loader.createIndirectLight(modelViewer.engine, it)
+                            light.intensity = intensity?.toFloat() ?: 50_000f
 
-                        withContext(Dispatchers.Main) {
-                            modelViewer.scene.indirectLight = light
+                            withContext(Dispatchers.Main) {
+                                modelViewer.scene.indirectLight = light
+                            }
                         }
-                    }
-                        return@withContext  Resource.Success("changed Light successfully from ${path?:""}")
+                        return@withContext Resource.Success("changed Light successfully from ${path ?: ""}")
                     }
                     is Resource.Error -> {
-                        return@withContext Resource.Error(bufferResource.message ?:"Couldn't changed Light from asset")
+                        return@withContext Resource.Error(
+                            bufferResource.message ?: "Couldn't changed Light from asset"
+                        )
                     }
 
                 }
+            }
         }
     }
 
@@ -51,11 +60,13 @@ internal class LightManger private constructor(
         irradianceBands: Int = 1,
         irradianceSh: FloatArray = floatArrayOf(1f, 1f, 1f),
     ) {
-        modelViewer.scene.indirectLight = IndirectLight.Builder()
-            .intensity(intensity?.toFloat() ?:50_000f)
-            .radiance(radianceBands, radianceSh)
-            .irradiance(irradianceBands, irradianceSh)
-            .build(modelViewer.engine)
+        if(modelViewer != null) {
+            modelViewer.scene.indirectLight = IndirectLight.Builder()
+                .intensity(intensity?.toFloat() ?: 50_000f)
+                .radiance(radianceBands, radianceSh)
+                .irradiance(irradianceBands, irradianceSh)
+                .build(modelViewer.engine)
+        }
     }
 
 
@@ -65,7 +76,7 @@ internal class LightManger private constructor(
         private var INSTANCE: LightManger? = null
         const val DEFAULT_LIGHT_INTENSITY = 40_000.0
 
-        fun getInstance(modelViewer: ModelViewer, context: Context,  flutterAssets : FlutterPlugin.FlutterAssets): LightManger =
+        fun getInstance(modelViewer: CustomModelViewer, context: Context,  flutterAssets : FlutterPlugin.FlutterAssets): LightManger =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: LightManger(modelViewer, context,flutterAssets).also {
                     INSTANCE = it

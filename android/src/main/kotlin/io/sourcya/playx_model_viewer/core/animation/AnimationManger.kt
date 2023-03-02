@@ -3,10 +3,11 @@ package io.sourcya.playx_model_viewer.core.animation
 import android.annotation.SuppressLint
 import android.content.Context
 import com.google.android.filament.utils.ModelViewer
+import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
 import java.util.*
 
-internal class AnimationManger  private constructor(
-    private val modelViewer: ModelViewer,
+internal class AnimationManger  constructor(
+    private val modelViewer: CustomModelViewer?,
     private val context: Context
 ){
 
@@ -15,7 +16,7 @@ internal class AnimationManger  private constructor(
 
      fun showAnimation(index : Int, seconds: Double){
          _currentIndex = index
-        modelViewer.animator?.apply {
+        modelViewer?.animator?.apply {
             if (animationCount > 0 && index >=0  && index < animationCount) {
                 applyAnimation(index, seconds.toFloat())
             }
@@ -26,10 +27,10 @@ internal class AnimationManger  private constructor(
 
     fun getCurrentIndex(): Int =_currentIndex
 
-    fun getAnimationCount() =  modelViewer.animator?.animationCount ?: 0
+    fun getAnimationCount() =  modelViewer?.animator?.animationCount ?: 0
 
 
-     fun getAnimationNameByIndex(index: Int) = modelViewer.animator?.getAnimationName(index)
+     fun getAnimationNameByIndex(index: Int) = modelViewer?.animator?.getAnimationName(index)
 
     fun getAnimationNames(): List<String> {
         val names = mutableListOf<String>()
@@ -54,7 +55,7 @@ internal class AnimationManger  private constructor(
         @Volatile
         private var INSTANCE: AnimationManger? = null
 
-        fun getInstance(modelViewer: ModelViewer, context: Context): AnimationManger =
+        fun getInstance(modelViewer: CustomModelViewer, context: Context): AnimationManger =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: AnimationManger(modelViewer, context).also {
                     INSTANCE = it
