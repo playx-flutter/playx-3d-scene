@@ -1,10 +1,7 @@
-package io.sourcya.playx_model_viewer.core.utils
+package io.sourcya.playx_3d_scene.core.utils
 
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
 

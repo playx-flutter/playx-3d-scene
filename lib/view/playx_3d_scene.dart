@@ -3,12 +3,14 @@ import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:playx_model_viewer/controller/playx_model_viewer_controller.dart';
+import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 
-typedef PlayXModelViewerCreatedCallback = void Function(
-    PlayXModelViewerController controller);
+typedef Playx3dSceneCreatedCallback = void Function(
+    Playx3dSceneController controller);
 
-class PlayXModelViewer extends StatefulWidget {
+const String _viewType = "${Playx3dSceneController.channelName}_3d_scene";
+
+class Playx3dScene extends StatefulWidget {
   /// glb asset path to be loaded from assets.
   final String? glbAssetPath;
 
@@ -70,9 +72,9 @@ class PlayXModelViewer extends StatefulWidget {
   /// when the viewer is created.
   /// provides utility methods to update the viewer.
   /// you can use it to change the animation, environment, lightening, etc.
-  final PlayXModelViewerCreatedCallback? onCreated;
+  final Playx3dSceneCreatedCallback? onCreated;
 
-  const PlayXModelViewer({
+  const Playx3dScene({
     super.key,
     this.glbAssetPath,
     this.glbUrl,
@@ -95,9 +97,7 @@ class PlayXModelViewer extends StatefulWidget {
   }
 }
 
-class PlayxModelViewerState extends State<PlayXModelViewer> {
-  static const String viewType =
-      "${PlayXModelViewerController.channelName}_model_view";
+class PlayxModelViewerState extends State<Playx3dScene> {
   static const String glbAssetPathKey = "GLB_ASSET_PATH_KEY";
   static const String glbUrlKey = "GLB_URL_KEY";
   static const String gltfAssetPathKey = "GLTF_ASSET_PATH_KEY";
@@ -137,7 +137,7 @@ class PlayxModelViewerState extends State<PlayXModelViewer> {
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
-        viewType: viewType,
+        viewType: _viewType,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
         onPlatformViewCreated: _onPlatformViewCreated,
@@ -148,7 +148,7 @@ class PlayxModelViewerState extends State<PlayXModelViewer> {
 
   void _onPlatformViewCreated(int id) {
     if (widget.onCreated != null) {
-      widget.onCreated!(PlayXModelViewerController(id: id));
+      widget.onCreated!(Playx3dSceneController(id: id));
     }
   }
 }

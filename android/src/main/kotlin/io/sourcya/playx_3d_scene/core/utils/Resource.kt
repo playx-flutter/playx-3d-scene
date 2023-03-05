@@ -1,4 +1,4 @@
-package io.sourcya.playx_model_viewer.core.utils
+package io.sourcya.playx_3d_scene.core.utils
 
 sealed class Resource<out T>(
     val data: T? = null,

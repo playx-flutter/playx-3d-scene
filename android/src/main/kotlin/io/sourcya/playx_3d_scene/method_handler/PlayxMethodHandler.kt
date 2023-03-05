@@ -1,18 +1,18 @@
-package io.sourcya.playx_model_viewer.method_handler
+package io.sourcya.playx_3d_scene.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.sourcya.playx_model_viewer.PlayxModelViewerPlugin
-import io.sourcya.playx_model_viewer.core.utils.Resource
-import io.sourcya.playx_model_viewer.core.controller.ModelViewerController
+import io.sourcya.playx_3d_scene.Playx3dScenePlugin
+import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import kotlinx.coroutines.*
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
  */
-class PlayXMethodHandler(
+class PlayxMethodHandler(
     private val messenger: BinaryMessenger,
     private val modelViewer: ModelViewerController?,
     private val id: Int,
@@ -330,7 +330,7 @@ class PlayXMethodHandler(
     }
 
     fun startListeningToChannel() {
-        methodChannel = MethodChannel(messenger, "${PlayxModelViewerPlugin.channelName}_$id")
+        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.channelName}_$id")
         methodChannel?.setMethodCallHandler(this)
         job = SupervisorJob()
 

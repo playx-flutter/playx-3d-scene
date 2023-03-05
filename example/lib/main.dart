@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:playx_model_viewer/view/playx_model_viewer.dart';
+import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
+import 'package:playx_3d_scene/view/playx_3d_scene.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,11 +25,14 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: Center(
           child: Container(
-            color: Colors.yellow,
-            child: const PlayXModelViewer(
+            color: Colors.cyan,
+            child: Playx3dScene(
               glbAssetPath: "assets/models/Fox.glb",
               autoPlay: true,
               animationIndex: 0,
+              onCreated: (Playx3dSceneController controller) {
+                controller.changeAnimationByIndex(2);
+              },
             ),
           ),
         ),

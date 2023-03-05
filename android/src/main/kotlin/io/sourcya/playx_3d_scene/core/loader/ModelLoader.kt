@@ -1,9 +1,9 @@
-package io.sourcya.playx_model_viewer.core.loader
+package io.sourcya.playx_3d_scene.core.loader
 
 import com.google.android.filament.EntityManager
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
-import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
+import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.nio.Buffer

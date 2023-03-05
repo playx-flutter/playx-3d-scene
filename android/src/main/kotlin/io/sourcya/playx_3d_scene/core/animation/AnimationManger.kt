@@ -1,9 +1,8 @@
-package io.sourcya.playx_model_viewer.core.animation
+package io.sourcya.playx_3d_scene.core.animation
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.google.android.filament.utils.ModelViewer
-import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
+import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import java.util.*
 
 internal class AnimationManger  constructor(

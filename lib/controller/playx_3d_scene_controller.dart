@@ -48,12 +48,12 @@ const String _loadGltfModelFromAssetsPrefixPathKey =
 const String _loadGltfModelFromAssetsPostfixPathKey =
     "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
 
-class PlayXModelViewerController {
+class Playx3dSceneController {
   int id;
   late MethodChannel _channel;
-  static const String channelName = "io.sourcya.playx.model_viewer.channel";
+  static const String channelName = "io.sourcya.playx.3d.scene.channel";
 
-  PlayXModelViewerController({required this.id}) {
+  Playx3dSceneController({required this.id}) {
     _channel = MethodChannel('${channelName}_$id');
   }
 

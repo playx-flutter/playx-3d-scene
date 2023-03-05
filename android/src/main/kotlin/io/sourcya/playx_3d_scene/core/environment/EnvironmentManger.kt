@@ -1,15 +1,14 @@
-package io.sourcya.playx_model_viewer.core.environment
+package io.sourcya.playx_3d_scene.core.environment
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import com.google.android.filament.Skybox
 import com.google.android.filament.utils.KTX1Loader
-import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.sourcya.playx_model_viewer.core.utils.Resource
-import io.sourcya.playx_model_viewer.core.utils.readAsset
-import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
+import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.utils.readAsset
+import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
