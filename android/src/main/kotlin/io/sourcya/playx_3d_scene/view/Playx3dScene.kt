@@ -1,4 +1,4 @@
-package io.sourcya.playx_model_viewer.view
+package io.sourcya.playx_3d_scene.view
 
 import android.content.Context
 import android.view.View
@@ -8,12 +8,12 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
-import io.sourcya.playx_model_viewer.method_handler.PlayXMethodHandler
-import io.sourcya.playx_model_viewer.core.controller.ModelViewerController
-import io.sourcya.playx_model_viewer.utils.LifecycleProvider
+import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
+import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
+import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 
 
-class PlayXModelViewer(
+class Playx3dScene(
     private val context: Context,
     private val id: Int,
     private val creationParams: Map<String?, Any?>?,
@@ -21,9 +21,8 @@ class PlayXModelViewer(
     private val engine: Engine,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
-
     private var modelViewer: ModelViewerController? = null
-    private var playXMethodHandler: PlayXMethodHandler? = null
+    private var playXMethodHandler: PlayxMethodHandler? = null
 
     init {
         setUpModelViewer()
@@ -53,7 +52,7 @@ class PlayXModelViewer(
     }
 
     private fun listenToChannel() {
-        playXMethodHandler = PlayXMethodHandler(binding.binaryMessenger, modelViewer, id)
+        playXMethodHandler = PlayxMethodHandler(binding.binaryMessenger, modelViewer, id)
         playXMethodHandler?.startListeningToChannel()
         lifecycleProvider.getLifecycle()?.addObserver(this)
     }

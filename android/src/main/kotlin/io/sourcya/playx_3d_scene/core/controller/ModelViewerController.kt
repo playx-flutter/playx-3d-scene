@@ -1,4 +1,4 @@
-package io.sourcya.playx_model_viewer.core.controller
+package io.sourcya.playx_3d_scene.core.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,13 +8,13 @@ import android.view.SurfaceView
 import com.google.android.filament.Engine
 import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import io.sourcya.playx_model_viewer.core.animation.AnimationManger
-import io.sourcya.playx_model_viewer.core.environment.EnvironmentManger
-import io.sourcya.playx_model_viewer.core.light.LightManger
-import io.sourcya.playx_model_viewer.core.loader.GlbLoader
-import io.sourcya.playx_model_viewer.core.loader.GltfLoader
-import io.sourcya.playx_model_viewer.core.utils.Resource
-import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
+import io.sourcya.playx_3d_scene.core.animation.AnimationManger
+import io.sourcya.playx_3d_scene.core.environment.EnvironmentManger
+import io.sourcya.playx_3d_scene.core.light.LightManger
+import io.sourcya.playx_3d_scene.core.loader.GlbLoader
+import io.sourcya.playx_3d_scene.core.loader.GltfLoader
+import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

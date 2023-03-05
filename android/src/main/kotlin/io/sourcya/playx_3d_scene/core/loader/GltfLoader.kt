@@ -1,12 +1,11 @@
-package io.sourcya.playx_model_viewer.core.loader
+package io.sourcya.playx_3d_scene.core.loader
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.google.android.filament.utils.ModelViewer
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import io.sourcya.playx_model_viewer.core.utils.Resource
-import io.sourcya.playx_model_viewer.core.utils.readAsset
-import io.sourcya.playx_model_viewer.core.viewer.CustomModelViewer
+import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.utils.readAsset
+import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream

@@ -1,5 +1,5 @@
-group 'io.sourcya.playx_model_viewer'
-version '1.0-SNAPSHOT'
+group 'io.sourcya.playx_3d_scene'
+version '0.0.2'
 
 buildscript {
     ext.kotlin_version = '1.8.0'

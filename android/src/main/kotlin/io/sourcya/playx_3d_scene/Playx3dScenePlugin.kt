@@ -1,4 +1,4 @@
-package io.sourcya.playx_model_viewer
+package io.sourcya.playx_3d_scene
 
 import androidx.lifecycle.Lifecycle
 import com.google.android.filament.Engine
@@ -7,13 +7,12 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
-import io.sourcya.playx_model_viewer.factory.PlayXModelViewerFactory
-import io.sourcya.playx_model_viewer.utils.LifecycleProvider
-import timber.log.Timber
+import io.sourcya.playx_3d_scene.factory.Playx3dSceneFactory
+import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 
 
 /** PlayxModelViewerPlugin */
-class PlayxModelViewerPlugin : FlutterPlugin, ActivityAware {
+class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     private var lifecycle: Lifecycle? = null
     private lateinit var engine :Engine;
 
@@ -24,7 +23,7 @@ class PlayxModelViewerPlugin : FlutterPlugin, ActivityAware {
             .platformViewRegistry
             .registerViewFactory(
                 viewType,
-                PlayXModelViewerFactory(binding, engine,
+                Playx3dSceneFactory(binding, engine,
                     object : LifecycleProvider {
                         override fun getLifecycle(): Lifecycle? {
                             return lifecycle
@@ -36,8 +35,8 @@ class PlayxModelViewerPlugin : FlutterPlugin, ActivityAware {
         engine.destroy()
     }
     companion object {
-        const val channelName = "io.sourcya.playx.model_viewer.channel"
-        var viewType = "${channelName}_model_view"
+        const val channelName = "io.sourcya.playx.3d.scene.channel"
+        var viewType = "${channelName}_3d_scene"
         init {
             Utils.init()
         }
