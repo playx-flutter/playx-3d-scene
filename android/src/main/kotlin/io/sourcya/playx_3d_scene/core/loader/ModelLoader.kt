@@ -188,7 +188,6 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
 
 
     private fun populateScene(asset: FilamentAsset) {
-        Timber.d("My model loader : populateScene")
         val rcm = engine.renderableManager
         var count = 0
         val popRenderables = { count = asset.popRenderables(readyRenderables); count != 0 }

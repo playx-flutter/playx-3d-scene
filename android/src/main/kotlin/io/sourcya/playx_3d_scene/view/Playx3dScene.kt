@@ -10,7 +10,11 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
 import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
+import io.sourcya.playx_3d_scene.core.models.model.Model
+import io.sourcya.playx_3d_scene.core.models.scene.Scene
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
+import io.sourcya.playx_3d_scene.utils.getMapValue
+import timber.log.Timber
 
 
 class Playx3dScene(
@@ -30,22 +34,19 @@ class Playx3dScene(
 
 
     private fun setUpModelViewer() {
+
+        val modelMap = getMapValue<Map<String?, Any?>>("model",creationParams)
+        val sceneMap = getMapValue<Map<String?, Any?>>("scene",creationParams)
+
+        val model = Model.fromMap(modelMap)
+        val scene = Scene.fromMap(sceneMap)
+
         modelViewer = ModelViewerController(
             context,
             engine,
             binding.flutterAssets,
-            glbAssetPath = getValue(glbAssetPathKey),
-            glbUrl = getValue(glbUrlKey),
-            gltfAssetPath = getValue(gltfAssetPathKey),
-            gltfImagePathPrefix = getValue(gltfImagePathPrefixKey) ?: "",
-            gltfImagePathPostfix = getValue(gltfImagePathPostfixKey) ?: "",
-            lightAssetPath = getValue(lightAssetPathKey),
-            lightIntensity = getValue(lightIntensityKey),
-            environmentAssetPath = getValue(environmentAssetPathKey),
-            environmentColor = getValue<Long>(environmentColorKey)?.toInt(),
-            animationIndex = getValue(animationIndexKey),
-            animationName = getValue(animationNameKey),
-            autoPlay = getValue(autoPlayKey) ?: false,
+            model = model,
+            scene = scene
         )
 
 
@@ -89,40 +90,13 @@ class Playx3dScene(
         stopListeningToChannel()
     }
 
-    private inline fun <reified T> getValue(key: String, default: T? = null): T? {
-        val item = creationParams?.get(key)
 
-        if (item is T) {
-            return item
-        }
-        return default
-    }
-
-    companion object {
-
-
-        const val glbAssetPathKey = "GLB_ASSET_PATH_KEY"
-        const val glbUrlKey = "GLB_URL_KEY"
-        const val gltfAssetPathKey = "GLTF_ASSET_PATH_KEY"
-        const val gltfImagePathPrefixKey = "GLTF_IMAGE_PATH_PREFIX_KEY"
-        const val gltfImagePathPostfixKey = "GLTF_IMAGE_PATH_POSTFIX_KEY"
-        const val lightAssetPathKey = "LIGHT_ASSET_PATH_KEY"
-        const val lightIntensityKey = "LIGHT_INTENSITY_KEY"
-        const val environmentAssetPathKey = "ENVIRONMENT_ASSET_PATH_KEY"
-        const val environmentColorKey = "ENVIRONMENT_COLOR_KEY"
-        const val animationIndexKey = "ANIMATION_INDEX_KEY"
-        const val animationNameKey = "ANIMATION_NAME_KEY"
-        const val autoPlayKey = "AUTO_PLAY_KEY"
-
-
-    }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
-             modelViewer?.handleOnResume()
+            modelViewer?.handleOnResume()
 
-        }
-        else if (event == Lifecycle.Event.ON_PAUSE){
+        } else if (event == Lifecycle.Event.ON_PAUSE) {
             modelViewer?.handleOnPause()
         }
 

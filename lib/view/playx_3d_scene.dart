@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
+import 'package:playx_3d_scene/models/model/model.dart';
+import 'package:playx_3d_scene/models/scene/scene.dart';
 
 typedef Playx3dSceneCreatedCallback = void Function(
     Playx3dSceneController controller);
@@ -11,62 +13,15 @@ typedef Playx3dSceneCreatedCallback = void Function(
 const String _viewType = "${Playx3dSceneController.channelName}_3d_scene";
 
 class Playx3dScene extends StatefulWidget {
-  /// glb asset path to be loaded from assets.
-  final String? glbAssetPath;
+  /// Model to be rendered.
+  /// provide details about the model to be rendered.
+  /// like asset path, url, animation, etc.
+  final Model? model;
 
-  /// glb model url to be loaded from url.
-  final String? glbUrl;
-
-  /// gltf asset path to be loaded from assets.
-  final String? gltfAssetPath;
-
-  /// prefix for gltf image assets.
-  /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add prefix to the images path to be before the image.
-  /// LIKE if in the gltf file, the image path is textures/texture.png
-  /// and in assets the image path is assets/models/textures/texture.png
-  /// you will need to add prefix to be 'assets/models/'.
-  final String gltfImagePathPrefix;
-
-  /// postfix path for gltf image assets.
-  /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add postfix to the images path to be after the image.
-  /// LIKE if in the gltf file, the image path is assets/textures/texture
-  /// and in assets the image path is assets/textures/texture.png
-  /// you will need to add prefix to be '.png'.
-  final String gltfImagePathPostfix;
-
-  /// light asset path used to load KTX FILE from assets.
-  /// used to change indirect lighting from Image-Based Light.
-  final String? lightAssetPath;
-
-  /// indirect light intensity.
-  /// can be used with light asset path.
-  /// or create default light with certain intensity.
-  final double? lightIntensity;
-
-  /// environment asset path used to load KTX FILE from assets.
-  /// changes scene skybox from images converted to KTX FILE.
-  /// Filament provides an offline tool called cmgen
-  /// that can consume an image
-  /// and produce Light and skybox ktx files in one fell swoop.
-  final String? environmentAssetPath;
-
-  /// Environment Color.
-  /// Changes the background color for the scene.
-  /// if not provided and environment asset path is not provided,
-  /// A Transparent color will be used.
-  final Color? environmentColor;
-
-  /// Animation Index of the Animation to be used.
-  final int? animationIndex;
-
-  /// Animation Name of the Animation to be used.
-  final String? animationName;
-
-  /// auto play : decides whether to play the animation automatically or not
-  /// default is false.
-  final bool autoPlay;
+  /// Scene to be rendered.
+  /// provide details about the scene to be rendered.
+  /// like skybox, lightening, camera, etc.
+  final Scene? scene;
 
   /// onCreated callback provides PlayX Model viewer controller.
   /// when the viewer is created.
@@ -76,18 +31,8 @@ class Playx3dScene extends StatefulWidget {
 
   const Playx3dScene({
     super.key,
-    this.glbAssetPath,
-    this.glbUrl,
-    this.gltfAssetPath,
-    this.gltfImagePathPrefix = "",
-    this.gltfImagePathPostfix = "",
-    this.lightAssetPath,
-    this.lightIntensity,
-    this.environmentAssetPath,
-    this.environmentColor,
-    this.animationIndex,
-    this.animationName,
-    this.autoPlay = false,
+    this.model,
+    this.scene,
     this.onCreated,
   });
 
@@ -98,37 +43,16 @@ class Playx3dScene extends StatefulWidget {
 }
 
 class PlayxModelViewerState extends State<Playx3dScene> {
-  static const String glbAssetPathKey = "GLB_ASSET_PATH_KEY";
-  static const String glbUrlKey = "GLB_URL_KEY";
-  static const String gltfAssetPathKey = "GLTF_ASSET_PATH_KEY";
-  static const String gltfImagePathPrefixKey = "GLTF_IMAGE_PATH_PREFIX_KEY";
-  static const String gltfImagePathPostfixKey = "GLTF_IMAGE_PATH_POSTFIX_KEY";
-  static const String lightAssetPathKey = "LIGHT_ASSET_PATH_KEY";
-  static const String lightIntensityKey = "LIGHT_INTENSITY_KEY";
-  static const String environmentAssetPathKey = "ENVIRONMENT_ASSET_PATH_KEY";
-  static const String environmentColorKey = "ENVIRONMENT_COLOR_KEY";
-  static const String animationIndexKey = "ANIMATION_INDEX_KEY";
-  static const String animationNameKey = "ANIMATION_NAME_KEY";
-  static const String autoPlayKey = "AUTO_PLAY_KEY";
-
   final Map<String, dynamic> creationParams = <String, dynamic>{};
 
   PlayxModelViewerState();
 
   @override
   void initState() {
-    creationParams[glbAssetPathKey] = widget.glbAssetPath;
-    creationParams[glbUrlKey] = widget.glbUrl;
-    creationParams[gltfAssetPathKey] = widget.gltfAssetPath;
-    creationParams[gltfImagePathPrefixKey] = widget.gltfImagePathPrefix;
-    creationParams[gltfImagePathPostfixKey] = widget.gltfImagePathPostfix;
-    creationParams[lightAssetPathKey] = widget.lightAssetPath;
-    creationParams[lightIntensityKey] = widget.lightIntensity;
-    creationParams[environmentAssetPathKey] = widget.environmentAssetPath;
-    creationParams[environmentColorKey] = widget.environmentColor?.value;
-    creationParams[animationIndexKey] = widget.animationIndex;
-    creationParams[animationNameKey] = widget.animationName;
-    creationParams[autoPlayKey] = widget.autoPlay;
+    final model = widget.model?.toJson();
+    final scene = widget.scene?.toJson();
+    creationParams["model"] = model;
+    creationParams["scene"] = scene;
 
     super.initState();
   }

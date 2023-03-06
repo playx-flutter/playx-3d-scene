@@ -9,6 +9,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 import io.sourcya.playx_3d_scene.factory.Playx3dSceneFactory
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
+import timber.log.Timber
 
 
 /** PlayxModelViewerPlugin */
