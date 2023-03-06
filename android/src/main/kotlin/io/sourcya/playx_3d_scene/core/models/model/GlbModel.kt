@@ -9,9 +9,8 @@ import com.google.android.filament.utils.Float3
     position: Float3? =null,
     scale: Float? =null,
     animation: Animation? =null,
-    loadingListener: LoadingListener? =null,
     loadingProgress : Float?  =null,
-) : Model(assetPath,url, fallback, position, scale, animation,loadingListener,loadingProgress) {
+) : Model(assetPath,url, fallback, position, scale, animation,loadingProgress) {
 
      override fun toString(): String {
          return super.toString()

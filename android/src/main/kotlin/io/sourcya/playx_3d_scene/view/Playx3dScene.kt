@@ -43,6 +43,7 @@ class Playx3dScene(
         val model = Model.fromMap(modelMap)
         val scene = Scene.fromMap(sceneMap)
 
+        Timber.d("My Playx3dScenePlugin : model :$model scene $scene")
         modelViewer = ModelViewerController(
             context,
             engine,

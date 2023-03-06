@@ -35,13 +35,14 @@ class _MyAppState extends State<MyApp> {
           child: Stack(
             children: [
               Playx3dScene(
-                model: GlbModel.asset(
-                  "assets/models/Fox.glb",
+                model: GlbModel.url(
+                  "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb11",
+                  fallback: GlbModel.asset("assets/models/Fox.glb",
+                      animation: PlayxAnimation.byIndex(0, autoPlay: true)),
                   animation: PlayxAnimation.byIndex(1, autoPlay: true),
                 ),
-                scene: Scene(skybox: Skybox.color(Colors.green)),
+                scene: Scene(skybox: Skybox.color(Colors.yellow)),
                 onCreated: (Playx3dSceneController controller) {
-                  controller.changeAnimationByIndex(2);
                   Fimber.d("My Playx3dScenePlugin onCreated");
                 },
                 onModelLoadingStateChanged: (isLoading) {

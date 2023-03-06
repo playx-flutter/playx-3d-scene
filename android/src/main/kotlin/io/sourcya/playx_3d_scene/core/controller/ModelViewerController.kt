@@ -13,6 +13,7 @@ import io.sourcya.playx_3d_scene.core.environment.EnvironmentManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
+import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
@@ -129,34 +130,47 @@ class ModelViewerController constructor(
 
     private fun setUpLoadingModel() {
         modelJob = coroutineScope.launch {
+            val result = loadModel(model)
+            if(result!= null && model?.fallback != null) {
+                if(result is Resource.Error){
+                    loadModel(model.fallback)
+                    setUpAnimation(model.fallback.animation)
 
-            when (model) {
-                is GlbModel -> {
-                    if (!model.assetPath.isNullOrEmpty()) {
-                        glbLoader.loadGlbFromAsset(model.assetPath)
-                    } else if (!model.url.isNullOrEmpty()) {
-                        glbLoader.loadGlbFromUrl(model.url)
-                    }
+                }else{
+                    setUpAnimation(model.animation)
                 }
-                is GltfModel -> {
-                    if (!model.assetPath.isNullOrEmpty()) {
-                        gltfLoader.loadGltfFromAsset(
-                            model.assetPath,
-                            model.pathPrefix,
-                            model.pathPostfix
-                        )
-                    } else if (!model.url.isNullOrEmpty()) {
-                        glbLoader.loadGlbFromUrl(model.url)
-                    }
-                }
-                else -> {}
+            }else{
+                setUpAnimation(model?.animation)
             }
         }
-        setUpAnimation()
 
     }
 
-
+    private suspend fun loadModel(model : Model? ): Resource<String>? {
+        var result :Resource<String>? = null
+        when (model) {
+            is GlbModel -> {
+                if (!model.assetPath.isNullOrEmpty()) {
+                    result = glbLoader.loadGlbFromAsset(model.assetPath)
+                } else if (!model.url.isNullOrEmpty()) {
+                    result = glbLoader.loadGlbFromUrl(model.url)
+                }
+            }
+            is GltfModel -> {
+                if (!model.assetPath.isNullOrEmpty()) {
+                    result = gltfLoader.loadGltfFromAsset(
+                        model.assetPath,
+                        model.pathPrefix,
+                        model.pathPostfix
+                    )
+                } else if (!model.url.isNullOrEmpty()) {
+                    result = glbLoader.loadGlbFromUrl(model.url)
+                }
+            }
+            else -> {}
+        }
+        return result
+    }
     private fun setUpLight() {
 
         coroutineScope.launch {
@@ -196,8 +210,7 @@ class ModelViewerController constructor(
     }
 
 
-    private fun setUpAnimation() {
-        val animation = model?.animation
+    private fun setUpAnimation(animation : Animation?) {
         if (animation?.autoPlay == true) {
             if (animation.index != null) {
                 currentAnimationIndex = animation.index.toInt()
