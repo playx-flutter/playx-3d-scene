@@ -13,6 +13,7 @@ import io.sourcya.playx_3d_scene.core.environment.EnvironmentManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
+import io.sourcya.playx_3d_scene.core.models.ModelState
 import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
@@ -61,7 +62,7 @@ class ModelViewerController constructor(
 
     private lateinit var animationManger: AnimationManger
 
-    var isModelLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
 
 
     init {
@@ -402,11 +403,13 @@ class ModelViewerController constructor(
 
     private fun setUpModelLoading() {
         modelLoadingJob = coroutineScope.launch {
-            combine(glbLoader.isLoading, gltfLoader.isLoading) { (glbLoading, gltfLoading) ->
-                glbLoading || gltfLoading
-            }.collectLatest {
+            glbLoader.state.collectLatest {
                 Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
-                isModelLoading.value = it
+                modelState.value = it
+            }
+            gltfLoader.state.collectLatest {
+                modelState.value = it
+
             }
         }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
+import 'package:playx_3d_scene/models/model_state.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox.dart';
 import 'package:playx_3d_scene/view/playx_3d_scene.dart';
@@ -36,7 +37,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               Playx3dScene(
                 model: GlbModel.url(
-                  "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb11",
+                  "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb",
                   fallback: GlbModel.asset("assets/models/Fox.glb",
                       animation: PlayxAnimation.byIndex(0, autoPlay: true)),
                   animation: PlayxAnimation.byIndex(1, autoPlay: true),
@@ -45,11 +46,9 @@ class _MyAppState extends State<MyApp> {
                 onCreated: (Playx3dSceneController controller) {
                   Fimber.d("My Playx3dScenePlugin onCreated");
                 },
-                onModelLoadingStateChanged: (isLoading) {
+                onModelStateChanged: (state) {
                   setState(() {
-                    Fimber.d(
-                        "My Playx3dScenePlugin isModelLoading : $isLoading");
-                    isModelLoading = isLoading;
+                    isModelLoading = state == ModelState.loading;
                   });
                 },
               ),

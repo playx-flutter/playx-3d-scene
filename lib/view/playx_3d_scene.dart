@@ -6,14 +6,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/model.dart';
+import 'package:playx_3d_scene/models/model_state.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 
 typedef Playx3dSceneCreatedCallback = void Function(
     Playx3dSceneController controller);
 
-typedef Playx3dModelLoadingCallback = void Function(bool isLoading);
+typedef Playx3dModelStateCallback = void Function(ModelState state);
 
-const String _viewType = "${Playx3dSceneController.channelName}_3d_scene";
+const String _channelName = "io.sourcya.playx.3d.scene.channel";
+const String _viewType = "${_channelName}_3d_scene";
+const String _modelStateChannelName =
+    "io.sourcya.playx.3d.scene.model_state_channel";
 
 class Playx3dScene extends StatefulWidget {
   /// Model to be rendered.
@@ -32,15 +36,16 @@ class Playx3dScene extends StatefulWidget {
   /// you can use it to change the animation, environment, lightening, etc.
   final Playx3dSceneCreatedCallback? onCreated;
 
-  /// onModelLoadingStateChanged callback provides bool whether the model is loading or not.
-  final Playx3dModelLoadingCallback? onModelLoadingStateChanged;
+  /// onModelStateChanged callback provides current state of the model
+  /// whether is none, loading, loaded, fallback loaded ,error.
+  final Playx3dModelStateCallback? onModelStateChanged;
 
   const Playx3dScene(
       {super.key,
       this.model,
       this.scene,
       this.onCreated,
-      this.onModelLoadingStateChanged});
+      this.onModelStateChanged});
 
   @override
   State<StatefulWidget> createState() {
@@ -50,6 +55,8 @@ class Playx3dScene extends StatefulWidget {
 
 class PlayxModelViewerState extends State<Playx3dScene> {
   final Map<String, dynamic> creationParams = <String, dynamic>{};
+
+  late EventChannel _modelLoadingChannel;
   StreamSubscription? _modelLoadingSubscription;
 
   PlayxModelViewerState();
@@ -81,28 +88,36 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     creationParams["scene"] = scene;
   }
 
-  void setUpModelLoading(Playx3dSceneController controller) {
-    if (widget.onModelLoadingStateChanged != null) {
-      _modelLoadingSubscription =
-          controller.getModelLoadingState().listen((isLoading) {
-        if (widget.onModelLoadingStateChanged != null) {
-          widget.onModelLoadingStateChanged!(isLoading);
+  void setUpModelState(Playx3dSceneController controller) {
+    if (widget.onModelStateChanged != null) {
+      _modelLoadingSubscription = getModelState().listen((state) {
+        if (widget.onModelStateChanged != null) {
+          widget.onModelStateChanged!(state);
         }
       });
     }
   }
 
   void _onPlatformViewCreated(int id) {
+    final controller = Playx3dSceneController(id: id);
+
     if (widget.onCreated != null) {
-      final controller = Playx3dSceneController(id: id);
       widget.onCreated!(controller);
-      setUpModelLoading(controller);
     }
+    _modelLoadingChannel = EventChannel('${_modelStateChannelName}_$id');
+    setUpModelState(controller);
   }
 
   @override
   void dispose() {
     _modelLoadingSubscription?.cancel();
     super.dispose();
+  }
+
+  Stream<ModelState> getModelState() {
+    return _modelLoadingChannel.receiveBroadcastStream().map((state) {
+      final currentState = state as String?;
+      return ModelState.from(currentState);
+    });
   }
 }
