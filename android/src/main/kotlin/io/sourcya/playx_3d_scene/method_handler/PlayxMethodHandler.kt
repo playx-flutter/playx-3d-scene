@@ -1,6 +1,8 @@
 package io.sourcya.playx_3d_scene.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -8,6 +10,9 @@ import io.sourcya.playx_3d_scene.Playx3dScenePlugin
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
+import java.util.logging.StreamHandler
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -20,26 +25,36 @@ class PlayxMethodHandler(
 
     private var job: Job = SupervisorJob()
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
-    private var methodChannel: MethodChannel? = null
 
+    private var modelLoadingJob :Job?= Job()
+    private val loadingScope = CoroutineScope(Dispatchers.Main)
+
+    private var methodChannel: MethodChannel? = null
+    private var modelLoadingEventChannel:EventChannel? = null
+    private var modelLoadingEventSink :EventSink? =null
+
+    init {
+        listenToModelLoading()
+    }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             changeAnimationByIndex -> changeAnimationByIndex(call, result)
             changeAnimationByName -> changeAnimationByName(call, result)
-            getAnimationNames -> getAnimationNames(call, result)
+            getAnimationNames -> getAnimationNames(result)
             getAnimationNameByIndex -> getAnimationNameByIndex(call, result)
-            getCurrentAnimationIndex -> getCurrentAnimationIndex(call, result)
-            getAnimationCount -> getAnimationCount(call, result)
+            getCurrentAnimationIndex -> getCurrentAnimationIndex(result)
+            getAnimationCount -> getAnimationCount(result)
             changeEnvironmentByAsset -> changeEnvironmentByAsset(call, result)
             changeEnvironmentColor -> changeEnvironmentColor(call, result)
-            changeToTransparentEnvironment -> changeToTransparentEnvironment(call, result)
+            changeToTransparentEnvironment -> changeToTransparentEnvironment(result)
             changeLightByAsset -> changeLightByAsset(call, result)
             changeLightByIntensity -> changeLightByIntensity(call, result)
-            changeToDefaultLightIntensity -> changeToDefaultLightIntensity(call, result)
+            changeToDefaultLightIntensity -> changeToDefaultLightIntensity(result)
             loadGlbModelFromAssets -> loadGlbModelFromAssets(call, result)
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
+            getCurrentModelState -> getCurrentModelState(result)
             else -> result.notImplemented()
         }
     }
@@ -83,7 +98,7 @@ class PlayxMethodHandler(
     /**
      *Get current model animation names.
      */
-    private fun getAnimationNames(call: MethodCall, result: MethodChannel.Result) {
+    private fun getAnimationNames(result: MethodChannel.Result) {
         if (modelViewer != null) {
             result.success(modelViewer.getAnimationNames())
         } else {
@@ -94,7 +109,7 @@ class PlayxMethodHandler(
     /**
      *Get current model animation count.
      */
-    private fun getAnimationCount(call: MethodCall, result: MethodChannel.Result) {
+    private fun getAnimationCount(result: MethodChannel.Result) {
         if (modelViewer != null) {
             result.success(modelViewer.getAnimationCount())
         } else {
@@ -105,7 +120,7 @@ class PlayxMethodHandler(
     /**
      *Get current model animation index.
      */
-    private fun getCurrentAnimationIndex(call: MethodCall, result: MethodChannel.Result) {
+    private fun getCurrentAnimationIndex(result: MethodChannel.Result) {
         if (modelViewer != null) {
             result.success(modelViewer.getCurrentAnimationIndex())
         } else {
@@ -171,7 +186,7 @@ class PlayxMethodHandler(
     /**
      * change environment to be transparent
      */
-    private fun changeToTransparentEnvironment(call: MethodCall, result: MethodChannel.Result) {
+    private fun changeToTransparentEnvironment(result: MethodChannel.Result) {
         if (modelViewer != null) {
             modelViewer.changeToTransparentEnvironment()
             result.success("Environment changed to Transparent")
@@ -230,7 +245,7 @@ class PlayxMethodHandler(
     /**
      *change scene indirect light to the default intensity which is 40_000.0.
      */
-    private fun changeToDefaultLightIntensity(call: MethodCall, result: MethodChannel.Result) {
+    private fun changeToDefaultLightIntensity(result: MethodChannel.Result) {
         if (modelViewer != null) {
             modelViewer.changeToDefaultLight()
             result.success("Default light intensity changed")
@@ -317,6 +332,77 @@ class PlayxMethodHandler(
     }
 
 
+    private fun getCurrentModelState( result: MethodChannel.Result) {
+        if (modelViewer != null) {
+            result.success(modelViewer.modelState.value.toString())
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
+
+
+
+    private fun listenToModelLoading(){
+        modelLoadingJob = loadingScope.launch {
+            modelViewer?.modelState?.collectLatest {
+                Timber.d("My Playx3dScenePlugin  listenToModelLoading method : $it")
+                    modelLoadingEventSink?.success(it.toString())
+
+            }
+        }
+    }
+
+
+
+
+    fun startListeningToChannel() {
+        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.MAIN_CHANNEL_NAME}_$id")
+        methodChannel?.setMethodCallHandler(this)
+        job = SupervisorJob()
+
+    }
+
+    fun stopListeningToChannel() {
+        methodChannel?.setMethodCallHandler(null)
+        methodChannel = null
+        job.cancel()
+    }
+
+
+    fun startListeningToEventChannels(){
+
+        Timber.d("My Playx3dScenePlugin : startListeningToEventChannels")
+
+        modelLoadingEventChannel = EventChannel(messenger, "${Playx3dScenePlugin.MODEL_STATE_CHANNEL_NAME}_$id")
+        modelLoadingEventChannel?.setStreamHandler(object :StreamHandler(),
+            EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventSink?) {
+
+                modelLoadingEventSink = events
+                Timber.d("My Playx3dScenePlugin : onListen : ${modelViewer?.modelState?.value?.toString()}")
+
+                modelLoadingEventSink?.success(modelViewer?.modelState?.value?.toString())
+            }
+            override fun onCancel(arguments: Any?) {
+                Timber.d("My Playx3dScenePlugin : onCancel")
+
+                modelLoadingEventChannel =null
+            }
+        })
+
+        modelLoadingJob = SupervisorJob()
+    }
+
+    fun stopListeningToEventChannels(){
+        Timber.d("My Playx3dScenePlugin : stopListeningToEventChannels")
+
+        modelLoadingJob?.cancel()
+        modelLoadingEventChannel?.setStreamHandler(null)
+        modelLoadingEventChannel = null
+
+    }
+
+
     private inline fun <reified T> getValue(call: MethodCall, key: String, default: T? = null): T? {
 
         if (call.hasArgument(key)) {
@@ -327,19 +413,6 @@ class PlayxMethodHandler(
             }
         }
         return default
-    }
-
-    fun startListeningToChannel() {
-        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.channelName}_$id")
-        methodChannel?.setMethodCallHandler(this)
-        job = SupervisorJob()
-
-    }
-
-    fun stopListeningToChannel() {
-        methodChannel?.setMethodCallHandler(null)
-        methodChannel = null
-        job.cancel()
     }
 
     companion object {
@@ -389,6 +462,7 @@ class PlayxMethodHandler(
             "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY"
         const val loadGltfModelFromAssetsPostfixPathKey =
             "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
+        const val getCurrentModelState = "GET_CURRENT_MODEL_STATE";
 
 
     }

@@ -29,6 +29,8 @@ class Playx3dScene(
     private var playXMethodHandler: PlayxMethodHandler? = null
 
     init {
+        Timber.d("My Playx3dScenePlugin : setUpModelViewer")
+
         setUpModelViewer()
     }
 
@@ -41,6 +43,7 @@ class Playx3dScene(
         val model = Model.fromMap(modelMap)
         val scene = Scene.fromMap(sceneMap)
 
+        Timber.d("My Playx3dScenePlugin : model :$model scene $scene")
         modelViewer = ModelViewerController(
             context,
             engine,
@@ -55,11 +58,13 @@ class Playx3dScene(
     private fun listenToChannel() {
         playXMethodHandler = PlayxMethodHandler(binding.binaryMessenger, modelViewer, id)
         playXMethodHandler?.startListeningToChannel()
+        playXMethodHandler?.startListeningToEventChannels()
         lifecycleProvider.getLifecycle()?.addObserver(this)
     }
 
     private fun stopListeningToChannel() {
         playXMethodHandler?.stopListeningToChannel()
+        playXMethodHandler?.stopListeningToEventChannels()
         playXMethodHandler = null
         lifecycleProvider.getLifecycle()?.removeObserver(this)
 
@@ -82,10 +87,14 @@ class Playx3dScene(
     }
 
     override fun getView(): View? {
+        Timber.d("My Playx3dScenePlugin : getView")
+
         return modelViewer?.getView()
     }
 
     override fun dispose() {
+        Timber.d("My Playx3dScenePlugin : dispose view")
+
         modelViewer?.destroy()
         stopListeningToChannel()
     }
@@ -94,9 +103,13 @@ class Playx3dScene(
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
+            Timber.d("My Playx3dScenePlugin : ON_RESUME")
+
             modelViewer?.handleOnResume()
 
         } else if (event == Lifecycle.Event.ON_PAUSE) {
+            Timber.d("My Playx3dScenePlugin : ON_PAUSE")
+
             modelViewer?.handleOnPause()
         }
 

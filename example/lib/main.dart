@@ -1,12 +1,15 @@
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
+import 'package:playx_3d_scene/models/model_state.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox.dart';
 import 'package:playx_3d_scene/view/playx_3d_scene.dart';
 
 void main() {
+  Fimber.plantTree(DebugTree());
   runApp(const MyApp());
 }
 
@@ -18,6 +21,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool isModelLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -28,18 +33,33 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Container(
-            color: Colors.cyan,
-            child: Playx3dScene(
-              model: GlbModel.asset(
-                "assets/models/Fox.glb",
-                animation: PlayxAnimation.byIndex(1, autoPlay: true),
+          child: Stack(
+            children: [
+              Playx3dScene(
+                model: GlbModel.url(
+                  "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb",
+                  fallback: GlbModel.asset("assets/models/Fox.glb",
+                      animation: PlayxAnimation.byIndex(0, autoPlay: true)),
+                  animation: PlayxAnimation.byIndex(1, autoPlay: true),
+                ),
+                scene: Scene(skybox: Skybox.color(Colors.yellow)),
+                onCreated: (Playx3dSceneController controller) {
+                  Fimber.d("My Playx3dScenePlugin onCreated");
+                },
+                onModelStateChanged: (state) {
+                  setState(() {
+                    isModelLoading = state == ModelState.loading;
+                  });
+                },
               ),
-              scene: Scene(skybox: Skybox.color(Colors.green)),
-              onCreated: (Playx3dSceneController controller) {
-                // controller.changeAnimationByIndex(2);
-              },
-            ),
+              isModelLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.pink,
+                      ),
+                    )
+                  : Container(),
+            ],
           ),
         ),
       ),

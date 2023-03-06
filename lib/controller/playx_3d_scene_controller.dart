@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:playx_3d_scene/models/model_state.dart';
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
 const String _changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY";
@@ -48,13 +49,16 @@ const String _loadGltfModelFromAssetsPrefixPathKey =
 const String _loadGltfModelFromAssetsPostfixPathKey =
     "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
 
+const String _getCurrentModelState = "GET_CURRENT_MODEL_STATE";
+
 class Playx3dSceneController {
   int id;
   late MethodChannel _channel;
-  static const String channelName = "io.sourcya.playx.3d.scene.channel";
+
+  static const String _channelName = "io.sourcya.playx.3d.scene.channel";
 
   Playx3dSceneController({required this.id}) {
-    _channel = MethodChannel('${channelName}_$id');
+    _channel = MethodChannel('${_channelName}_$id');
   }
 
   //animation
@@ -254,4 +258,19 @@ class Playx3dSceneController {
           _loadGltfModelFromAssetsPostfixPathKey: imagePathPostfix
         },
       );
+
+  /// Get current model state.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<ModelState> getCurrentModelState() async {
+    try {
+      final state = await _channel.invokeMethod<String>(
+        _getCurrentModelState,
+        {},
+      );
+      return ModelState.from(state);
+    } catch (error) {
+      return ModelState.none;
+    }
+  }
 }
