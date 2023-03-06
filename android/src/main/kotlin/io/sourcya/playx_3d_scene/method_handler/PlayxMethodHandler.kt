@@ -1,6 +1,8 @@
 package io.sourcya.playx_3d_scene.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -8,6 +10,9 @@ import io.sourcya.playx_3d_scene.Playx3dScenePlugin
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
+import java.util.logging.StreamHandler
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -20,8 +25,17 @@ class PlayxMethodHandler(
 
     private var job: Job = SupervisorJob()
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
-    private var methodChannel: MethodChannel? = null
 
+    private var modelLoadingJob :Job?= Job()
+    private val loadingScope = CoroutineScope(Dispatchers.Main)
+
+    private var methodChannel: MethodChannel? = null
+    private var modelLoadingEventChannel:EventChannel? = null
+    private var modelLoadingEventSink :EventSink? =null
+
+    init {
+        listenToModelLoading()
+    }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -317,6 +331,68 @@ class PlayxMethodHandler(
     }
 
 
+
+    private fun listenToModelLoading(){
+        modelLoadingJob = loadingScope.launch {
+            modelViewer?.isModelLoading?.collectLatest {
+                Timber.d("My Playx3dScenePlugin  listenToModelLoading method : $it")
+                    modelLoadingEventSink?.success(it)
+
+            }
+        }
+    }
+
+
+
+
+    fun startListeningToChannel() {
+        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.MAIN_CHANNEL_NAME}_$id")
+        methodChannel?.setMethodCallHandler(this)
+        job = SupervisorJob()
+
+    }
+
+    fun stopListeningToChannel() {
+        methodChannel?.setMethodCallHandler(null)
+        methodChannel = null
+        job.cancel()
+    }
+
+
+    fun startListeningToEventChannels(){
+
+        Timber.d("My Playx3dScenePlugin : startListeningToEventChannels")
+
+        modelLoadingEventChannel = EventChannel(messenger, "${Playx3dScenePlugin.MODEL_LOADING_CHANNEL_NAME}_$id")
+        modelLoadingEventChannel?.setStreamHandler(object :StreamHandler(),
+            EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventSink?) {
+
+                modelLoadingEventSink = events
+                Timber.d("My Playx3dScenePlugin : onListen : ${modelViewer?.isModelLoading?.value}")
+
+                modelLoadingEventSink?.success(modelViewer?.isModelLoading?.value ?: false)
+            }
+            override fun onCancel(arguments: Any?) {
+                Timber.d("My Playx3dScenePlugin : onCancel")
+
+                modelLoadingEventChannel =null
+            }
+        })
+
+        modelLoadingJob = SupervisorJob()
+    }
+
+    fun stopListeningToEventChannels(){
+        Timber.d("My Playx3dScenePlugin : stopListeningToEventChannels")
+
+        modelLoadingJob?.cancel()
+        modelLoadingEventChannel?.setStreamHandler(null)
+        modelLoadingEventChannel = null
+
+    }
+
+
     private inline fun <reified T> getValue(call: MethodCall, key: String, default: T? = null): T? {
 
         if (call.hasArgument(key)) {
@@ -327,19 +403,6 @@ class PlayxMethodHandler(
             }
         }
         return default
-    }
-
-    fun startListeningToChannel() {
-        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.channelName}_$id")
-        methodChannel?.setMethodCallHandler(this)
-        job = SupervisorJob()
-
-    }
-
-    fun stopListeningToChannel() {
-        methodChannel?.setMethodCallHandler(null)
-        methodChannel = null
-        job.cancel()
     }
 
     companion object {

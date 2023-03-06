@@ -51,10 +51,15 @@ const String _loadGltfModelFromAssetsPostfixPathKey =
 class Playx3dSceneController {
   int id;
   late MethodChannel _channel;
+  late EventChannel _modelLoadingChannel;
+
   static const String channelName = "io.sourcya.playx.3d.scene.channel";
+  static const String modelLoadingChannelName =
+      "io.sourcya.playx.3d.scene.model_loading_channel";
 
   Playx3dSceneController({required this.id}) {
     _channel = MethodChannel('${channelName}_$id');
+    _modelLoadingChannel = EventChannel('${modelLoadingChannelName}_$id');
   }
 
   //animation
@@ -254,4 +259,10 @@ class Playx3dSceneController {
           _loadGltfModelFromAssetsPostfixPathKey: imagePathPostfix
         },
       );
+
+  Stream<bool> getModelLoadingState() {
+    return _modelLoadingChannel.receiveBroadcastStream().map((isLoading) {
+      return isLoading as bool;
+    });
+  }
 }

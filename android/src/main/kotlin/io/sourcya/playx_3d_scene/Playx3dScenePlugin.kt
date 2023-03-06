@@ -19,6 +19,8 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
 
     //register the android native view
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Timber.plant(Timber.DebugTree())
+        Timber.d("My Playx3dScenePlugin : onAttachedToEngine")
        engine= Engine.create()
         binding
             .platformViewRegistry
@@ -33,11 +35,14 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
                 )
     }
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Timber.d("My Playx3dScenePlugin : onDetachedFromEngine")
         engine.destroy()
     }
     companion object {
-        const val channelName = "io.sourcya.playx.3d.scene.channel"
-        var viewType = "${channelName}_3d_scene"
+        const val MAIN_CHANNEL_NAME = "io.sourcya.playx.3d.scene.channel"
+        const val  MODEL_LOADING_CHANNEL_NAME= "io.sourcya.playx.3d.scene.model_loading_channel"
+
+        var viewType = "${MAIN_CHANNEL_NAME}_3d_scene"
         init {
             Utils.init()
         }
@@ -45,9 +50,13 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         // get the activity lifecycle to handle lifecycle events
         lifecycle = (binding.lifecycle as HiddenLifecycleReference).lifecycle
+        Timber.d("My Playx3dScenePlugin : onAttachedToActivity")
+
     }
     override fun onDetachedFromActivityForConfigChanges() {
         lifecycle = null
+        Timber.d("My Playx3dScenePlugin : onDetachedFromActivityForConfigChanges")
+
     }
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 

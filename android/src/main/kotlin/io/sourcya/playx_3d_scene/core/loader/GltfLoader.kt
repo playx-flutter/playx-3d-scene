@@ -7,6 +7,7 @@ import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -20,14 +21,17 @@ internal class GltfLoader  constructor(
     private val flutterAssets: FlutterAssets
 
 ) {
+     val isLoading = MutableStateFlow(false)
     suspend fun loadGltfFromAsset(
         path: String?,
         gltfImagePathPrefix: String,
         gltfImagePathPostfix: String
     ) :Resource<String>{
+        isLoading.value = true
 
         return withContext(Dispatchers.IO) {
             if(modelViewer == null) {
+                isLoading.value = false
                 return@withContext Resource.Error(
                     "model viewer is not initialized"
                 )
@@ -44,12 +48,15 @@ internal class GltfLoader  constructor(
 
 
                         } catch (t: Throwable) {
+                            isLoading.value = false
                             return@withContext Resource.Error("Failed to load gltf")
                         }
                     }
+                    isLoading.value = false
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
                 }
                 is Resource.Error -> {
+                    isLoading.value = false
                     return@withContext Resource.Error(
                         bufferResource.message ?: "Couldn't load gltf model from asset"
                     )
