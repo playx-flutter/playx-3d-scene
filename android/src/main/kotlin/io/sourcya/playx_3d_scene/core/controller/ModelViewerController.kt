@@ -74,7 +74,7 @@ class ModelViewerController constructor(
     init {
         setUpViewer()
 
-        setUpEnvironment()
+        setUpSkybox()
         setUpLight()
         setUpLoadingModel()
     }
@@ -202,13 +202,13 @@ class ModelViewerController constructor(
         }
     }
 
-    private fun setUpEnvironment() {
+    private fun setUpSkybox() {
         coroutineScope.launch {
             val skybox = scene?.skybox
             if (!skybox?.assetPath.isNullOrEmpty()) {
-                skyboxManger.setSkyboxFromAsset(skybox?.assetPath ?: "")
+                skyboxManger.setSkyboxFromAsset(skybox?.assetPath)
             } else if (!skybox?.url.isNullOrEmpty()) {
-                skyboxManger.setSkyboxFromAsset(skybox?.url ?: "")
+                skyboxManger.setSkyboxFromUrl(skybox?.url)
             } else if (skybox?.color != null) {
                 skyboxManger.setSkyboxFromColor(skybox.color)
             } else {
@@ -304,8 +304,7 @@ class ModelViewerController constructor(
     }
 
 
-    suspend fun changeEnvironment(assetPath: String?): Resource<String> {
-
+    suspend fun changeSkyboxFromAsset(assetPath: String?): Resource<String> {
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromAsset(assetPath)
         if (resource is Resource.Success) {
@@ -317,7 +316,17 @@ class ModelViewerController constructor(
     }
 
 
-    fun changeEnvironmentColor(color: Int?): Resource<String> {
+    suspend fun changeSkyboxFromUrl(url: String?): Resource<String> {
+        removeFrameCallback()
+        val resource = skyboxManger.setSkyboxFromUrl(url)
+        if (resource is Resource.Success) {
+            makeSurfaceViewNotTransparent()
+            scene?.skybox?.url = url
+        }
+        addFrameCallback()
+        return resource
+    }
+    fun changeSkyboxByColor(color: Int?): Resource<String> {
 
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromColor(color)
@@ -329,7 +338,7 @@ class ModelViewerController constructor(
         return resource
     }
 
-    fun changeToTransparentEnvironment() {
+    fun changeToTransparentSkybox() {
         removeFrameCallback()
         skyboxManger.setTransparentSkybox()
         makeSurfaceViewTransparent()

@@ -15,14 +15,16 @@ const String _getAnimationCount = "GET_ANIMATION_COUNT";
 
 const String _getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX";
 
-const String _changeEnvironmentByAsset = "CHANGE_ENVIRONMENT_BY_ASSET";
-const String _changeEnvironmentByAssetKey = "CHANGE_ENVIRONMENT_BY_ASSET_KEY";
+const String _changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET";
+const String _changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY";
 
-const String _changeEnvironmentColor = "CHANGE_ENVIRONMENT_COLOR";
-const String _changeEnvironmentColorKey = "CHANGE_ENVIRONMENT_COLOR_KEY";
+const String _changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL";
+const String _changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY";
 
-const String _changeToTransparentEnvironment =
-    "CHANGE_TO_TRANSPARENT_ENVIRONMENT";
+const String _changeSkyboxColor = "CHANGE_SKYBOX_COLOR";
+const String _changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY";
+
+const String _changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX";
 
 const String _changeLightByAsset = "CHANGE_LIGHT_BY_ASSET";
 const String _changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY";
@@ -131,10 +133,23 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeEnvironmentByAsset(String? path) =>
+  Future<String?> changeSkyboxByAsset(String? path) =>
       _channel.invokeMethod<String>(
-        _changeEnvironmentByAsset,
-        {_changeEnvironmentByAssetKey: path},
+        _changeSkyboxByAsset,
+        {_changeSkyboxByAssetKey: path},
+      );
+
+  /// change environment by given asset path.
+  /// it takes an String? asset path as an argument.
+  /// should be provided with the KTX skybox file.
+  /// so it can update the environment skybox with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeSkyboxByUrl(String? url) =>
+      _channel.invokeMethod<String>(
+        _changeSkyboxByUrl,
+        {_changeSkyboxByUrlKey: url},
       );
 
   /// change environment by given color.
@@ -143,11 +158,11 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeEnvironmentColor(Color? color) {
+  Future<String?> changeSkyboxColor(Color? color) {
     final environmentColor = color?.value;
     return _channel.invokeMethod<String>(
-      _changeEnvironmentColor,
-      {_changeEnvironmentColorKey: environmentColor},
+      _changeSkyboxColor,
+      {_changeSkyboxColorKey: environmentColor},
     );
   }
 
@@ -155,9 +170,8 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeToTransparentEnvironment() =>
-      _channel.invokeMethod<String>(
-        _changeToTransparentEnvironment,
+  Future<String?> changeToTransparentSkybox() => _channel.invokeMethod<String>(
+        _changeToTransparentSkybox,
         {},
       );
 

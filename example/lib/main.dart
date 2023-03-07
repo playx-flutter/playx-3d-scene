@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
-import 'package:playx_3d_scene/models/model/gltf_model.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
@@ -37,19 +36,22 @@ class _MyAppState extends State<MyApp> {
           child: Stack(
             children: [
               Playx3dScene(
-                model: GltfModel.url(
+                model: GlbModel.url(
                   // "https://dl.dropbox.com/s/1mg91o2qfzqp6kw/models.zip",
                   "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb22",
                   fallback: GlbModel.asset("assets/models/Fox.glb",
                       animation: PlayxAnimation.byIndex(0, autoPlay: true)),
                   animation: PlayxAnimation.byIndex(1, autoPlay: true),
                 ),
-                scene: Scene(
-                    skybox: Skybox.asset(
-                  "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx",
-                )),
-                onCreated: (Playx3dSceneController controller) {
+                scene: Scene(skybox: Skybox.color(Colors.cyan))
+                //   Skybox.url(
+                //       "https://github.com/google/filament/raw/main/docs/webgl/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx"),
+                // ),
+                ,
+                onCreated: (Playx3dSceneController controller) async {
                   Fimber.d("My Playx3dScenePlugin onCreated");
+                  await controller.changeSkyboxByUrl(
+                      "https://github.com/google/filament/raw/main/docs/webgl/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx");
                 },
                 onModelStateChanged: (state) {
                   Fimber.d(

@@ -1,18 +1,12 @@
 package io.sourcya.playx_3d_scene.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.sourcya.playx_3d_scene.Playx3dScenePlugin
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
-import timber.log.Timber
-import java.util.logging.StreamHandler
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -38,9 +32,10 @@ class PlayxMethodHandler(
             getAnimationNameByIndex -> getAnimationNameByIndex(call, result)
             getCurrentAnimationIndex -> getCurrentAnimationIndex(result)
             getAnimationCount -> getAnimationCount(result)
-            changeEnvironmentByAsset -> changeEnvironmentByAsset(call, result)
-            changeEnvironmentColor -> changeEnvironmentColor(call, result)
-            changeToTransparentEnvironment -> changeToTransparentEnvironment(result)
+            changeSkyboxByAsset -> changeSkyboxByAsset(call, result)
+            changeSkyboxByUrl->changeSkyboxByUrl(call,result)
+            changeSkyboxColor -> changeSkyboxColor(call, result)
+            changeToTransparentSkybox -> changeToTransparentSkybox(result)
             changeLightByAsset -> changeLightByAsset(call, result)
             changeLightByIntensity -> changeLightByIntensity(call, result)
             changeToDefaultLightIntensity -> changeToDefaultLightIntensity(result)
@@ -144,10 +139,10 @@ class PlayxMethodHandler(
      *  should be provided with the KTX skybox file.
      *  so it can update the environment skybox with it.
      */
-    private fun changeEnvironmentByAsset(call: MethodCall, result: MethodChannel.Result) {
+    private fun changeSkyboxByAsset(call: MethodCall, result: MethodChannel.Result) {
         coroutineScope.launch {
-            val assetPath = getValue<String>(call, changeEnvironmentByAssetKey)
-            when (val resource = modelViewer?.changeEnvironment(assetPath)) {
+            val assetPath = getValue<String>(call, changeSkyboxByAssetKey)
+            when (val resource = modelViewer?.changeSkyboxFromAsset(assetPath)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -159,13 +154,36 @@ class PlayxMethodHandler(
         }
     }
 
+    /**
+     *  change environment by given asset path.
+     *  it takes an String? asset path as an argument.
+     *  should be provided with the KTX skybox file.
+     *  so it can update the environment skybox with it.
+     */
+    private fun changeSkyboxByUrl(call: MethodCall, result: MethodChannel.Result) {
+        coroutineScope.launch {
+            val url = getValue<String>(call, changeSkyboxByUrlKey)
+            when (val resource = modelViewer?.changeSkyboxFromUrl(url)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+        }
+    }
+
+
+
     /**  change environment by given color.
      * it takes an Color?  as an argument.
      * and updates the environment skybox color
      */
-    private fun changeEnvironmentColor(call: MethodCall, result: MethodChannel.Result) {
-        val color: Int? = getValue<Long>(call, changeEnvironmentColorKey)?.toInt()
-        when (val resource = modelViewer?.changeEnvironmentColor(color)) {
+    private fun changeSkyboxColor(call: MethodCall, result: MethodChannel.Result) {
+        val color: Int? = getValue<Long>(call, changeSkyboxColorKey)?.toInt()
+        when (val resource = modelViewer?.changeSkyboxByColor(color)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
             else -> result.error(
@@ -179,10 +197,10 @@ class PlayxMethodHandler(
     /**
      * change environment to be transparent
      */
-    private fun changeToTransparentEnvironment(result: MethodChannel.Result) {
+    private fun changeToTransparentSkybox(result: MethodChannel.Result) {
         if (modelViewer != null) {
-            modelViewer.changeToTransparentEnvironment()
-            result.success("Environment changed to Transparent")
+            modelViewer.changeToTransparentSkybox()
+            result.success("Skybox changed to Transparent")
         } else {
             result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
         }
@@ -375,20 +393,22 @@ class PlayxMethodHandler(
         private  const val getAnimationNames = "GET_ANIMATION_NAMES"
 
         private const val getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX"
-        private    const val getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY"
+        private const val getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY"
 
         private const val getAnimationCount = "GET_ANIMATION_COUNT"
 
         private  const val getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX"
 
-        private  const val changeEnvironmentByAsset = "CHANGE_ENVIRONMENT_BY_ASSET"
-        private  const val changeEnvironmentByAssetKey = "CHANGE_ENVIRONMENT_BY_ASSET_KEY"
+        private  const val changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET"
+        private  const val changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY"
 
+        private const val changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL"
+        private const val changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY"
 
-        private const val changeEnvironmentColor = "CHANGE_ENVIRONMENT_COLOR"
-        private  const val changeEnvironmentColorKey = "CHANGE_ENVIRONMENT_COLOR_KEY"
+        private const val changeSkyboxColor = "CHANGE_SKYBOX_COLOR"
+        private  const val changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY"
 
-        private  const val changeToTransparentEnvironment = "CHANGE_TO_TRANSPARENT_ENVIRONMENT"
+        private  const val changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX"
 
         private const val changeLightByAsset = "CHANGE_LIGHT_BY_ASSET"
         private const val changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
