@@ -48,7 +48,13 @@ class _MyAppState extends State<MyApp> {
                 onCreated: (Playx3dSceneController controller) {
                   Fimber.d("My Playx3dScenePlugin onCreated");
                 },
+                onEachRender: (time) {
+                  Fimber.d(" onEachRender $time");
+                },
                 onModelStateChanged: (state) {
+                  Fimber.d(
+                      "My Playx3dScenePlugin onModelStateChanged : $state");
+
                   setState(() {
                     isModelLoading = state == ModelState.loading;
                   });

@@ -12,6 +12,7 @@ import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
 import timber.log.Timber
@@ -27,6 +28,7 @@ class Playx3dScene(
 ) : PlatformView, LifecycleEventObserver {
     private var modelViewer: ModelViewerController? = null
     private var playXMethodHandler: PlayxMethodHandler? = null
+    private var playxEventHandler : PlayxEventHandler? = null
 
     init {
         Timber.d("My Playx3dScenePlugin : setUpModelViewer")
@@ -58,14 +60,16 @@ class Playx3dScene(
     private fun listenToChannel() {
         playXMethodHandler = PlayxMethodHandler(binding.binaryMessenger, modelViewer, id)
         playXMethodHandler?.startListeningToChannel()
-        playXMethodHandler?.startListeningToEventChannels()
+        playxEventHandler = PlayxEventHandler(binding.binaryMessenger, modelViewer, id)
+        playxEventHandler?.startListeningToEventChannels()
         lifecycleProvider.getLifecycle()?.addObserver(this)
     }
 
     private fun stopListeningToChannel() {
         playXMethodHandler?.stopListeningToChannel()
-        playXMethodHandler?.stopListeningToEventChannels()
+        playxEventHandler?.stopListeningToEventChannels()
         playXMethodHandler = null
+        playxEventHandler = null
         lifecycleProvider.getLifecycle()?.removeObserver(this)
 
     }

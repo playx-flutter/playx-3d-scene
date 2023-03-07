@@ -26,16 +26,9 @@ class PlayxMethodHandler(
     private var job: Job = SupervisorJob()
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
 
-    private var modelLoadingJob :Job?= Job()
-    private val loadingScope = CoroutineScope(Dispatchers.Main)
-
     private var methodChannel: MethodChannel? = null
-    private var modelLoadingEventChannel:EventChannel? = null
-    private var modelLoadingEventSink :EventSink? =null
 
-    init {
-        listenToModelLoading()
-    }
+
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -341,22 +334,8 @@ class PlayxMethodHandler(
     }
 
 
-
-    private fun listenToModelLoading(){
-        modelLoadingJob = loadingScope.launch {
-            modelViewer?.modelState?.collectLatest {
-                Timber.d("My Playx3dScenePlugin  listenToModelLoading method : $it")
-                    modelLoadingEventSink?.success(it.toString())
-
-            }
-        }
-    }
-
-
-
-
     fun startListeningToChannel() {
-        methodChannel = MethodChannel(messenger, "${Playx3dScenePlugin.MAIN_CHANNEL_NAME}_$id")
+        methodChannel = MethodChannel(messenger, "${MAIN_CHANNEL_NAME}_$id")
         methodChannel?.setMethodCallHandler(this)
         job = SupervisorJob()
 
@@ -369,38 +348,6 @@ class PlayxMethodHandler(
     }
 
 
-    fun startListeningToEventChannels(){
-
-        Timber.d("My Playx3dScenePlugin : startListeningToEventChannels")
-
-        modelLoadingEventChannel = EventChannel(messenger, "${Playx3dScenePlugin.MODEL_STATE_CHANNEL_NAME}_$id")
-        modelLoadingEventChannel?.setStreamHandler(object :StreamHandler(),
-            EventChannel.StreamHandler {
-            override fun onListen(arguments: Any?, events: EventSink?) {
-
-                modelLoadingEventSink = events
-                Timber.d("My Playx3dScenePlugin : onListen : ${modelViewer?.modelState?.value?.toString()}")
-
-                modelLoadingEventSink?.success(modelViewer?.modelState?.value?.toString())
-            }
-            override fun onCancel(arguments: Any?) {
-                Timber.d("My Playx3dScenePlugin : onCancel")
-
-                modelLoadingEventChannel =null
-            }
-        })
-
-        modelLoadingJob = SupervisorJob()
-    }
-
-    fun stopListeningToEventChannels(){
-        Timber.d("My Playx3dScenePlugin : stopListeningToEventChannels")
-
-        modelLoadingJob?.cancel()
-        modelLoadingEventChannel?.setStreamHandler(null)
-        modelLoadingEventChannel = null
-
-    }
 
 
     private inline fun <reified T> getValue(call: MethodCall, key: String, default: T? = null): T? {
@@ -417,52 +364,54 @@ class PlayxMethodHandler(
 
     companion object {
 
-        const val changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX"
-        const val changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY"
+        private const val MAIN_CHANNEL_NAME = "io.sourcya.playx.3d.scene.channel"
 
-        const val changeAnimationByName = "CHANGE_ANIMATION_BY_NAME"
-        const val changeAnimationByNameKey = "CHANGE_ANIMATION_BY_NAME_KEY"
+        private  const val changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX"
+        private const val changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY"
 
-        const val getAnimationNames = "GET_ANIMATION_NAMES"
+        private  const val changeAnimationByName = "CHANGE_ANIMATION_BY_NAME"
+        private const val changeAnimationByNameKey = "CHANGE_ANIMATION_BY_NAME_KEY"
 
-        const val getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX"
-        const val getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY"
+        private  const val getAnimationNames = "GET_ANIMATION_NAMES"
 
-        const val getAnimationCount = "GET_ANIMATION_COUNT"
+        private const val getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX"
+        private    const val getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY"
 
-        const val getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX"
+        private const val getAnimationCount = "GET_ANIMATION_COUNT"
 
-        const val changeEnvironmentByAsset = "CHANGE_ENVIRONMENT_BY_ASSET"
-        const val changeEnvironmentByAssetKey = "CHANGE_ENVIRONMENT_BY_ASSET_KEY"
+        private  const val getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX"
+
+        private  const val changeEnvironmentByAsset = "CHANGE_ENVIRONMENT_BY_ASSET"
+        private  const val changeEnvironmentByAssetKey = "CHANGE_ENVIRONMENT_BY_ASSET_KEY"
 
 
-        const val changeEnvironmentColor = "CHANGE_ENVIRONMENT_COLOR"
-        const val changeEnvironmentColorKey = "CHANGE_ENVIRONMENT_COLOR_KEY"
+        private const val changeEnvironmentColor = "CHANGE_ENVIRONMENT_COLOR"
+        private  const val changeEnvironmentColorKey = "CHANGE_ENVIRONMENT_COLOR_KEY"
 
-        const val changeToTransparentEnvironment = "CHANGE_TO_TRANSPARENT_ENVIRONMENT"
+        private  const val changeToTransparentEnvironment = "CHANGE_TO_TRANSPARENT_ENVIRONMENT"
 
-        const val changeLightByAsset = "CHANGE_LIGHT_BY_ASSET"
-        const val changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
-        const val changeLightByAssetIntensityKey = "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
+        private const val changeLightByAsset = "CHANGE_LIGHT_BY_ASSET"
+        private const val changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
+        private const val changeLightByAssetIntensityKey = "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
 
-        const val changeLightByIntensity = "CHANGE_LIGHT_BY_INTENSITY"
-        const val changeLightByIntensityKey = "CHANGE_LIGHT_BY_INTENSITY_KEY"
+        private const val changeLightByIntensity = "CHANGE_LIGHT_BY_INTENSITY"
+        private const val changeLightByIntensityKey = "CHANGE_LIGHT_BY_INTENSITY_KEY"
 
-        const val changeToDefaultLightIntensity = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
+        private const val changeToDefaultLightIntensity = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
 
-        const val loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS"
-        const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"
+        private const val loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS"
+        private  const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"
 
-        const val loadGlbModelFromUrl = "LOAD_GLB_MODEL_FROM_URL"
-        const val loadGlbModelFromUrlKey = "LOAD_GLB_MODEL_FROM_URL_KEY"
+        private const val loadGlbModelFromUrl = "LOAD_GLB_MODEL_FROM_URL"
+        private const val loadGlbModelFromUrlKey = "LOAD_GLB_MODEL_FROM_URL_KEY"
 
-        const val loadGltfModelFromAssets = "LOAD_GLTF_MODEL_FROM_ASSETS"
-        const val loadGltfModelFromAssetsPathKey = "LOAD_GLTF_MODEL_FROM_ASSETS_PATH_KEY"
-        const val loadGltfModelFromAssetsPrefixPathKey =
+        private const val loadGltfModelFromAssets = "LOAD_GLTF_MODEL_FROM_ASSETS"
+        private const val loadGltfModelFromAssetsPathKey = "LOAD_GLTF_MODEL_FROM_ASSETS_PATH_KEY"
+        private const val loadGltfModelFromAssetsPrefixPathKey =
             "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY"
-        const val loadGltfModelFromAssetsPostfixPathKey =
+        private const val loadGltfModelFromAssetsPostfixPathKey =
             "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
-        const val getCurrentModelState = "GET_CURRENT_MODEL_STATE";
+       private const val getCurrentModelState = "GET_CURRENT_MODEL_STATE";
 
 
     }

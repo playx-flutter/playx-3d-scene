@@ -10,7 +10,6 @@ import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import timber.log.Timber
 import java.io.*
 import java.nio.Buffer
@@ -19,27 +18,20 @@ import java.util.zip.ZipInputStream
 
 
 internal class GltfLoader  constructor(
-    private val modelViewer: CustomModelViewer?,
+    private val modelViewer: CustomModelViewer,
     private val context: Context,
     private val flutterAssets: FlutterAssets
 
 ) {
-     val state = MutableStateFlow(ModelState.NONE)
     suspend fun loadGltfFromAsset(
         path: String?,
         gltfImagePathPrefix: String,
         gltfImagePathPostfix: String,
         isFallback: Boolean = false
     ) :Resource<String>{
-        state.value = ModelState.LOADING
+        modelViewer.setModelState( ModelState.LOADING)
 
         return withContext(Dispatchers.IO) {
-            if(modelViewer == null) {
-                state.value = ModelState.ERROR
-                return@withContext Resource.Error(
-                    "model viewer is not initialized"
-                )
-            }else {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
@@ -52,48 +44,49 @@ internal class GltfLoader  constructor(
 
 
                         } catch (t: Throwable) {
-                            state.value = ModelState.ERROR
+                            modelViewer.setModelState( ModelState.ERROR)
                             return@withContext Resource.Error("Failed to load gltf")
                         }
                     }
-                    state.value = if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED
+                               modelViewer.setModelState(
+                            if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
                 }
                 is Resource.Error -> {
-                    state.value = ModelState.ERROR
+                    modelViewer.setModelState( ModelState.ERROR)
                     return@withContext Resource.Error(
                         bufferResource.message ?: "Couldn't load gltf model from asset"
                     )
                 }
-            }
             }
 
         }
 
     }
 
-
-
      suspend fun loadGltfFromUrl(url :String?,
                          prefix: String,
                          postfix: String,
                                  isFallback: Boolean =false,
      ):Resource<String> {
-         state.value = ModelState.LOADING
+
+         Timber.d("My Playx3dScenePlugin  loadGltfFromUrl ")
+
+         modelViewer.setModelState( ModelState.LOADING)
 
          if(url.isNullOrEmpty()) {
-             state.value = ModelState.ERROR
+             modelViewer.setModelState( ModelState.ERROR)
              return Resource.Error("url is empty")
          }
 
-             // To alleviate memory pressure, remove the old model before deflating the zip.
+         // To alleviate memory pressure, remove the old model before deflating the zip.
         withContext(Dispatchers.Main) {
-            modelViewer?.destroyModel()
+            modelViewer.destroyModel()
         }
 
          val zipFile= NetworkClient.downloadZip(url)
          if(zipFile == null){
-             state.value = ModelState.ERROR
+             modelViewer.setModelState( ModelState.ERROR)
              return Resource.Error("Couldn't download zip file")
          }
 
@@ -134,13 +127,13 @@ internal class GltfLoader  constructor(
 
              if (gltfPath == null) {
                  Timber.d("Could not find .gltf or .glb in the zip.")
-                 state.value = ModelState.ERROR
+                 modelViewer.setModelState( ModelState.ERROR)
                  return Resource.Error("Could not find .gltf or .glb in the zip.")
              }
 
              if (outOfMemory != null) {
                  Timber.d("Out of memory while deflating $outOfMemory")
-                 state.value = ModelState.ERROR
+                 modelViewer.setModelState( ModelState.ERROR)
                  return Resource.Error("Out of memory while deflating $outOfMemory")
              }
 
@@ -151,25 +144,27 @@ internal class GltfLoader  constructor(
              // paths are all specified relative to the location of the gltf file.
              withContext(Dispatchers.Main) {
                  if (gltfPath!!.endsWith(".glb")) {
-                     modelViewer?.modelLoader?.loadModelGlb(gltfBuffer)
-                     state.value = if(isFallback) ModelState.FALLBACK_LOADED else ModelState.LOADED
-                     return@withContext Resource.Success("Loaded glb model successfully from ${url}")
+                     modelViewer.modelLoader.loadModelGlb(gltfBuffer)
+                     modelViewer.setModelState(
+                         if(isFallback) ModelState.FALLBACK_LOADED else ModelState.LOADED)
+                     return@withContext Resource.Success("Loaded glb model successfully from $url")
                  } else {
-                     modelViewer?.modelLoader?.loadModelGltfAsync(gltfBuffer, true) { uri ->
+                     modelViewer.modelLoader.loadModelGltfAsync(gltfBuffer, true) { uri ->
                          val path = prefix + uri + postfix
                          if (!pathToBufferMapping.contains(path)) {
                              Log.e("Playx3dScene", "Could not find '$uri' in zip using prefix '$prefix' and base path '${gltfPath!!}'")
                          }
                          pathToBufferMapping[path]
                      }
-                     state.value = if(isFallback) ModelState.FALLBACK_LOADED else ModelState.LOADED
+                     modelViewer.setModelState(
+                     if(isFallback) ModelState.FALLBACK_LOADED else ModelState.LOADED)
 
-                     return@withContext Resource.Success("Loaded GLTF model successfully from ${url}")
+                     return@withContext Resource.Success("Loaded GLTF model successfully from $url")
 
                  }
              }
          }catch (ex:Throwable){
-             state.value = ModelState.ERROR
+             modelViewer.setModelState( ModelState.ERROR)
              return Resource.Error("Couldn't download zip file")
          }
     }

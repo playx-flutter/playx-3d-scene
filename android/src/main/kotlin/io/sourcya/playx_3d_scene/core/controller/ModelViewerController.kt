@@ -41,7 +41,7 @@ class ModelViewerController constructor(
     private val model: Model?,
 
     ) {
-    private var modelViewer: CustomModelViewer? = null
+    private lateinit var modelViewer: CustomModelViewer
     private val choreographer: Choreographer = Choreographer.getInstance()
 
     private var modelJob: Job? = null
@@ -83,9 +83,9 @@ class ModelViewerController constructor(
         surfaceView.setZOrderOnTop(true) // necessary
 
 
-        val view = modelViewer?.view
+        val view = modelViewer.view
 
-        view?.let {
+        view.let {
             // on mobile, better use lower quality color buffer
             view.renderQuality = view.renderQuality.apply {
                 hdrColorBuffer = View.QualityLevel.MEDIUM
@@ -112,9 +112,9 @@ class ModelViewerController constructor(
         }
 
 
-        glbLoader = GlbLoader(modelViewer, context, flutterAssets)
+        glbLoader = GlbLoader.getInstance(modelViewer, context, flutterAssets)
 
-        gltfLoader = GltfLoader(modelViewer, context, flutterAssets)
+        gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
 
         lightManger = LightManger(modelViewer, context, flutterAssets)
 
@@ -229,7 +229,7 @@ class ModelViewerController constructor(
 
 
     private fun makeSurfaceViewTransparent() {
-        modelViewer?.let {
+        modelViewer.let {
             it.view.blendMode = View.BlendMode.TRANSLUCENT
             surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
             val options = it.renderer.clearOptions
@@ -241,7 +241,7 @@ class ModelViewerController constructor(
     }
 
     private fun makeSurfaceViewNotTransparent() {
-        modelViewer?.view?.blendMode = View.BlendMode.OPAQUE
+        modelViewer.view.blendMode = View.BlendMode.OPAQUE
         surfaceView.setZOrderOnTop(true) // necessary
         surfaceView.holder.setFormat(PixelFormat.OPAQUE)
 
@@ -406,21 +406,22 @@ class ModelViewerController constructor(
 
 
     private fun setUpModelLoading() {
+
         glbModelStateJob = coroutineScope.launch {
-            glbLoader.state.collectLatest {
+            modelViewer.currentModelState.collectLatest {
                 Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
                 modelState.value = it
             }
         }
 
-        gltfModelStateJob = coroutineScope.launch {
-            gltfLoader.state.collectLatest {
-                modelState.value = it
-            }
-        }
 
 
     }
+
+    /**
+     *Flow that holds current frame in nanoseconds
+     */
+    fun getRenderStateFlow ()= modelViewer.rendererStateFlow
 
 
     private val frameCallback = object : Choreographer.FrameCallback {
@@ -433,7 +434,7 @@ class ModelViewerController constructor(
                 animationManger.showAnimation(currentAnimationIndex ?: -1, seconds)
             }
             try {
-                modelViewer?.render(currentTime)
+                modelViewer.render(currentTime)
             } catch (_: Exception) {
             }
         }
@@ -441,10 +442,11 @@ class ModelViewerController constructor(
 
 
     fun handleOnResume() {
+        Timber.d("My Playx3dScenePlugin  handleOnResume")
+        setUpModelLoading()
         surfaceView.invalidate()
         surfaceView.setZOrderOnTop(true)
         addFrameCallback()
-        setUpModelLoading()
     }
 
     fun handleOnPause() {
@@ -475,8 +477,7 @@ class ModelViewerController constructor(
         glbModelStateJob = null
         gltfModelStateJob?.cancel()
         gltfModelStateJob = null
-
-        modelViewer?.destroy()
+        modelViewer.destroy()
     }
 
 
