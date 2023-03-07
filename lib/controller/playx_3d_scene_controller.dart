@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:playx_3d_scene/models/model_state.dart';
+import 'package:playx_3d_scene/models/state/model_state.dart';
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
 const String _changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY";

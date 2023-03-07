@@ -1,4 +1,4 @@
-package io.sourcya.playx_3d_scene.core.models
+package io.sourcya.playx_3d_scene.core.models.states
 
 enum class ModelState {
     NONE,

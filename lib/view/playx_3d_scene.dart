@@ -6,8 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/model.dart';
-import 'package:playx_3d_scene/models/model_state.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
+import 'package:playx_3d_scene/models/state/model_state.dart';
+import 'package:playx_3d_scene/models/state/scene_state.dart';
 
 typedef Playx3dSceneCreatedCallback = void Function(
     Playx3dSceneController controller);
@@ -16,12 +17,16 @@ typedef Playx3dModelStateCallback = void Function(ModelState state);
 
 typedef Playx3dOnEachRenderCallback = void Function(num? frameTimeNanos);
 
+typedef Playx3dSceneStateCallback = void Function(SceneState state);
+
 const String _channelName = "io.sourcya.playx.3d.scene.channel";
 const String _viewType = "${_channelName}_3d_scene";
 const String _modelStateChannelName =
     "io.sourcya.playx.3d.scene.model_state_channel";
 const String _rendererChannelName =
     "io.sourcya.playx.3d.scene.renderer_channel";
+
+const String _sceneStateChannelName = "io.sourcya.playx.3d.scene.scene_state";
 
 class Playx3dScene extends StatefulWidget {
   /// Model to be rendered.
@@ -44,6 +49,10 @@ class Playx3dScene extends StatefulWidget {
   /// whether is none, loading, loaded, fallback loaded ,error.
   final Playx3dModelStateCallback? onModelStateChanged;
 
+  /// onSceneStateChanged callback provides current state of the scene;
+  /// whether is none, loading, loaded ,error.
+  final Playx3dSceneStateCallback? onSceneStateChanged;
+
   /// onEachRenderCallback callback that is called on each frame render.
   /// it also provides last frame render time in nanoseconds.
   final Playx3dOnEachRenderCallback? onEachRender;
@@ -54,7 +63,8 @@ class Playx3dScene extends StatefulWidget {
       this.scene,
       this.onCreated,
       this.onModelStateChanged,
-      this.onEachRender});
+      this.onEachRender,
+      this.onSceneStateChanged});
 
   @override
   State<StatefulWidget> createState() {
@@ -69,6 +79,8 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   StreamSubscription? _modelLoadingSubscription;
   late EventChannel _rendererChannel;
   StreamSubscription? _rendererSubscription;
+  late EventChannel _sceneStateChannel;
+  StreamSubscription? _sceneStateSubscription;
 
   PlayxModelViewerState();
 
@@ -109,6 +121,16 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     }
   }
 
+  void setUpSceneState(Playx3dSceneController controller) {
+    if (widget.onSceneStateChanged != null) {
+      _sceneStateSubscription = getSceneState().listen((state) {
+        if (widget.onSceneStateChanged != null) {
+          widget.onSceneStateChanged!(state);
+        }
+      });
+    }
+  }
+
   void setUpOnEachRenderCallback(Playx3dSceneController controller) {
     if (widget.onEachRender != null) {
       _rendererSubscription = getOnEachRender().listen((time) {
@@ -126,8 +148,10 @@ class PlayxModelViewerState extends State<Playx3dScene> {
       widget.onCreated!(controller);
     }
     _modelLoadingChannel = EventChannel('${_modelStateChannelName}_$id');
+    _sceneStateChannel = EventChannel('${_sceneStateChannelName}_$id');
     _rendererChannel = EventChannel('${_rendererChannelName}_$id');
     setUpModelState(controller);
+    setUpSceneState(controller);
     setUpOnEachRenderCallback(controller);
   }
 
@@ -135,6 +159,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   void dispose() {
     _modelLoadingSubscription?.cancel();
     _rendererSubscription?.cancel();
+    _sceneStateSubscription?.cancel();
     super.dispose();
   }
 
@@ -148,6 +173,13 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   Stream<num?> getOnEachRender() {
     return _rendererChannel.receiveBroadcastStream().map((time) {
       return time as num?;
+    });
+  }
+
+  Stream<SceneState> getSceneState() {
+    return _sceneStateChannel.receiveBroadcastStream().map((state) {
+      final currentState = state as String?;
+      return SceneState.from(currentState);
     });
   }
 }

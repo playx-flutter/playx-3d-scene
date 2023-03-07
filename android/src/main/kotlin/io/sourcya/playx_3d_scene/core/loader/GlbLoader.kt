@@ -3,7 +3,7 @@ package io.sourcya.playx_3d_scene.core.loader
 import android.annotation.SuppressLint
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import io.sourcya.playx_3d_scene.core.models.ModelState
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
@@ -29,7 +29,7 @@ internal class GlbLoader constructor(
                     bufferResource.data?.let {
                         modelViewer.modelLoader.loadModelGlb(it, true)
                     }
-                    modelViewer.setModelState( if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED)
+                    modelViewer.setModelState( if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
                 }
                 is Resource.Error -> {
@@ -60,7 +60,7 @@ internal class GlbLoader constructor(
                     if (buffer != null) {
                         modelViewer.modelLoader.loadModelGlb(buffer, true)
                         modelViewer.setModelState(
-                        if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED)
+                        if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                         return@withContext Resource.Success("Loaded glb model successfully from $url")
                     }else {
                         modelViewer.setModelState( ModelState.ERROR)

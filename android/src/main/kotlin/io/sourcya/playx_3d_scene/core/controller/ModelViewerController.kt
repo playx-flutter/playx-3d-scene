@@ -9,16 +9,18 @@ import com.google.android.filament.Engine
 import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
-import io.sourcya.playx_3d_scene.core.environment.EnvironmentManger
+import io.sourcya.playx_3d_scene.core.environment.SkyboxManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
-import io.sourcya.playx_3d_scene.core.models.ModelState
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.core.models.states.SceneState
+import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +48,7 @@ class ModelViewerController constructor(
 
     private var modelJob: Job? = null
     private var glbModelStateJob: Job? = null
-    private var gltfModelStateJob: Job? = null
+    private var sceneStateJob: Job? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -60,11 +62,13 @@ class ModelViewerController constructor(
 
     private lateinit var lightManger: LightManger
 
-    private lateinit var environmentManger: EnvironmentManger
+    private lateinit var skyboxManger: SkyboxManger
 
     private lateinit var animationManger: AnimationManger
 
-    var modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
+    val modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
+    val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
+
 
 
     init {
@@ -118,7 +122,7 @@ class ModelViewerController constructor(
 
         lightManger = LightManger(modelViewer, context, flutterAssets)
 
-        environmentManger = EnvironmentManger(modelViewer, context, flutterAssets)
+        skyboxManger = SkyboxManger(modelViewer, context, flutterAssets)
 
         animationManger = AnimationManger(modelViewer, context)
 
@@ -202,13 +206,13 @@ class ModelViewerController constructor(
         coroutineScope.launch {
             val skybox = scene?.skybox
             if (!skybox?.assetPath.isNullOrEmpty()) {
-                environmentManger.setEnvironmentFromAsset(skybox?.assetPath ?: "")
+                skyboxManger.setSkyboxFromAsset(skybox?.assetPath ?: "")
             } else if (!skybox?.url.isNullOrEmpty()) {
-                environmentManger.setEnvironmentFromAsset(skybox?.url ?: "")
+                skyboxManger.setSkyboxFromAsset(skybox?.url ?: "")
             } else if (skybox?.color != null) {
-                environmentManger.setEnvironmentFromColor(skybox.color)
+                skyboxManger.setSkyboxFromColor(skybox.color)
             } else {
-                environmentManger.setDefaultEnvironment()
+                skyboxManger.setDefaultSkybox()
                 makeSurfaceViewTransparent()
             }
         }
@@ -303,7 +307,7 @@ class ModelViewerController constructor(
     suspend fun changeEnvironment(assetPath: String?): Resource<String> {
 
         removeFrameCallback()
-        val resource = environmentManger.setEnvironmentFromAsset(assetPath)
+        val resource = skyboxManger.setSkyboxFromAsset(assetPath)
         if (resource is Resource.Success) {
             makeSurfaceViewNotTransparent()
             scene?.skybox?.assetPath = assetPath
@@ -316,7 +320,7 @@ class ModelViewerController constructor(
     fun changeEnvironmentColor(color: Int?): Resource<String> {
 
         removeFrameCallback()
-        val resource = environmentManger.setEnvironmentFromColor(color)
+        val resource = skyboxManger.setSkyboxFromColor(color)
         if (resource is Resource.Success) {
             scene?.skybox?.color = color
             makeSurfaceViewNotTransparent()
@@ -327,7 +331,7 @@ class ModelViewerController constructor(
 
     fun changeToTransparentEnvironment() {
         removeFrameCallback()
-        environmentManger.setTransparentEnvironment()
+        skyboxManger.setTransparentSkybox()
         makeSurfaceViewTransparent()
         addFrameCallback()
     }
@@ -404,18 +408,27 @@ class ModelViewerController constructor(
 
     }
 
-
-    private fun setUpModelLoading() {
-
+    private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {
             modelViewer.currentModelState.collectLatest {
                 Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
                 modelState.value = it
             }
         }
+    }
 
+    private fun listenToSceneState(){
+        sceneStateJob = coroutineScope.launch {
+            combine(modelViewer.currentSkyboxState,modelViewer.currentLightState){ (skyboxState,lightState) ->
+                Timber.d("My Playx3dScenePlugin  listenToSceneState skybox: $skyboxState , light: $lightState")
 
+                getSceneState(skyboxState,lightState)
+            }.collectLatest{state->
+                Timber.d("My Playx3dScenePlugin  listenToSceneState1 scene state: $state")
 
+                sceneState.value = state
+            }
+        }
     }
 
     /**
@@ -443,7 +456,8 @@ class ModelViewerController constructor(
 
     fun handleOnResume() {
         Timber.d("My Playx3dScenePlugin  handleOnResume")
-        setUpModelLoading()
+        listenToModelState()
+        listenToSceneState()
         surfaceView.invalidate()
         surfaceView.setZOrderOnTop(true)
         addFrameCallback()
@@ -453,8 +467,8 @@ class ModelViewerController constructor(
         removeFrameCallback()
         glbModelStateJob?.cancel()
         glbModelStateJob = null
-        gltfModelStateJob?.cancel()
-        gltfModelStateJob = null
+        sceneStateJob?.cancel()
+        sceneStateJob = null
     }
 
     fun getView() = surfaceView
@@ -472,11 +486,11 @@ class ModelViewerController constructor(
     fun destroy() {
         removeFrameCallback()
         modelJob?.cancel()
-        glbModelStateJob?.cancel()
         modelJob = null
+        glbModelStateJob?.cancel()
         glbModelStateJob = null
-        gltfModelStateJob?.cancel()
-        gltfModelStateJob = null
+        sceneStateJob?.cancel()
+        sceneStateJob = null
         modelViewer.destroy()
     }
 

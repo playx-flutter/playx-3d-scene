@@ -5,6 +5,7 @@ import android.content.Context
 import com.google.android.filament.IndirectLight
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
@@ -12,41 +13,43 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal class LightManger  constructor(
-    private val modelViewer: CustomModelViewer?,
+    private val modelViewer: CustomModelViewer,
     private val context: Context,
     private val flutterAssets: FlutterPlugin.FlutterAssets
 
 ) {
 
     fun setDefaultLight() {
+        modelViewer.setLightState(SceneState.LOADING)
         setIndirectLight(DEFAULT_LIGHT_INTENSITY)
+        modelViewer.setLightState(SceneState.LOADED)
+
     }
     suspend fun setIndirectLightFromAsset(path: String?, intensity: Double? ): Resource<String> {
+        modelViewer.setLightState(SceneState.LOADING)
+
         return   withContext(Dispatchers.IO) {
-            if(modelViewer == null) {
-                return@withContext Resource.Error(
-                    "model viewer is not initialized"
-                )
-            }else {
-                when (val bufferResource = readAsset(path, flutterAssets, context)) {
-                    is Resource.Success -> {
-                        bufferResource.data?.let {
-                            val light = KTX1Loader.createIndirectLight(modelViewer.engine, it)
-                            light.intensity = intensity?.toFloat() ?: 50_000f
+            when (val bufferResource = readAsset(path, flutterAssets, context)) {
+                is Resource.Success -> {
+                    bufferResource.data?.let {
+                        val light = KTX1Loader.createIndirectLight(modelViewer.engine, it)
+                        light.intensity = intensity?.toFloat() ?: 50_000f
 
-                            withContext(Dispatchers.Main) {
-                                modelViewer.scene.indirectLight = light
-                            }
+                        withContext(Dispatchers.Main) {
+                            modelViewer.scene.indirectLight = light
                         }
-                        return@withContext Resource.Success("changed Light successfully from ${path ?: ""}")
                     }
-                    is Resource.Error -> {
-                        return@withContext Resource.Error(
-                            bufferResource.message ?: "Couldn't changed Light from asset"
-                        )
-                    }
-
+                    modelViewer.setLightState(SceneState.LOADED)
+                    return@withContext Resource.Success("changed Light successfully from ${path ?: ""}")
                 }
+                is Resource.Error -> {
+                    modelViewer.setLightState(SceneState.ERROR)
+
+                    return@withContext Resource.Error(
+                        bufferResource.message ?: "Couldn't changed Light from asset"
+                    )
+                }
+
             }
         }
     }
@@ -59,13 +62,15 @@ internal class LightManger  constructor(
         irradianceBands: Int = 1,
         irradianceSh: FloatArray = floatArrayOf(1f, 1f, 1f),
     ) {
-        if(modelViewer != null) {
-            modelViewer.scene.indirectLight = IndirectLight.Builder()
-                .intensity(intensity?.toFloat() ?: 50_000f)
-                .radiance(radianceBands, radianceSh)
-                .irradiance(irradianceBands, irradianceSh)
-                .build(modelViewer.engine)
-        }
+        modelViewer.setLightState(SceneState.LOADING)
+
+        modelViewer.scene.indirectLight = IndirectLight.Builder()
+            .intensity(intensity?.toFloat() ?: 50_000f)
+            .radiance(radianceBands, radianceSh)
+            .irradiance(irradianceBands, irradianceSh)
+            .build(modelViewer.engine)
+        modelViewer.setLightState(SceneState.LOADED)
+
     }
 
 
