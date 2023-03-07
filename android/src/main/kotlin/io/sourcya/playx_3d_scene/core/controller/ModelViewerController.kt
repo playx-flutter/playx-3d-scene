@@ -45,7 +45,9 @@ class ModelViewerController constructor(
     private val choreographer: Choreographer = Choreographer.getInstance()
 
     private var modelJob: Job? = null
-    private var modelLoadingJob: Job? = null
+    private var glbModelStateJob: Job? = null
+    private var gltfModelStateJob: Job? = null
+
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private var currentAnimationIndex: Int? = null
@@ -132,6 +134,8 @@ class ModelViewerController constructor(
     private fun setUpLoadingModel() {
         modelJob = coroutineScope.launch {
             val result = loadModel(model)
+            Timber.d("Model loading result : ${result?.data} error :${result?.message}")
+
             if(result!= null && model?.fallback != null) {
                 if(result is Resource.Error){
                     loadModel(model.fallback)
@@ -165,7 +169,7 @@ class ModelViewerController constructor(
                         model.pathPostfix
                     )
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromUrl(model.url)
+                    result = gltfLoader.loadGltfFromUrl(model.url,model.pathPrefix,model.pathPostfix)
                 }
             }
             else -> {}
@@ -402,14 +406,16 @@ class ModelViewerController constructor(
 
 
     private fun setUpModelLoading() {
-        modelLoadingJob = coroutineScope.launch {
+        glbModelStateJob = coroutineScope.launch {
             glbLoader.state.collectLatest {
                 Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
                 modelState.value = it
             }
+        }
+
+        gltfModelStateJob = coroutineScope.launch {
             gltfLoader.state.collectLatest {
                 modelState.value = it
-
             }
         }
 
@@ -443,8 +449,10 @@ class ModelViewerController constructor(
 
     fun handleOnPause() {
         removeFrameCallback()
-        modelLoadingJob?.cancel()
-        modelLoadingJob = null
+        glbModelStateJob?.cancel()
+        glbModelStateJob = null
+        gltfModelStateJob?.cancel()
+        gltfModelStateJob = null
     }
 
     fun getView() = surfaceView
@@ -462,9 +470,12 @@ class ModelViewerController constructor(
     fun destroy() {
         removeFrameCallback()
         modelJob?.cancel()
-        modelLoadingJob?.cancel()
+        glbModelStateJob?.cancel()
         modelJob = null
-        modelLoadingJob = null
+        glbModelStateJob = null
+        gltfModelStateJob?.cancel()
+        gltfModelStateJob = null
+
         modelViewer?.destroy()
     }
 

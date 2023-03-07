@@ -4,17 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.models.ModelState
+import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import java.io.BufferedInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.net.URL
-import java.nio.ByteBuffer
+import timber.log.Timber
 
 
 internal class GlbLoader constructor(
@@ -69,19 +66,20 @@ internal class GlbLoader constructor(
                 Resource.Error("Url is empty")
             } else {
                 withContext(Dispatchers.IO) {
+                    Timber.d("downloadFile : Got buffer: loadGlbFromUrl")
+
                     try {
-                        URL(url).openStream().use { inputStream: InputStream ->
-                            val stream = BufferedInputStream(inputStream)
-                            ByteArrayOutputStream().use { output ->
-                                stream.copyTo(output)
-                                val byteArr = output.toByteArray()
-                                val byteBuffer = ByteBuffer.wrap(byteArr)
-                                val rewound = byteBuffer.rewind()
-                                modelViewer.modelLoader.loadModelGlb(rewound, true)
-                            }
+
+                        val buffer = NetworkClient.downloadFile(url)
+                        Timber.d("downloadFile : Got buffer: ${buffer == null}")
+                        if (buffer != null) {
+                            modelViewer.modelLoader.loadModelGlb(buffer, true)
+                            state.value = if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED
+                            return@withContext Resource.Success("Loaded glb model successfully from ${url ?: ""}")
+                        }else {
+                            state.value = ModelState.ERROR
+                            return@withContext Resource.Error("Couldn't load glb model from url: $url")
                         }
-                        state.value = if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED
-                        return@withContext Resource.Success("Loaded glb model successfully from ${url ?: ""}")
                     } catch (e: Throwable) {
                         state.value = ModelState.ERROR
                         return@withContext Resource.Error("Couldn't load glb model from url: $url")
