@@ -41,11 +41,13 @@ class ModelViewerController constructor(
     private val model: Model?,
 
     ) {
-    private var modelViewer: CustomModelViewer? = null
+    private lateinit var modelViewer: CustomModelViewer
     private val choreographer: Choreographer = Choreographer.getInstance()
 
     private var modelJob: Job? = null
-    private var modelLoadingJob: Job? = null
+    private var glbModelStateJob: Job? = null
+    private var gltfModelStateJob: Job? = null
+
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private var currentAnimationIndex: Int? = null
@@ -81,9 +83,9 @@ class ModelViewerController constructor(
         surfaceView.setZOrderOnTop(true) // necessary
 
 
-        val view = modelViewer?.view
+        val view = modelViewer.view
 
-        view?.let {
+        view.let {
             // on mobile, better use lower quality color buffer
             view.renderQuality = view.renderQuality.apply {
                 hdrColorBuffer = View.QualityLevel.MEDIUM
@@ -110,9 +112,9 @@ class ModelViewerController constructor(
         }
 
 
-        glbLoader = GlbLoader(modelViewer, context, flutterAssets)
+        glbLoader = GlbLoader.getInstance(modelViewer, context, flutterAssets)
 
-        gltfLoader = GltfLoader(modelViewer, context, flutterAssets)
+        gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
 
         lightManger = LightManger(modelViewer, context, flutterAssets)
 
@@ -132,6 +134,8 @@ class ModelViewerController constructor(
     private fun setUpLoadingModel() {
         modelJob = coroutineScope.launch {
             val result = loadModel(model)
+            Timber.d("Model loading result : ${result?.data} error :${result?.message}")
+
             if(result!= null && model?.fallback != null) {
                 if(result is Resource.Error){
                     loadModel(model.fallback)
@@ -165,7 +169,7 @@ class ModelViewerController constructor(
                         model.pathPostfix
                     )
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromUrl(model.url)
+                    result = gltfLoader.loadGltfFromUrl(model.url,model.pathPrefix,model.pathPostfix)
                 }
             }
             else -> {}
@@ -225,7 +229,7 @@ class ModelViewerController constructor(
 
 
     private fun makeSurfaceViewTransparent() {
-        modelViewer?.let {
+        modelViewer.let {
             it.view.blendMode = View.BlendMode.TRANSLUCENT
             surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
             val options = it.renderer.clearOptions
@@ -237,7 +241,7 @@ class ModelViewerController constructor(
     }
 
     private fun makeSurfaceViewNotTransparent() {
-        modelViewer?.view?.blendMode = View.BlendMode.OPAQUE
+        modelViewer.view.blendMode = View.BlendMode.OPAQUE
         surfaceView.setZOrderOnTop(true) // necessary
         surfaceView.holder.setFormat(PixelFormat.OPAQUE)
 
@@ -402,19 +406,22 @@ class ModelViewerController constructor(
 
 
     private fun setUpModelLoading() {
-        modelLoadingJob = coroutineScope.launch {
-            glbLoader.state.collectLatest {
+
+        glbModelStateJob = coroutineScope.launch {
+            modelViewer.currentModelState.collectLatest {
                 Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
                 modelState.value = it
-            }
-            gltfLoader.state.collectLatest {
-                modelState.value = it
-
             }
         }
 
 
+
     }
+
+    /**
+     *Flow that holds current frame in nanoseconds
+     */
+    fun getRenderStateFlow ()= modelViewer.rendererStateFlow
 
 
     private val frameCallback = object : Choreographer.FrameCallback {
@@ -427,7 +434,7 @@ class ModelViewerController constructor(
                 animationManger.showAnimation(currentAnimationIndex ?: -1, seconds)
             }
             try {
-                modelViewer?.render(currentTime)
+                modelViewer.render(currentTime)
             } catch (_: Exception) {
             }
         }
@@ -435,16 +442,19 @@ class ModelViewerController constructor(
 
 
     fun handleOnResume() {
+        Timber.d("My Playx3dScenePlugin  handleOnResume")
+        setUpModelLoading()
         surfaceView.invalidate()
         surfaceView.setZOrderOnTop(true)
         addFrameCallback()
-        setUpModelLoading()
     }
 
     fun handleOnPause() {
         removeFrameCallback()
-        modelLoadingJob?.cancel()
-        modelLoadingJob = null
+        glbModelStateJob?.cancel()
+        glbModelStateJob = null
+        gltfModelStateJob?.cancel()
+        gltfModelStateJob = null
     }
 
     fun getView() = surfaceView
@@ -462,10 +472,12 @@ class ModelViewerController constructor(
     fun destroy() {
         removeFrameCallback()
         modelJob?.cancel()
-        modelLoadingJob?.cancel()
+        glbModelStateJob?.cancel()
         modelJob = null
-        modelLoadingJob = null
-        modelViewer?.destroy()
+        glbModelStateJob = null
+        gltfModelStateJob?.cancel()
+        gltfModelStateJob = null
+        modelViewer.destroy()
     }
 
 

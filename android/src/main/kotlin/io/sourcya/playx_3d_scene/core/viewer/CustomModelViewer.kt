@@ -10,7 +10,9 @@ import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import io.sourcya.playx_3d_scene.core.loader.ModelLoader
+import io.sourcya.playx_3d_scene.core.models.ModelState
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
 
 
@@ -59,6 +61,11 @@ class CustomModelViewer(
         .apply { setExposure(kAperture, kShutterSpeed, kSensitivity) }
     val renderer: Renderer = engine.createRenderer()
     val modelLoader: ModelLoader = ModelLoader(this)
+
+    val currentModelState = MutableStateFlow(ModelState.NONE)
+    val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
+
+
     @Entity
     val light: Int
 
@@ -185,6 +192,8 @@ class CustomModelViewer(
         if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
             renderer.render(view)
             renderer.endFrame()
+            rendererStateFlow.value=frameTimeNanos
+
         }
     }
 
@@ -254,6 +263,9 @@ class CustomModelViewer(
     }
 
 
+    fun setModelState(state :ModelState){
+        currentModelState.value = state
+    }
     companion object {
         val kDefaultObjectPosition = Float3(0.0f, 0.0f, -4.0f)
         private const val kNearPlane = 0.05     // 5 cm

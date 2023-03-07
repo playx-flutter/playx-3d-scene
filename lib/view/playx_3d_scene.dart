@@ -14,10 +14,14 @@ typedef Playx3dSceneCreatedCallback = void Function(
 
 typedef Playx3dModelStateCallback = void Function(ModelState state);
 
+typedef Playx3dOnEachRenderCallback = void Function(num? frameTimeNanos);
+
 const String _channelName = "io.sourcya.playx.3d.scene.channel";
 const String _viewType = "${_channelName}_3d_scene";
 const String _modelStateChannelName =
     "io.sourcya.playx.3d.scene.model_state_channel";
+const String _rendererChannelName =
+    "io.sourcya.playx.3d.scene.renderer_channel";
 
 class Playx3dScene extends StatefulWidget {
   /// Model to be rendered.
@@ -40,12 +44,17 @@ class Playx3dScene extends StatefulWidget {
   /// whether is none, loading, loaded, fallback loaded ,error.
   final Playx3dModelStateCallback? onModelStateChanged;
 
+  /// onEachRenderCallback callback that is called on each frame render.
+  /// it also provides last frame render time in nanoseconds.
+  final Playx3dOnEachRenderCallback? onEachRender;
+
   const Playx3dScene(
       {super.key,
       this.model,
       this.scene,
       this.onCreated,
-      this.onModelStateChanged});
+      this.onModelStateChanged,
+      this.onEachRender});
 
   @override
   State<StatefulWidget> createState() {
@@ -58,6 +67,8 @@ class PlayxModelViewerState extends State<Playx3dScene> {
 
   late EventChannel _modelLoadingChannel;
   StreamSubscription? _modelLoadingSubscription;
+  late EventChannel _rendererChannel;
+  StreamSubscription? _rendererSubscription;
 
   PlayxModelViewerState();
 
@@ -98,6 +109,16 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     }
   }
 
+  void setUpOnEachRenderCallback(Playx3dSceneController controller) {
+    if (widget.onEachRender != null) {
+      _rendererSubscription = getOnEachRender().listen((time) {
+        if (widget.onEachRender != null) {
+          widget.onEachRender!(time);
+        }
+      });
+    }
+  }
+
   void _onPlatformViewCreated(int id) {
     final controller = Playx3dSceneController(id: id);
 
@@ -105,12 +126,15 @@ class PlayxModelViewerState extends State<Playx3dScene> {
       widget.onCreated!(controller);
     }
     _modelLoadingChannel = EventChannel('${_modelStateChannelName}_$id');
+    _rendererChannel = EventChannel('${_rendererChannelName}_$id');
     setUpModelState(controller);
+    setUpOnEachRenderCallback(controller);
   }
 
   @override
   void dispose() {
     _modelLoadingSubscription?.cancel();
+    _rendererSubscription?.cancel();
     super.dispose();
   }
 
@@ -118,6 +142,12 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     return _modelLoadingChannel.receiveBroadcastStream().map((state) {
       final currentState = state as String?;
       return ModelState.from(currentState);
+    });
+  }
+
+  Stream<num?> getOnEachRender() {
+    return _rendererChannel.receiveBroadcastStream().map((time) {
+      return time as num?;
     });
   }
 }

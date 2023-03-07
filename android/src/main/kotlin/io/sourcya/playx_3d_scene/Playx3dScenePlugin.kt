@@ -39,10 +39,7 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
         engine.destroy()
     }
     companion object {
-        const val MAIN_CHANNEL_NAME = "io.sourcya.playx.3d.scene.channel"
-        const val  MODEL_STATE_CHANNEL_NAME= "io.sourcya.playx.3d.scene.model_state_channel"
-
-        var viewType = "${MAIN_CHANNEL_NAME}_3d_scene"
+        var viewType = "io.sourcya.playx.3d.scene.channel_3d_scene"
         init {
             Utils.init()
         }
