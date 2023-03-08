@@ -205,7 +205,9 @@ class CustomModelViewer(
         modelLoader.destroyModel()
     }
 
-
+    fun destroySkybox(){
+        scene.skybox?.let { engine.destroySkybox(it) }
+    }
     fun destroy() {
         uiHelper.detach()
         modelLoader.destroyModel()

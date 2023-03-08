@@ -1,7 +1,7 @@
 import 'package:playx_3d_scene/models/scene/camera.dart';
 import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/light.dart';
-import 'package:playx_3d_scene/models/scene/skybox.dart';
+import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
 
 class Scene {
   Skybox? skybox;

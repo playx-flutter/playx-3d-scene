@@ -3,7 +3,6 @@ package io.sourcya.playx_3d_scene.core.controller
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
-import android.util.Log
 import android.view.Choreographer
 import android.view.SurfaceView
 import com.google.android.filament.Engine
@@ -19,6 +18,9 @@ import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
+import io.sourcya.playx_3d_scene.core.models.scene.ColoredSkybox
+import io.sourcya.playx_3d_scene.core.models.scene.HdrSkybox
+import io.sourcya.playx_3d_scene.core.models.scene.KtxSkybox
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
@@ -209,23 +211,33 @@ class ModelViewerController constructor(
     private fun setUpSkybox() {
         coroutineScope.launch {
             val skybox = scene?.skybox
-            try {
+            Timber.d("setUpSkybox Skybox : $skybox")
+            if(skybox == null){
+                skyboxManger.setDefaultSkybox()
+                makeSurfaceViewTransparent()
+            }else{
+                when(skybox){
+                    is KtxSkybox -> {
+                        if (!skybox.assetPath.isNullOrEmpty()) {
+                            skyboxManger.setSkyboxFromKTXAsset(skybox.assetPath,)
+                        } else if (!skybox.url.isNullOrEmpty()) {
+                            skyboxManger.setSkyboxFromKTXUrl(skybox.url)
+                        }
+                    }
+                    is HdrSkybox ->{
+                        if (!skybox.assetPath.isNullOrEmpty()) {
+                            skyboxManger.setSkyboxFromHdrAsset(skybox.assetPath,skybox.showSun?:false)
+                        } else if (!skybox.url.isNullOrEmpty()) {
+                            skyboxManger.setSkyboxFromHdrUrl(skybox.url,skybox.showSun?:false)
+                        }
+                    }
+                    is ColoredSkybox ->{
+                        if (skybox.color != null) {
+                            skyboxManger.setSkyboxFromColor(skybox.color)
+                        }
+                    }
 
-                if (!skybox?.assetPath.isNullOrEmpty()) {
-                    skyboxManger.setSkyboxFromHdrAsset(skybox?.assetPath)
-                } else if (!skybox?.url.isNullOrEmpty()) {
-                    skyboxManger.setSkyboxFromHdrUrl(skybox?.url)
-                } else if (skybox?.color != null) {
-                    skyboxManger.setSkyboxFromColor(skybox.color)
-                } else {
-                    skyboxManger.setDefaultSkybox()
-                    makeSurfaceViewTransparent()
                 }
-
-            } catch (e: Throwable) {
-                Log.e("PLayx3dSceneViewer", e.message ?: "")
-                Timber.d("loading hdr skybox error controller : ${e.message}")
-
             }
         }
     }
@@ -317,7 +329,7 @@ class ModelViewerController constructor(
     }
 
 
-    suspend fun changeSkyboxFromAsset(assetPath: String?): Resource<String> {
+    suspend fun changeSkyboxFromKtxAsset(assetPath: String?): Resource<String> {
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromKTXAsset(assetPath)
         if (resource is Resource.Success) {
@@ -329,7 +341,7 @@ class ModelViewerController constructor(
     }
 
 
-    suspend fun changeSkyboxFromUrl(url: String?): Resource<String> {
+    suspend fun changeSkyboxFromKtxUrl(url: String?): Resource<String> {
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromKTXUrl(url)
         if (resource is Resource.Success) {
@@ -339,6 +351,30 @@ class ModelViewerController constructor(
         addFrameCallback()
         return resource
     }
+
+    suspend fun changeSkyboxFromHdrAsset(assetPath: String?): Resource<String> {
+        removeFrameCallback()
+        val resource = skyboxManger.setSkyboxFromHdrAsset(assetPath)
+        if (resource is Resource.Success) {
+            makeSurfaceViewNotTransparent()
+            scene?.skybox?.assetPath = assetPath
+        }
+        addFrameCallback()
+        return resource
+    }
+
+
+    suspend fun changeSkyboxFromHdrUrl(url: String?): Resource<String> {
+        removeFrameCallback()
+        val resource = skyboxManger.setSkyboxFromHdrUrl(url)
+        if (resource is Resource.Success) {
+            makeSurfaceViewNotTransparent()
+            scene?.skybox?.url = url
+        }
+        addFrameCallback()
+        return resource
+    }
+
 
     fun changeSkyboxByColor(color: Int?): Resource<String> {
 

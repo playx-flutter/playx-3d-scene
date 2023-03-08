@@ -7,6 +7,7 @@ import com.google.android.filament.Skybox
 import com.google.android.filament.utils.HDRLoader
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.sourcya.playx_3d_scene.core.models.scene.Skybox
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -35,15 +36,19 @@ internal class SkyboxManger constructor(
     }
 
     suspend fun setSkyboxFromKTXAsset(path: String?): Resource<String> {
-        modelViewer.setSkyboxState(SceneState.LOADING)
 
+        modelViewer.setSkyboxState(SceneState.LOADING)
+        modelViewer.destroyModel()
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
                         val skybox =
                             KTX1Loader.createSkybox(modelViewer.engine, it)
+
                         withContext(Dispatchers.Main) {
+                            modelViewer.destroySkybox()
+
                             modelViewer.scene.skybox = skybox
                         }
                     }
@@ -71,10 +76,12 @@ internal class SkyboxManger constructor(
                 val skybox =
                     KTX1Loader.createSkybox(modelViewer.engine, buffer)
                 withContext(Dispatchers.Main) {
+                    modelViewer.destroySkybox()
+
                     modelViewer.scene.skybox = skybox
                 }
                 modelViewer.setSkyboxState(SceneState.LOADED)
-                return@withContext Resource.Success("Loaded skybox successfully from ${url ?: ""}")
+                return@withContext Resource.Success("Loaded skybox successfully from $url")
 
             } else {
                 modelViewer.setSkyboxState(SceneState.ERROR)
@@ -86,7 +93,7 @@ internal class SkyboxManger constructor(
     }
 
 
-    suspend fun setSkyboxFromHdrAsset(path: String?): Resource<String> {
+    suspend fun setSkyboxFromHdrAsset(path: String?,showSun:Boolean=false): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
         Timber.d("loading hdr skybox  loading :$path")
@@ -96,7 +103,7 @@ internal class SkyboxManger constructor(
 
                 is Resource.Success -> {
                     val buffer = bufferResource.data
-                    return@withContext loadSkyboxFromHdrBuffer(buffer)
+                    return@withContext loadSkyboxFromHdrBuffer(buffer,showSun)
                 }
 
                 is Resource.Error -> {
@@ -112,7 +119,7 @@ internal class SkyboxManger constructor(
 
 
     @SuppressLint("LogNotTimber")
-    suspend fun setSkyboxFromHdrUrl(url: String?): Resource<String> {
+    suspend fun setSkyboxFromHdrUrl(url: String?,showSun:Boolean=false): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
         Timber.d("loading hdr skybox buffer loading :$url")
@@ -126,7 +133,7 @@ internal class SkyboxManger constructor(
 
             if(buffer != null) {
                 Timber.d("loading hdr skybox buffer downloaded")
-                return@withContext loadSkyboxFromHdrBuffer(buffer)
+                return@withContext loadSkyboxFromHdrBuffer(buffer,showSun)
             }else{
                  modelViewer.setSkyboxState(SceneState.ERROR)
                     return@withContext Resource.Error(
@@ -138,7 +145,7 @@ internal class SkyboxManger constructor(
         }
 
 
-    private suspend fun loadSkyboxFromHdrBuffer(buffer: Buffer?) :Resource<String>{
+    private suspend fun loadSkyboxFromHdrBuffer(buffer: Buffer?,showSun:Boolean=false) :Resource<String>{
 
        return withContext(Dispatchers.Main) {
 
@@ -150,15 +157,15 @@ internal class SkyboxManger constructor(
             if (texture != null) {
                 val skyboxTexture = iblProfiler.createCubeMapTexture(texture)
 
+                skyboxTexture?.let {
                     val sky = Skybox.Builder()
-                        .environment(skyboxTexture!!)
+                        .environment(skyboxTexture)
+                        .showSun(showSun)
                         .build(engine)
-                    modelViewer.scene.skybox?.let { oldSkybox ->
-                        engine.destroySkybox(
-                            oldSkybox
-                        )
-                    }
+
+                    modelViewer.destroySkybox()
                     modelViewer.scene.skybox = sky
+                }
 
 
                 modelViewer.setSkyboxState(SceneState.LOADED)

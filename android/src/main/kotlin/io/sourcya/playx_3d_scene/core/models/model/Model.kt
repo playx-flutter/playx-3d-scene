@@ -1,7 +1,8 @@
 package io.sourcya.playx_3d_scene.core.models.model
 
+import android.renderscript.Float3
 import com.google.android.filament.utils.Float3
-import io.sourcya.playx_3d_scene.utils.toModel
+import io.sourcya.playx_3d_scene.utils.toObject
 
 abstract class Model(
     val  assetPath: String? = null,
@@ -18,7 +19,7 @@ abstract class Model(
 
     companion object {
         fun fromMap(map: Map<String?, Any?>?): Model? {
-            return map?.toModel()
+            return map?.toObject<Model>()
         }
     }
     override fun toString(): String {

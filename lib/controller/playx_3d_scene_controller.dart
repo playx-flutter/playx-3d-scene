@@ -1,58 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
-const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
-const String _changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY";
-
-const String _changeAnimationByName = "CHANGE_ANIMATION_BY_NAME";
-const String _changeAnimationByNameKey = "CHANGE_ANIMATION_BY_NAME_KEY";
-const String _getAnimationNames = "GET_ANIMATION_NAMES";
-
-const String _getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX";
-const String _getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY";
-
-const String _getAnimationCount = "GET_ANIMATION_COUNT";
-
-const String _getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX";
-
-const String _changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET";
-const String _changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY";
-
-const String _changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL";
-const String _changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY";
-
-const String _changeSkyboxColor = "CHANGE_SKYBOX_COLOR";
-const String _changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY";
-
-const String _changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX";
-
-const String _changeLightByAsset = "CHANGE_LIGHT_BY_ASSET";
-const String _changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY";
-const String _changeLightByAssetIntensityKey =
-    "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY";
-
-const String _changeLightByIntensity = "CHANGE_LIGHT_BY_INTENSITY";
-const String _changeLightByIntensityKey = "CHANGE_LIGHT_BY_INTENSITY_KEY";
-const String _changeToDefaultLightIntensity =
-    "CHANGE_TO_DEFAULT_LIGHT_INTENSITY";
-
-const String _loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS";
-const String _loadGlbModelFromAssetsPathKey =
-    "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY";
-
-const String _loadGlbModelFromUrl = "LOAD_GLB_MODEL_FROM_URL";
-const String _loadGlbModelFromUrlKey = "LOAD_GLB_MODEL_FROM_URL_KEY";
-
-const String _loadGltfModelFromAssets = "LOAD_GLTF_MODEL_FROM_ASSETS";
-const String _loadGltfModelFromAssetsPathKey =
-    "LOAD_GLTF_MODEL_FROM_ASSETS_PATH_KEY";
-const String _loadGltfModelFromAssetsPrefixPathKey =
-    "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY";
-const String _loadGltfModelFromAssetsPostfixPathKey =
-    "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
-
-const String _getCurrentModelState = "GET_CURRENT_MODEL_STATE";
-
 class Playx3dSceneController {
   int id;
   late MethodChannel _channel;
@@ -124,7 +72,7 @@ class Playx3dSceneController {
         {_getAnimationNameByIndexKey: index},
       );
 
-  //environment
+  //skybox
 
   /// change environment by given asset path.
   /// it takes an String? asset path as an argument.
@@ -133,7 +81,7 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByAsset(String? path) =>
+  Future<String?> changeSkyboxByKtxAsset(String? path) =>
       _channel.invokeMethod<String>(
         _changeSkyboxByAsset,
         {_changeSkyboxByAssetKey: path},
@@ -146,10 +94,36 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByUrl(String? url) =>
+  Future<String?> changeSkyboxByKtxUrl(String? url) =>
       _channel.invokeMethod<String>(
         _changeSkyboxByUrl,
         {_changeSkyboxByUrlKey: url},
+      );
+
+  /// change skybox by given asset path.
+  /// it takes an String? asset path as an argument.
+  /// should be provided with the HDR file.
+  /// so it can update the environment skybox with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeSkyboxByHdrAsset(String? path) =>
+      _channel.invokeMethod<String>(
+        _changeSkyboxByHdrAsset,
+        {_changeSkyboxByHdrAssetKey: path},
+      );
+
+  /// change skybox by given asset path.
+  /// it takes an String? asset path as an argument.
+  /// should be provided with the the HDR file.
+  /// so it can update the environment skybox with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeSkyboxByHdrUrl(String? url) =>
+      _channel.invokeMethod<String>(
+        _changeSkyboxByHdrUrl,
+        {_changeSkyboxByHdrUrlKey: url},
       );
 
   /// change environment by given color.
@@ -288,3 +262,61 @@ class Playx3dSceneController {
     }
   }
 }
+
+const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
+const String _changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY";
+
+const String _changeAnimationByName = "CHANGE_ANIMATION_BY_NAME";
+const String _changeAnimationByNameKey = "CHANGE_ANIMATION_BY_NAME_KEY";
+const String _getAnimationNames = "GET_ANIMATION_NAMES";
+
+const String _getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX";
+const String _getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY";
+
+const String _getAnimationCount = "GET_ANIMATION_COUNT";
+
+const String _getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX";
+
+const String _changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET";
+const String _changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY";
+
+const String _changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL";
+const String _changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY";
+
+const String _changeSkyboxByHdrAsset = "CHANGE_SKYBOX_BY_HDR_ASSET";
+const String _changeSkyboxByHdrAssetKey = "CHANGE_SKYBOX_BY_HDR_ASSET_KEY";
+
+const String _changeSkyboxByHdrUrl = "CHANGE_SKYBOX_BY_HDR_URL";
+const String _changeSkyboxByHdrUrlKey = "CHANGE_SKYBOX_BY_HDR_URL_KEY";
+
+const String _changeSkyboxColor = "CHANGE_SKYBOX_COLOR";
+const String _changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY";
+
+const String _changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX";
+
+const String _changeLightByAsset = "CHANGE_LIGHT_BY_ASSET";
+const String _changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY";
+const String _changeLightByAssetIntensityKey =
+    "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY";
+
+const String _changeLightByIntensity = "CHANGE_LIGHT_BY_INTENSITY";
+const String _changeLightByIntensityKey = "CHANGE_LIGHT_BY_INTENSITY_KEY";
+const String _changeToDefaultLightIntensity =
+    "CHANGE_TO_DEFAULT_LIGHT_INTENSITY";
+
+const String _loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS";
+const String _loadGlbModelFromAssetsPathKey =
+    "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY";
+
+const String _loadGlbModelFromUrl = "LOAD_GLB_MODEL_FROM_URL";
+const String _loadGlbModelFromUrlKey = "LOAD_GLB_MODEL_FROM_URL_KEY";
+
+const String _loadGltfModelFromAssets = "LOAD_GLTF_MODEL_FROM_ASSETS";
+const String _loadGltfModelFromAssetsPathKey =
+    "LOAD_GLTF_MODEL_FROM_ASSETS_PATH_KEY";
+const String _loadGltfModelFromAssetsPrefixPathKey =
+    "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY";
+const String _loadGltfModelFromAssetsPostfixPathKey =
+    "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
+
+const String _getCurrentModelState = "GET_CURRENT_MODEL_STATE";

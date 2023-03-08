@@ -32,8 +32,10 @@ class PlayxMethodHandler(
             getAnimationNameByIndex -> getAnimationNameByIndex(call, result)
             getCurrentAnimationIndex -> getCurrentAnimationIndex(result)
             getAnimationCount -> getAnimationCount(result)
-            changeSkyboxByAsset -> changeSkyboxByAsset(call, result)
-            changeSkyboxByUrl->changeSkyboxByUrl(call,result)
+            changeSkyboxByAsset -> changeSkyboxByKtxAsset(call, result)
+            changeSkyboxByUrl->changeSkyboxByKtxUrl(call,result)
+            changeSkyboxByHdrAsset-> changeSkyboxByHdrAsset(call,result)
+            changeSkyboxByHdrUrl-> changeSkyboxByHdrUrl(call, result)
             changeSkyboxColor -> changeSkyboxColor(call, result)
             changeToTransparentSkybox -> changeToTransparentSkybox(result)
             changeLightByAsset -> changeLightByAsset(call, result)
@@ -139,10 +141,10 @@ class PlayxMethodHandler(
      *  should be provided with the KTX skybox file.
      *  so it can update the environment skybox with it.
      */
-    private fun changeSkyboxByAsset(call: MethodCall, result: MethodChannel.Result) {
+    private fun changeSkyboxByKtxAsset(call: MethodCall, result: MethodChannel.Result) {
         coroutineScope.launch {
             val assetPath = getValue<String>(call, changeSkyboxByAssetKey)
-            when (val resource = modelViewer?.changeSkyboxFromAsset(assetPath)) {
+            when (val resource = modelViewer?.changeSkyboxFromKtxAsset(assetPath)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -160,10 +162,53 @@ class PlayxMethodHandler(
      *  should be provided with the KTX skybox file.
      *  so it can update the environment skybox with it.
      */
-    private fun changeSkyboxByUrl(call: MethodCall, result: MethodChannel.Result) {
+    private fun changeSkyboxByKtxUrl(call: MethodCall, result: MethodChannel.Result) {
         coroutineScope.launch {
             val url = getValue<String>(call, changeSkyboxByUrlKey)
-            when (val resource = modelViewer?.changeSkyboxFromUrl(url)) {
+            when (val resource = modelViewer?.changeSkyboxFromKtxUrl(url)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+        }
+    }
+
+
+    /**
+     *  change environment by given asset path.
+     *  it takes an String? asset path as an argument.
+     *  should be provided with the KTX skybox file.
+     *  so it can update the environment skybox with it.
+     */
+    private fun changeSkyboxByHdrAsset(call: MethodCall, result: MethodChannel.Result) {
+        coroutineScope.launch {
+            val assetPath = getValue<String>(call, changeSkyboxByHdrAssetKey)
+            when (val resource = modelViewer?.changeSkyboxFromHdrAsset(assetPath)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+        }
+    }
+
+    /**
+     *  change environment by given asset path.
+     *  it takes an String? asset path as an argument.
+     *  should be provided with the KTX skybox file.
+     *  so it can update the environment skybox with it.
+     */
+    private fun changeSkyboxByHdrUrl(call: MethodCall, result: MethodChannel.Result) {
+        coroutineScope.launch {
+            val url = getValue<String>(call, changeSkyboxByHdrUrlKey)
+            when (val resource = modelViewer?.changeSkyboxFromHdrUrl(url)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -405,6 +450,14 @@ class PlayxMethodHandler(
         private const val changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL"
         private const val changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY"
 
+
+        private const val changeSkyboxByHdrAsset = "CHANGE_SKYBOX_BY_HDR_ASSET"
+        private const val changeSkyboxByHdrAssetKey ="CHANGE_SKYBOX_BY_HDR_ASSET_KEY"
+
+        private const val changeSkyboxByHdrUrl = "CHANGE_SKYBOX_BY_HDR_URL"
+        private const val changeSkyboxByHdrUrlKey = "CHANGE_SKYBOX_BY_HDR_URL_KEY"
+
+
         private const val changeSkyboxColor = "CHANGE_SKYBOX_COLOR"
         private  const val changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY"
 
@@ -432,6 +485,8 @@ class PlayxMethodHandler(
         private const val loadGltfModelFromAssetsPostfixPathKey =
             "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
        private const val getCurrentModelState = "GET_CURRENT_MODEL_STATE";
+
+
 
 
     }
