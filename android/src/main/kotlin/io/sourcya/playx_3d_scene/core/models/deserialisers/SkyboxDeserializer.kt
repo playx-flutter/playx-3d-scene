@@ -1,4 +1,4 @@
-package io.sourcya.playx_3d_scene.core.utils
+package io.sourcya.playx_3d_scene.core.models.deserialisers
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

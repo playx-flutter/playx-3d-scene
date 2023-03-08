@@ -4,7 +4,7 @@ import io.sourcya.playx_3d_scene.utils.toObject
 
 data class Scene(
     val skybox: Skybox? = null,
-    val light: Light? = null,
+    var light: Light? = null,
     val camera: Camera? = null,
     val ground: Ground? = null,
 ) {

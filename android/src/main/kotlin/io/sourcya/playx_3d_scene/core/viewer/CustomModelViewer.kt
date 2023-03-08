@@ -208,6 +208,10 @@ class CustomModelViewer(
     fun destroySkybox(){
         scene.skybox?.let { engine.destroySkybox(it) }
     }
+
+    fun destroyIndirectLight( ){
+        scene.indirectLight?.let { engine.destroyIndirectLight(it) }
+    }
     fun destroy() {
         uiHelper.detach()
         modelLoader.destroyModel()
