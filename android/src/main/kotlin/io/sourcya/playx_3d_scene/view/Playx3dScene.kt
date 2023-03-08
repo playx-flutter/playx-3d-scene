@@ -12,6 +12,7 @@ import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
@@ -24,6 +25,7 @@ class Playx3dScene(
     private val creationParams: Map<String?, Any?>?,
     private val binding: FlutterPlugin.FlutterPluginBinding,
     private val engine: Engine,
+    private val iblProfiler: IBLProfiler,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
     private var modelViewer: ModelViewerController? = null
@@ -51,6 +53,7 @@ class Playx3dScene(
         modelViewer = ModelViewerController(
             context,
             engine,
+            iblProfiler,
             binding.flutterAssets,
             model = model,
             scene = scene

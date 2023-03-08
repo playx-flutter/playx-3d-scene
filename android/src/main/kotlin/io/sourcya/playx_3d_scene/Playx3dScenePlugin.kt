@@ -7,6 +7,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
+import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.factory.Playx3dSceneFactory
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import timber.log.Timber
@@ -15,18 +16,21 @@ import timber.log.Timber
 /** PlayxModelViewerPlugin */
 class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     private var lifecycle: Lifecycle? = null
-    private lateinit var engine :Engine;
+    private lateinit var engine :Engine
+    private lateinit var iblProfiler: IBLProfiler
 
     //register the android native view
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Timber.plant(Timber.DebugTree())
         Timber.d("My Playx3dScenePlugin : onAttachedToEngine")
        engine= Engine.create()
+        iblProfiler = IBLProfiler(engine)
         binding
             .platformViewRegistry
             .registerViewFactory(
                 viewType,
                 Playx3dSceneFactory(binding, engine,
+                    iblProfiler,
                     object : LifecycleProvider {
                         override fun getLifecycle(): Lifecycle? {
                             return lifecycle
@@ -36,6 +40,7 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     }
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Timber.d("My Playx3dScenePlugin : onDetachedFromEngine")
+        iblProfiler.destroy()
         engine.destroy()
     }
     companion object {

@@ -36,22 +36,14 @@ class _MyAppState extends State<MyApp> {
           child: Stack(
             children: [
               Playx3dScene(
-                model: GlbModel.url(
-                  // "https://dl.dropbox.com/s/1mg91o2qfzqp6kw/models.zip",
-                  "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/DragonAttenuation/glTF-Binary/DragonAttenuation.glb22",
-                  fallback: GlbModel.asset("assets/models/Fox.glb",
-                      animation: PlayxAnimation.byIndex(0, autoPlay: true)),
-                  animation: PlayxAnimation.byIndex(1, autoPlay: true),
-                ),
-                scene: Scene(skybox: Skybox.color(Colors.cyan))
-                //   Skybox.url(
-                //       "https://github.com/google/filament/raw/main/docs/webgl/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx"),
+                model: GlbModel.asset("assets/models/Fox.glb",
+                    animation: PlayxAnimation.byIndex(0, autoPlay: true)),
+                scene: Scene(skybox: Skybox.asset("assets/envs/courtyard.hdr")),
+                //   skybox: Skybox.url(
+                //       "https://dl.dropbox.com/s/zyxt8bnnddhrywb/field2.hdr"),
                 // ),
-                ,
-                onCreated: (Playx3dSceneController controller) async {
+                onCreated: (Playx3dSceneController controller) {
                   Fimber.d("My Playx3dScenePlugin onCreated");
-                  await controller.changeSkyboxByUrl(
-                      "https://github.com/google/filament/raw/main/docs/webgl/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx");
                 },
                 onModelStateChanged: (state) {
                   Fimber.d(

@@ -3,13 +3,14 @@ package io.sourcya.playx_3d_scene.core.controller
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.util.Log
 import android.view.Choreographer
 import android.view.SurfaceView
 import com.google.android.filament.Engine
 import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
-import io.sourcya.playx_3d_scene.core.environment.SkyboxManger
+import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
@@ -21,6 +22,7 @@ import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
+import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +40,7 @@ import timber.log.Timber
 class ModelViewerController constructor(
     private val context: Context,
     private var engine: Engine,
+    private val iblProfiler: IBLProfiler,
     private val flutterAssets: FlutterAssets,
     private val scene: Scene?,
     private val model: Model?,
@@ -68,7 +71,6 @@ class ModelViewerController constructor(
 
     val modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
     val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
-
 
 
     init {
@@ -122,7 +124,7 @@ class ModelViewerController constructor(
 
         lightManger = LightManger(modelViewer, context, flutterAssets)
 
-        skyboxManger = SkyboxManger(modelViewer, context, flutterAssets)
+        skyboxManger = SkyboxManger(modelViewer,iblProfiler, context, flutterAssets)
 
         animationManger = AnimationManger(modelViewer, context)
 
@@ -140,23 +142,23 @@ class ModelViewerController constructor(
             val result = loadModel(model)
             Timber.d("Model loading result : ${result?.data} error :${result?.message}")
 
-            if(result!= null && model?.fallback != null) {
-                if(result is Resource.Error){
+            if (result != null && model?.fallback != null) {
+                if (result is Resource.Error) {
                     loadModel(model.fallback)
                     setUpAnimation(model.fallback.animation)
 
-                }else{
+                } else {
                     setUpAnimation(model.animation)
                 }
-            }else{
+            } else {
                 setUpAnimation(model?.animation)
             }
         }
 
     }
 
-    private suspend fun loadModel(model : Model? ): Resource<String>? {
-        var result :Resource<String>? = null
+    private suspend fun loadModel(model: Model?): Resource<String>? {
+        var result: Resource<String>? = null
         when (model) {
             is GlbModel -> {
                 if (!model.assetPath.isNullOrEmpty()) {
@@ -173,13 +175,15 @@ class ModelViewerController constructor(
                         model.pathPostfix
                     )
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = gltfLoader.loadGltfFromUrl(model.url,model.pathPrefix,model.pathPostfix)
+                    result =
+                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix)
                 }
             }
             else -> {}
         }
         return result
     }
+
     private fun setUpLight() {
 
         coroutineScope.launch {
@@ -205,21 +209,29 @@ class ModelViewerController constructor(
     private fun setUpSkybox() {
         coroutineScope.launch {
             val skybox = scene?.skybox
-            if (!skybox?.assetPath.isNullOrEmpty()) {
-                skyboxManger.setSkyboxFromAsset(skybox?.assetPath)
-            } else if (!skybox?.url.isNullOrEmpty()) {
-                skyboxManger.setSkyboxFromUrl(skybox?.url)
-            } else if (skybox?.color != null) {
-                skyboxManger.setSkyboxFromColor(skybox.color)
-            } else {
-                skyboxManger.setDefaultSkybox()
-                makeSurfaceViewTransparent()
+            try {
+
+                if (!skybox?.assetPath.isNullOrEmpty()) {
+                    skyboxManger.setSkyboxFromHdrAsset(skybox?.assetPath)
+                } else if (!skybox?.url.isNullOrEmpty()) {
+                    skyboxManger.setSkyboxFromHdrUrl(skybox?.url)
+                } else if (skybox?.color != null) {
+                    skyboxManger.setSkyboxFromColor(skybox.color)
+                } else {
+                    skyboxManger.setDefaultSkybox()
+                    makeSurfaceViewTransparent()
+                }
+
+            } catch (e: Throwable) {
+                Log.e("PLayx3dSceneViewer", e.message ?: "")
+                Timber.d("loading hdr skybox error controller : ${e.message}")
+
             }
         }
     }
 
 
-    private fun setUpAnimation(animation : Animation?) {
+    private fun setUpAnimation(animation: Animation?) {
         if (animation?.autoPlay == true) {
             if (animation.index != null) {
                 currentAnimationIndex = animation.index.toInt()
@@ -282,6 +294,7 @@ class ModelViewerController constructor(
         }
 
     }
+
     fun getAnimationNames() = animationManger.getAnimationNames()
 
     fun getCurrentAnimationIndex() = currentAnimationIndex
@@ -306,7 +319,7 @@ class ModelViewerController constructor(
 
     suspend fun changeSkyboxFromAsset(assetPath: String?): Resource<String> {
         removeFrameCallback()
-        val resource = skyboxManger.setSkyboxFromAsset(assetPath)
+        val resource = skyboxManger.setSkyboxFromKTXAsset(assetPath)
         if (resource is Resource.Success) {
             makeSurfaceViewNotTransparent()
             scene?.skybox?.assetPath = assetPath
@@ -318,7 +331,7 @@ class ModelViewerController constructor(
 
     suspend fun changeSkyboxFromUrl(url: String?): Resource<String> {
         removeFrameCallback()
-        val resource = skyboxManger.setSkyboxFromUrl(url)
+        val resource = skyboxManger.setSkyboxFromKTXUrl(url)
         if (resource is Resource.Success) {
             makeSurfaceViewNotTransparent()
             scene?.skybox?.url = url
@@ -326,6 +339,7 @@ class ModelViewerController constructor(
         addFrameCallback()
         return resource
     }
+
     fun changeSkyboxByColor(color: Int?): Resource<String> {
 
         removeFrameCallback()
@@ -426,15 +440,14 @@ class ModelViewerController constructor(
         }
     }
 
-    private fun listenToSceneState(){
+    private fun listenToSceneState() {
         sceneStateJob = coroutineScope.launch {
-            combine(modelViewer.currentSkyboxState,modelViewer.currentLightState){ (skyboxState,lightState) ->
-                Timber.d("My Playx3dScenePlugin  listenToSceneState skybox: $skyboxState , light: $lightState")
-
-                getSceneState(skyboxState,lightState)
-            }.collectLatest{state->
-                Timber.d("My Playx3dScenePlugin  listenToSceneState1 scene state: $state")
-
+            combine(
+                modelViewer.currentSkyboxState,
+                modelViewer.currentLightState
+            ) { (skyboxState, lightState) ->
+                getSceneState(skyboxState, lightState)
+            }.collectLatest { state ->
                 sceneState.value = state
             }
         }
@@ -443,7 +456,7 @@ class ModelViewerController constructor(
     /**
      *Flow that holds current frame in nanoseconds
      */
-    fun getRenderStateFlow ()= modelViewer.rendererStateFlow
+    fun getRenderStateFlow() = modelViewer.rendererStateFlow
 
 
     private val frameCallback = object : Choreographer.FrameCallback {
