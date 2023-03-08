@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.models.model
 
-import android.renderscript.Float3
 import com.google.android.filament.utils.Float3
 import io.sourcya.playx_3d_scene.utils.toObject
 
@@ -11,8 +10,6 @@ abstract class Model(
     val position: Float3?,
     val scale: Float?,
     val animation: Animation?,
-    val loadingProgress: Float?,
-
     ) {
 
 
@@ -23,7 +20,7 @@ abstract class Model(
         }
     }
     override fun toString(): String {
-        return "Model(assetPath=$assetPath, url=$url, fallback=$fallback, position=$position, scale=$scale, animation=$animation, loadingProgress=$loadingProgress)"
+        return "Model(assetPath=$assetPath, url=$url, fallback=$fallback, position=$position, scale=$scale, animation=$animation)"
     }
 
 }

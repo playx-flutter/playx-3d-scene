@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
+import 'package:playx_3d_scene/models/scene/light/hdr_light.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
@@ -41,8 +42,10 @@ class _MyAppState extends State<MyApp> {
               Playx3dScene(
                 model: GlbModel.asset("assets/models/Fox.glb",
                     animation: PlayxAnimation.byIndex(0, autoPlay: true)),
-                scene:
-                    Scene(skybox: HdrSkybox.asset("assets/envs/courtyard.hdr")),
+                scene: Scene(
+                  skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),
+                  light: HdrLight.asset("assets/envs/courtyard.hdr"),
+                ),
                 onCreated: (Playx3dSceneController controller) {
                   Fimber.d("My Playx3dScenePlugin onCreated");
                   this.controller = controller;

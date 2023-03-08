@@ -3,11 +3,11 @@ package io.sourcya.playx_3d_scene.core.skybox
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import com.google.android.filament.IndirectLight
 import com.google.android.filament.Skybox
 import com.google.android.filament.utils.HDRLoader
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.sourcya.playx_3d_scene.core.models.scene.Skybox
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -93,7 +93,7 @@ internal class SkyboxManger constructor(
     }
 
 
-    suspend fun setSkyboxFromHdrAsset(path: String?,showSun:Boolean=false): Resource<String> {
+    suspend fun setSkyboxFromHdrAsset(path: String?,showSun:Boolean=false,shouldUpdateLight:Boolean =false, intensity:Double?= null): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
         Timber.d("loading hdr skybox  loading :$path")
@@ -103,7 +103,7 @@ internal class SkyboxManger constructor(
 
                 is Resource.Success -> {
                     val buffer = bufferResource.data
-                    return@withContext loadSkyboxFromHdrBuffer(buffer,showSun)
+                    return@withContext loadSkyboxFromHdrBuffer(buffer,showSun,shouldUpdateLight,intensity)
                 }
 
                 is Resource.Error -> {
@@ -119,7 +119,7 @@ internal class SkyboxManger constructor(
 
 
     @SuppressLint("LogNotTimber")
-    suspend fun setSkyboxFromHdrUrl(url: String?,showSun:Boolean=false): Resource<String> {
+    suspend fun setSkyboxFromHdrUrl(url: String?,showSun:Boolean=false,shouldUpdateLight:Boolean =false, intensity:Double?= null): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
         Timber.d("loading hdr skybox buffer loading :$url")
@@ -133,7 +133,7 @@ internal class SkyboxManger constructor(
 
             if(buffer != null) {
                 Timber.d("loading hdr skybox buffer downloaded")
-                return@withContext loadSkyboxFromHdrBuffer(buffer,showSun)
+                return@withContext loadSkyboxFromHdrBuffer(buffer,showSun,shouldUpdateLight,intensity)
             }else{
                  modelViewer.setSkyboxState(SceneState.ERROR)
                     return@withContext Resource.Error(
@@ -145,7 +145,7 @@ internal class SkyboxManger constructor(
         }
 
 
-    private suspend fun loadSkyboxFromHdrBuffer(buffer: Buffer?,showSun:Boolean=false) :Resource<String>{
+    private suspend fun loadSkyboxFromHdrBuffer(buffer: Buffer?,showSun:Boolean=false, shouldUpdateLight:Boolean =false, intensity:Double?= null) :Resource<String>{
 
        return withContext(Dispatchers.Main) {
 
@@ -156,15 +156,35 @@ internal class SkyboxManger constructor(
 
             if (texture != null) {
                 val skyboxTexture = iblProfiler.createCubeMapTexture(texture)
-
-                skyboxTexture?.let {
+                engine.destroyTexture(texture)
+                skyboxTexture.let {
                     val sky = Skybox.Builder()
                         .environment(skyboxTexture)
                         .showSun(showSun)
                         .build(engine)
 
+
+                    // updates scene light with skybox when loaded with same hdr file
+                    if(shouldUpdateLight) {
+                        val reflections = iblProfiler.getLightReflection(skyboxTexture)
+                        val ibl = IndirectLight.Builder()
+                            .reflections(reflections)
+                            .intensity(intensity?.toFloat() ?: 30_000f)
+                            .build(engine)
+                        // destroy the previous IBl
+                        modelViewer.destroyIndirectLight()
+                        modelViewer.scene.indirectLight = ibl
+                        modelViewer.setLightState(SceneState.LOADED)
+                    }
+
+
+
+
                     modelViewer.destroySkybox()
                     modelViewer.scene.skybox = sky
+
+
+
                 }
 
 

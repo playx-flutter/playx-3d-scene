@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:playx_3d_scene/models/scene/light/indirect_light.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
 class Playx3dSceneController {
@@ -160,13 +161,70 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByAsset(
+  Future<String?> changeLightByKtxAsset(
           {required String? path, double? intensity}) =>
       _channel.invokeMethod<String>(
-        _changeLightByAsset,
+        _changeLightByKtxAsset,
         {
-          _changeLightByAssetKey: path,
-          _changeLightByAssetIntensityKey: intensity
+          _changeLightByKtxAssetKey: path,
+          _changeLightByKtxAssetIntensityKey: intensity
+        },
+      );
+
+  /// change scene indirect light by given ktx file url .
+  /// it takes an String? asset path as an argument.
+  /// and can take light intensity as an argument.
+  /// should be provided with the KTX image based lighting file.
+  /// so it can update the scene light with it.
+  /// if intensity is provide, it will update the scene light intensity with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeLightByKtxUrl(
+          {required String? url, double? intensity}) =>
+      _channel.invokeMethod<String>(
+        _changeLightByKtxUrl,
+        {
+          _changeLightByKtxUrlKey: url,
+          _changeLightByKtxUrlIntensityKey: intensity
+        },
+      );
+
+  /// change scene indirect light by given HDR asset path.
+  /// it takes an String? asset path as an argument.
+  /// and can take light intensity as an argument.
+  /// should be provided with the HDR image based lighting file.
+  /// so it can update the scene light with it.
+  /// if intensity is provide, it will update the scene light intensity with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeLightByHdrAsset(
+          {required String? path, double? intensity}) =>
+      _channel.invokeMethod<String>(
+        _changeLightByHdrAsset,
+        {
+          _changeLightByHdrAssetKey: path,
+          _changeLightByHdrAssetIntensityKey: intensity
+        },
+      );
+
+  /// change scene indirect light by given Hdr file url .
+  /// it takes an String? asset path as an argument.
+  /// and can take light intensity as an argument.
+  /// should be provided with the HDR image based lighting file.
+  /// so it can update the scene light with it.
+  /// if intensity is provide, it will update the scene light intensity with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeLightByHdrUrl(
+          {required String? url, double? intensity}) =>
+      _channel.invokeMethod<String>(
+        _changeLightByHdrUrl,
+        {
+          _changeLightByHdrUrlKey: url,
+          _changeLightByHdrUrlIntensityKey: intensity
         },
       );
 
@@ -176,10 +234,10 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByIntensity(double? intensity) =>
+  Future<String?> changeLightByIndirectLight(IndirectLight light) =>
       _channel.invokeMethod<String>(
-        _changeLightByIntensity,
-        {_changeLightByIntensityKey: intensity},
+        _changeLightByIndirectLight,
+        {_changeLightByIndirectLightKey: light.toJson()},
       );
 
   /// change scene indirect light to the default intensity which is 40_000.0.
@@ -294,13 +352,30 @@ const String _changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY";
 
 const String _changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX";
 
-const String _changeLightByAsset = "CHANGE_LIGHT_BY_ASSET";
-const String _changeLightByAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY";
-const String _changeLightByAssetIntensityKey =
+const String _changeLightByKtxAsset = "CHANGE_LIGHT_BY_ASSET";
+const String _changeLightByKtxAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY";
+const String _changeLightByKtxAssetIntensityKey =
     "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY";
 
-const String _changeLightByIntensity = "CHANGE_LIGHT_BY_INTENSITY";
-const String _changeLightByIntensityKey = "CHANGE_LIGHT_BY_INTENSITY_KEY";
+const String _changeLightByKtxUrl = "CHANGE_LIGHT_BY_KTX_URL";
+const String _changeLightByKtxUrlKey = "CHANGE_LIGHT_BY_KTX_URL_KEY";
+const String _changeLightByKtxUrlIntensityKey =
+    "CHANGE_LIGHT_BY_KTX_URL_INTENSITY_KEY";
+
+const String _changeLightByHdrAsset = "CHANGE_LIGHT_BY_HDR_ASSET";
+const String _changeLightByHdrAssetKey = "CHANGE_LIGHT_BY_HDR_ASSET_KEY";
+const String _changeLightByHdrAssetIntensityKey =
+    "CHANGE_LIGHT_BY_HDR_ASSET_INTENSITY_KEY";
+
+const String _changeLightByHdrUrl = "CHANGE_LIGHT_BY_HDR_URL";
+const String _changeLightByHdrUrlKey = "CHANGE_LIGHT_BY_HDR_URL_KEY";
+const String _changeLightByHdrUrlIntensityKey =
+    "CHANGE_LIGHT_BY_HDR_URL_INTENSITY_KEY";
+
+const String _changeLightByIndirectLight = "CHANGE_LIGHT_BY_INDIRECT_LIGHT";
+const String _changeLightByIndirectLightKey =
+    "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY";
+
 const String _changeToDefaultLightIntensity =
     "CHANGE_TO_DEFAULT_LIGHT_INTENSITY";
 

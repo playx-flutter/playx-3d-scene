@@ -41,12 +41,9 @@ class IBLProfiler (engine:Engine){
      *
      * @see IBLPrefilterContext.EquirectangularToCubemap
      */
-    fun createCubeMapTexture(equirect: Texture): Texture? {
-       return  kotlin.runCatching {
-             equirectangularToCubeMap.run(equirect)
-         }.onFailure {
-             Timber.e(it.message)
-       }.getOrNull()
+    fun createCubeMapTexture(equirect: Texture): Texture {
+       return equirectangularToCubeMap.run(equirect)
+
     }
 
 
@@ -70,7 +67,7 @@ class IBLProfiler (engine:Engine){
      *
      * @return the reflections texture
      */
-    fun specularFilter(skybox: Texture) = specularFilter.run(skybox)
+    fun getLightReflection(skybox: Texture): Texture = specularFilter.run(skybox)
 
     fun destroy() {
         runCatching { specularFilter.destroy() }
