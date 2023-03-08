@@ -12,6 +12,7 @@ import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
@@ -24,23 +25,26 @@ class Playx3dScene(
     private val creationParams: Map<String?, Any?>?,
     private val binding: FlutterPlugin.FlutterPluginBinding,
     private val engine: Engine,
+    private val iblProfiler: IBLProfiler,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
     private var modelViewer: ModelViewerController? = null
     private var playXMethodHandler: PlayxMethodHandler? = null
-    private var playxEventHandler : PlayxEventHandler? = null
+    private var playxEventHandler: PlayxEventHandler? = null
 
     init {
         Timber.d("My Playx3dScenePlugin : setUpModelViewer")
 
         setUpModelViewer()
+        listenToChannel()
+
     }
 
 
     private fun setUpModelViewer() {
 
-        val modelMap = getMapValue<Map<String?, Any?>>("model",creationParams)
-        val sceneMap = getMapValue<Map<String?, Any?>>("scene",creationParams)
+        val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
+        val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)
 
         val model = Model.fromMap(modelMap)
         val scene = Scene.fromMap(sceneMap)
@@ -49,6 +53,7 @@ class Playx3dScene(
         modelViewer = ModelViewerController(
             context,
             engine,
+            iblProfiler,
             binding.flutterAssets,
             model = model,
             scene = scene
@@ -76,7 +81,6 @@ class Playx3dScene(
 
 
     override fun onFlutterViewAttached(flutterView: View) {
-        listenToChannel()
         modelViewer?.handleOnResume()
 
         super.onFlutterViewAttached(flutterView)
@@ -84,7 +88,6 @@ class Playx3dScene(
 
 
     override fun onFlutterViewDetached() {
-        stopListeningToChannel()
         modelViewer?.handleOnPause()
         super.onFlutterViewDetached()
 
@@ -104,17 +107,18 @@ class Playx3dScene(
     }
 
 
-
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
             Timber.d("My Playx3dScenePlugin : ON_RESUME")
 
             modelViewer?.handleOnResume()
+            playxEventHandler?.handleOnResume()
 
         } else if (event == Lifecycle.Event.ON_PAUSE) {
             Timber.d("My Playx3dScenePlugin : ON_PAUSE")
-
+            playxEventHandler?.handleOnPause()
             modelViewer?.handleOnPause()
+
         }
 
     }

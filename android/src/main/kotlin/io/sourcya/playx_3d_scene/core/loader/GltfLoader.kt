@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import io.sourcya.playx_3d_scene.core.models.ModelState
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
@@ -49,7 +49,7 @@ internal class GltfLoader  constructor(
                         }
                     }
                                modelViewer.setModelState(
-                            if(isFallback)ModelState.FALLBACK_LOADED else  ModelState.LOADED)
+                            if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
                 }
                 is Resource.Error -> {

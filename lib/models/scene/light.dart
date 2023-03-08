@@ -10,7 +10,6 @@ class Light {
   /// indirect light intensity.
   /// can be used with light asset path.
   /// or create default light with certain intensity.
-
   double? intensity;
 
   Light._({this.assetPath, this.url, this.intensity});

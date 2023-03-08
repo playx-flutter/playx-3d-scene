@@ -6,11 +6,13 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.view.Playx3dScene
 
 class Playx3dSceneFactory(private val binding: FlutterPlugin.FlutterPluginBinding,
                           private val engine:Engine,
+                          private val iblProfiler: IBLProfiler,
                           private val lifecycleProvider: LifecycleProvider
 ):PlatformViewFactory (StandardMessageCodec.INSTANCE){
 
@@ -27,6 +29,7 @@ class Playx3dSceneFactory(private val binding: FlutterPlugin.FlutterPluginBindin
             creationParams ,
             binding,
             engine,
+            iblProfiler,
             lifecycleProvider
         )
     }

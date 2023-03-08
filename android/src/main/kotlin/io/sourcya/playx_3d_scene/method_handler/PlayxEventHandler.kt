@@ -23,18 +23,14 @@ class PlayxEventHandler (
     private var rendererEventChannel: EventChannel = EventChannel(messenger, "${RENDERER_CHANNEL_NAME}_$id")
     private var rendererEventSink : EventChannel.EventSink? =null
 
+    private var sceneStateEventChannel: EventChannel = EventChannel(messenger, "${SCENE_STATE_CHANNEL_NAME}_$id")
+    private var sceneStateEventSink : EventChannel.EventSink? =null
 
     private var modelLoadingJob : Job? =null
     private var rendererJob : Job?= null
+    private var sceneStateJob : Job?= null
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
-
-
-    init {
-        listenToModelLoading()
-        listenToEachRender()
-    }
-
 
 
     private fun listenToModelLoading(){
@@ -76,10 +72,50 @@ class PlayxEventHandler (
 
 
 
+    private fun listenToSceneState(){
+        sceneStateJob = coroutineScope.launch {
+            modelViewer?.sceneState?.collectLatest {
+                Timber.d("My Playx3dScenePlugin  listenToSceneState method : $it")
+                sceneStateEventSink?.success(it.toString())
+
+            }
+        }
+    }
+
+
+    private fun setSceneStateEventChannel(){
+        Timber.d("My Playx3dScenePlugin : setSceneStateEventChannel")
+        sceneStateEventChannel.setStreamHandler(object : StreamHandler(),
+            EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                sceneStateEventSink = events
+                Timber.d("My Playx3dScenePlugin : sceneState onListen : ${modelViewer?.sceneState?.value?.toString()}")
+                sceneStateEventSink?.success(modelViewer?.sceneState?.value?.toString())
+            }
+            override fun onCancel(arguments: Any?) {
+                Timber.d("My Playx3dScenePlugin : onCancel")
+                sceneStateEventSink =null
+            }
+        })
+
+    }
+
+    private fun cancelSceneStateEventChannel(){
+        Timber.d("My Playx3dScenePlugin : cancelSceneStateEventChannel")
+        sceneStateJob?.cancel()
+        sceneStateEventChannel.setStreamHandler(null)
+        sceneStateEventSink = null
+
+
+
+    }
+
+
+
+
     private fun listenToEachRender(){
         rendererJob = coroutineScope.launch {
             modelViewer?.getRenderStateFlow()?.collectLatest {
-             //   Timber.d("My Playx3dScenePlugin  listenToEachRender method : $it")
                 rendererEventSink?.success(it)
             }
         }
@@ -116,18 +152,37 @@ class PlayxEventHandler (
     fun startListeningToEventChannels(){
         setUpModelStateEventChannel()
         setUpRendererEventChannel()
+        setSceneStateEventChannel()
 
     }
 
     fun stopListeningToEventChannels(){
         cancelModelStateEventChannel()
         cancelRendererEventChannel()
+        cancelSceneStateEventChannel()
+    }
+
+    fun handleOnResume() {
+        listenToModelLoading()
+        listenToEachRender()
+        listenToSceneState()
+    }
+
+    fun handleOnPause() {
+        modelLoadingJob?.cancel()
+        sceneStateJob?.cancel()
+        rendererJob?.cancel()
+        modelLoadingJob = null
+        sceneStateJob = null
+        rendererJob = null
+
     }
 
 
     companion object{
         private  const val  MODEL_STATE_CHANNEL_NAME= "io.sourcya.playx.3d.scene.model_state_channel"
         private const val  RENDERER_CHANNEL_NAME= "io.sourcya.playx.3d.scene.renderer_channel"
+        private const val SCENE_STATE_CHANNEL_NAME = "io.sourcya.playx.3d.scene.scene_state"
 
     }
 

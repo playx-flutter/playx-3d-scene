@@ -1,5 +1,6 @@
 package io.sourcya.playx_3d_scene.core.viewer
 
+import android.hardware.lights.LightState
 import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceView
@@ -10,7 +11,8 @@ import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import io.sourcya.playx_3d_scene.core.loader.ModelLoader
-import io.sourcya.playx_3d_scene.core.models.ModelState
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
+import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
@@ -64,6 +66,8 @@ class CustomModelViewer(
 
     val currentModelState = MutableStateFlow(ModelState.NONE)
     val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
+    val currentSkyboxState = MutableStateFlow(SceneState.NONE)
+    val currentLightState = MutableStateFlow(SceneState.NONE)
 
 
     @Entity
@@ -201,7 +205,9 @@ class CustomModelViewer(
         modelLoader.destroyModel()
     }
 
-
+    fun destroySkybox(){
+        scene.skybox?.let { engine.destroySkybox(it) }
+    }
     fun destroy() {
         uiHelper.detach()
         modelLoader.destroyModel()
@@ -263,8 +269,16 @@ class CustomModelViewer(
     }
 
 
-    fun setModelState(state :ModelState){
+    fun setModelState(state : ModelState){
         currentModelState.value = state
+    }
+
+    fun setLightState(state : SceneState){
+        currentLightState.value = state
+    }
+
+    fun setSkyboxState(state : SceneState){
+        currentSkyboxState.value = state
     }
     companion object {
         val kDefaultObjectPosition = Float3(0.0f, 0.0f, -4.0f)

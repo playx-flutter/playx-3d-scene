@@ -11,7 +11,7 @@ class GlbModel extends Model {
       super.animation});
 
   factory GlbModel.asset(
-    String? path, {
+    String path, {
     Model? fallback,
     double? scale,
     PlayxAnimation? animation,
