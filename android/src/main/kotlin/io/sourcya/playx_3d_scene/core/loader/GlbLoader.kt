@@ -20,14 +20,16 @@ internal class GlbLoader constructor(
 ) {
 
     suspend fun loadGlbFromAsset(path: String?,
-                                 isFallback: Boolean = false
-    ): Resource<String> {
+                                 scale: Float?,
+                                 isFallback: Boolean = false,
+
+                                 ): Resource<String> {
         modelViewer.setModelState( ModelState.LOADING)
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
-                        modelViewer.modelLoader.loadModelGlb(it, true)
+                        modelViewer.modelLoader.loadModelGlb(it, true,scale)
                     }
                     modelViewer.setModelState( if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
@@ -43,8 +45,9 @@ internal class GlbLoader constructor(
     }
 
     suspend fun loadGlbFromUrl(url: String?,
-                               isFallback: Boolean = false
-    ): Resource<String> {
+                               scale: Float?,
+                               isFallback: Boolean = false,
+                               ): Resource<String> {
         modelViewer.setModelState( ModelState.LOADING)
         return if (url.isNullOrEmpty()) {
             modelViewer.setModelState( ModelState.ERROR)
@@ -58,7 +61,7 @@ internal class GlbLoader constructor(
                     val buffer = NetworkClient.downloadFile(url)
                     Timber.d("downloadFile : Got buffer: ${buffer == null}")
                     if (buffer != null) {
-                        modelViewer.modelLoader.loadModelGlb(buffer, true)
+                        modelViewer.modelLoader.loadModelGlb(buffer, true,scale)
                         modelViewer.setModelState(
                         if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                         return@withContext Resource.Success("Loaded glb model successfully from $url")

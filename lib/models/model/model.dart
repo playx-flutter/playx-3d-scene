@@ -11,13 +11,21 @@ abstract class Model {
 
   /// glb or gltf model to be shown when error happened.
   Model? fallback;
-  // double position;
+
+  /// scale of the model
+  /// should be greater than 0
+  // default is 1f;
   double? scale;
 
   ///control what animation should be played by glb or gltf model animation.
   PlayxAnimation? animation;
 
-  Model({this.assetPath, this.url, this.fallback, this.scale, this.animation});
+  Model(
+      {this.assetPath,
+      this.url,
+      this.fallback,
+      this.scale = 1.0,
+      this.animation});
 
   Map<String, dynamic> toJson() {
     if (this is GlbModel) {

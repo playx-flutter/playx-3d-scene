@@ -37,7 +37,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     /**
      * Loads a monolithic binary glTF and populates the Filament scene.
      */
-    suspend fun loadModelGlb(buffer: Buffer, transformToUnitCube: Boolean = false) {
+    suspend fun loadModelGlb(buffer: Buffer, transformToUnitCube: Boolean = false,scale: Float?) {
         withContext(Dispatchers.Main) {
             destroyModel()
             asset = assetLoader.createAsset(buffer)
@@ -47,7 +47,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
                 if (transformToUnitCube) {
-                    transformToUnitCube()
+                    transformToUnitCube(scale=scale)
                 }
             }
         }
@@ -61,7 +61,9 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     suspend fun loadModelGltf(
         buffer: Buffer,
         transformToUnitCube: Boolean = false,
+        scale: Float?,
         callback: suspend (String) -> Buffer?,
+
     ) {
         destroyModel()
         asset = assetLoader.createAsset(buffer)
@@ -78,7 +80,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             modelViewer.animator = asset.instance.animator
             asset.releaseSourceData()
             if (transformToUnitCube) {
-                transformToUnitCube()
+                transformToUnitCube(scale = scale)
             }
         }
     }
@@ -91,7 +93,8 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     suspend fun loadModelGltfAsync(
         buffer: Buffer,
         transformToUnitCube: Boolean = false,
-        callback: suspend (String) -> Buffer?
+        scale: Float?,
+        callback: suspend (String) -> Buffer?,
     ) {
         withContext(Dispatchers.Main) {
             destroyModel()
@@ -104,7 +107,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             }
 
             if (transformToUnitCube) {
-                transformToUnitCube()
+                transformToUnitCube(scale=scale)
             }
         }
     }
@@ -151,13 +154,15 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: Float3 = CustomModelViewer.kDefaultObjectPosition) {
+    fun transformToUnitCube(centerPoint: Float3 = CustomModelViewer.kDefaultObjectPosition, scale:Float? )   {
+
+        val modelScale = if(scale ==null) 1f else {if(scale <=0) 1f else scale}
         asset?.let { asset ->
             val tm = engine.transformManager
             var center = asset.boundingBox.center.let { v -> Float3(v[0], v[1], v[2]) }
             val halfExtent = asset.boundingBox.halfExtent.let { v -> Float3(v[0], v[1], v[2]) }
             val maxExtent = 2.0f * max(halfExtent)
-            val scaleFactor = 2.0f / maxExtent
+            val scaleFactor = 2.0f *modelScale  / maxExtent
             center -= centerPoint / scaleFactor
             val transform = scale(Float3(scaleFactor)) * translation(-center)
             tm.setTransform(tm.getInstance(asset.root), transpose(transform).toFloatArray())

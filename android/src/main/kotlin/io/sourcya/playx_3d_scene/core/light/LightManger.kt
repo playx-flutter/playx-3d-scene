@@ -28,7 +28,8 @@ internal class LightManger constructor(
 
     fun setDefaultLight() {
         modelViewer.setLightState(SceneState.LOADING)
-        setIndirectLight(io.sourcya.playx_3d_scene.core.models.scene.IndirectLight(intensity = DEFAULT_LIGHT_INTENSITY))
+        setIndirectLight(io.sourcya.playx_3d_scene.core.models.scene.IndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
+            radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f), irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f)))
         modelViewer.setLightState(SceneState.LOADED)
 
     }
