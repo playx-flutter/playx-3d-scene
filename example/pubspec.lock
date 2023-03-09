@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  fimber:
+    dependency: "direct main"
+    description:
+      name: fimber
+      sha256: "1415768ddd9fd66f134dbc53f731107554c98175a63d4e93234478a113ffabb8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.6"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -123,13 +131,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.2"
-  playx_model_viewer:
+  playx_3d_scene:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   plugin_platform_interface:
     dependency: transitive
     description:
