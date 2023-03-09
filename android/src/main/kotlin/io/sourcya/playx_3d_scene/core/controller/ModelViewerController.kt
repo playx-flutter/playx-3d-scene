@@ -161,9 +161,9 @@ class ModelViewerController constructor(
         when (model) {
             is GlbModel -> {
                 if (!model.assetPath.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromAsset(model.assetPath)
+                    result = glbLoader.loadGlbFromAsset(model.assetPath,model.scale)
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromUrl(model.url)
+                    result = glbLoader.loadGlbFromUrl(model.url,model.scale)
                 }
             }
             is GltfModel -> {
@@ -171,11 +171,12 @@ class ModelViewerController constructor(
                     result = gltfLoader.loadGltfFromAsset(
                         model.assetPath,
                         model.pathPrefix,
-                        model.pathPostfix
+                        model.pathPostfix,
+                        model.scale
                     )
                 } else if (!model.url.isNullOrEmpty()) {
                     result =
-                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix)
+                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix,model.scale)
                 }
             }
             else -> {}
@@ -513,7 +514,7 @@ class ModelViewerController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromAsset(assetPath)
+        val resource = glbLoader.loadGlbFromAsset(assetPath,model?.scale)
         addFrameCallback()
         return resource
     }
@@ -522,7 +523,7 @@ class ModelViewerController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromUrl(url)
+        val resource = glbLoader.loadGlbFromUrl(url,model?.scale)
         addFrameCallback()
         return resource
     }
@@ -537,7 +538,7 @@ class ModelViewerController constructor(
         modelJob?.cancel()
 
         val resource =
-            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix)
+            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix,model?.scale)
         addFrameCallback()
         return resource
 

@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               Playx3dScene(
                 model: GlbModel.asset("assets/models/Fox.glb",
+                    scale: 1.0,
                     animation: PlayxAnimation.byIndex(0, autoPlay: true)),
                 scene: Scene(
                   skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),

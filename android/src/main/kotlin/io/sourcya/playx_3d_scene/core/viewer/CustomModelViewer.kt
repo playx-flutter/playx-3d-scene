@@ -149,6 +149,7 @@ class CustomModelViewer(
         gestureDetector = GestureDetector(textureView, cameraManipulator)
         displayHelper = DisplayHelper(textureView.context)
         uiHelper.renderCallback = SurfaceCallback()
+
         uiHelper.attachTo(textureView)
     }
 
@@ -158,8 +159,8 @@ class CustomModelViewer(
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: Float3 = kDefaultObjectPosition) {
-        modelLoader.transformToUnitCube(centerPoint)
+    fun transformToUnitCube(centerPoint: Float3 = kDefaultObjectPosition, scale: Float = 1.0f) {
+        modelLoader.transformToUnitCube(centerPoint,scale)
     }
 
     /**

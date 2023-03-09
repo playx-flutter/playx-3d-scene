@@ -27,7 +27,9 @@ internal class GltfLoader  constructor(
         path: String?,
         gltfImagePathPrefix: String,
         gltfImagePathPostfix: String,
-        isFallback: Boolean = false
+        scale: Float?,
+       isFallback: Boolean = false,
+
     ) :Resource<String>{
         modelViewer.setModelState( ModelState.LOADING)
 
@@ -36,7 +38,7 @@ internal class GltfLoader  constructor(
                 is Resource.Success -> {
                     bufferResource.data?.let {
                         try {
-                                modelViewer.modelLoader.loadModelGltfAsync(it,true) { uri ->
+                                modelViewer.modelLoader.loadModelGltfAsync(it,true,scale) { uri ->
                                     val assetPath = gltfImagePathPrefix + uri + gltfImagePathPostfix
                                     val assetResource = readAsset(assetPath, flutterAssets, context)
                                     assetResource.data
@@ -67,6 +69,7 @@ internal class GltfLoader  constructor(
      suspend fun loadGltfFromUrl(url :String?,
                          prefix: String,
                          postfix: String,
+                                 scale: Float?,
                                  isFallback: Boolean =false,
      ):Resource<String> {
 
@@ -144,12 +147,12 @@ internal class GltfLoader  constructor(
              // paths are all specified relative to the location of the gltf file.
              withContext(Dispatchers.Main) {
                  if (gltfPath!!.endsWith(".glb")) {
-                     modelViewer.modelLoader.loadModelGlb(gltfBuffer)
+                     modelViewer.modelLoader.loadModelGlb(gltfBuffer,true,scale)
                      modelViewer.setModelState(
                          if(isFallback) ModelState.FALLBACK_LOADED else ModelState.LOADED)
                      return@withContext Resource.Success("Loaded glb model successfully from $url")
                  } else {
-                     modelViewer.modelLoader.loadModelGltfAsync(gltfBuffer, true) { uri ->
+                     modelViewer.modelLoader.loadModelGltfAsync(gltfBuffer, true,scale) { uri ->
                          val path = prefix + uri + postfix
                          if (!pathToBufferMapping.contains(path)) {
                              Log.e("Playx3dScene", "Could not find '$uri' in zip using prefix '$prefix' and base path '${gltfPath!!}'")

@@ -11,8 +11,7 @@ class GltfModel(
     position: Float3? = null,
     scale: Float? = null,
     animation: Animation? = null,
-    loadingProgress: Float? = null,
-) : Model(assetPath,url, fallback, position, scale, animation, loadingProgress){
+) : Model(assetPath,url, fallback, position, scale, animation){
 
     override fun toString(): String {
         return "GltfModel(pathPrefix='$pathPrefix', pathPostfix='$pathPostfix, animation=$animation, fallback=$fallback, position=$position, scale=$scale)')"
