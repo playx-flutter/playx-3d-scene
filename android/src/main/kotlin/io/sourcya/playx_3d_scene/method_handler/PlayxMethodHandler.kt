@@ -6,7 +6,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
-import io.sourcya.playx_3d_scene.core.models.scene.DefaultIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.Light
+import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
 
@@ -46,6 +47,8 @@ class PlayxMethodHandler(
             changeIndirectLightByHdrUrl -> changeIndirectLightByHdrUrl(call, result)
             changeIndirectLightByDefaultIndirectLight -> changeIndirectLightByDefaultIndirectLight(call, result)
             changeToDefaultIndirectLight -> changeToDefaultIndirectLight(result)
+            changeLight -> changeSceneLight(call, result)
+            changeToDefaultLight -> changeToDefaultLight( result)
             loadGlbModelFromAssets -> loadGlbModelFromAssets(call, result)
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
@@ -397,6 +400,36 @@ class PlayxMethodHandler(
         }
     }
 
+    /**
+     * change scene direct light by light class
+     * by different types ,intensity, position, etc .
+     * it takes light object as an argument.
+     * and update the scene  light with it.
+     */
+    private fun changeSceneLight(call: MethodCall, result: MethodChannel.Result) {
+        val light = getValue<Map<String?, Any?>>(call, changeLightKey)?.toObject<Light>()
+        when (val resource = modelViewer?.changeLight(light)) {
+            is Resource.Success -> result.success(resource.data)
+            is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+            else -> result.error(
+                "Model viewer isn't initialized.",
+                "Model viewer isn't initialized.",
+                null
+            )
+        }
+    }
+
+
+    /**
+     *change scene indirect light to the default intensity which is 40_000.0.
+     */
+    private fun changeToDefaultLight(result: MethodChannel.Result) {
+        if (modelViewer != null) {
+           return modelViewer.changeToDefaultLight()
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
 
     /**
      * Load glb model from assets.
@@ -420,7 +453,7 @@ class PlayxMethodHandler(
     }
 
     /**
-     *   * Load glb model from url.
+     * Load glb model from url.
      * it takes url as an argument.
      * and update the current model with it.
      */
@@ -572,6 +605,12 @@ class PlayxMethodHandler(
         private const val changeIndirectLightByDefaultIndirectLightKey = "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY"
 
         private const val changeToDefaultIndirectLight = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
+
+        private const val changeLight="CHANGE_LIGHT"
+        private const val changeLightKey="CHANGE_LIGHT_KEY"
+
+        private const val changeToDefaultLight = "CHANGE_TO_DEFAULT_LIGHT"
+
 
         private const val loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS"
         private  const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"

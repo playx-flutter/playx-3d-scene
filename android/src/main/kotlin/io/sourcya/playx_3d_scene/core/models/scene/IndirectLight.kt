@@ -1,4 +1,4 @@
-package io.sourcya.playx_3d_scene.core.models.scene
+package io.sourcya.playx_3d_scene.core.models.scene.light
 
 
 abstract class IndirectLight(
@@ -23,13 +23,13 @@ class HdrIndirectLight(
      assetPath: String? = null,
      url: String? = null,
      intensity: Double? = null,
-    ):IndirectLight(assetPath,url,intensity)
+    ): IndirectLight(assetPath,url,intensity)
 
 class KtxIndirectLight(
     assetPath: String? = null,
     url: String? = null,
     intensity: Double? = null,
-):IndirectLight(assetPath,url,intensity)
+): IndirectLight(assetPath,url,intensity)
 
 class DefaultIndirectLight(
      intensity: Double? = null,
@@ -38,7 +38,8 @@ class DefaultIndirectLight(
      irradianceBands: Int? = null,
      irradianceSh: FloatArray? = null,
      rotation:FloatArray? = null,
-    ):IndirectLight(null,null,intensity,radianceBands,radianceSh,irradianceBands,irradianceSh,rotation){
+    ):
+    IndirectLight(null,null,intensity,radianceBands,radianceSh,irradianceBands,irradianceSh,rotation){
 
 
     }

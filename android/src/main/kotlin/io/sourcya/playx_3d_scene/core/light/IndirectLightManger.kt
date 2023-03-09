@@ -6,7 +6,8 @@ import com.google.android.filament.IndirectLight as FilamentIndirectLight
 import com.google.android.filament.utils.HDRLoader
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.sourcya.playx_3d_scene.core.models.scene.IndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -28,10 +29,11 @@ internal class IndirectLightManger constructor(
 
     fun setDefaultIndirectLight() {
         modelViewer.setLightState(SceneState.LOADING)
-        setIndirectLight(io.sourcya.playx_3d_scene.core.models.scene.DefaultIndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
-            radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f), irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f)))
+        setIndirectLight(
+            DefaultIndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
+            radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f), irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f))
+        )
         modelViewer.setLightState(SceneState.LOADED)
-
     }
 
     suspend fun setIndirectLightFromKtxAsset(path: String?, intensity: Double?): Resource<String> {

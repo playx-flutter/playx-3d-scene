@@ -10,6 +10,7 @@ import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
+import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.ModelLoader
 import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
@@ -70,8 +71,6 @@ class CustomModelViewer(
     val currentLightState = MutableStateFlow(SceneState.NONE)
 
 
-    @Entity
-    val light: Int
 
     private lateinit var displayHelper: DisplayHelper
     private lateinit var cameraManipulator: Manipulator
@@ -91,20 +90,6 @@ class CustomModelViewer(
         view.camera = camera
 
 
-        // Always add a direct light source since it is required for shadowing.
-        // We highly recommend adding an indirect light as well.
-
-        light = EntityManager.get().create()
-
-        val (r, g, b) = Colors.cct(6_500.0f)
-        LightManager.Builder(LightManager.Type.DIRECTIONAL)
-            .color(r, g, b)
-            .intensity(100_000.0f)
-            .direction(0.0f, -1.0f, 0.0f)
-            .castShadows(true)
-            .build(engine, light)
-
-        scene.addEntity(light)
     }
 
     constructor(
@@ -217,13 +202,11 @@ class CustomModelViewer(
         uiHelper.detach()
         modelLoader.destroyModel()
         modelLoader.destroy()
-        engine.destroyEntity(light)
         engine.destroyRenderer(renderer)
         engine.destroyView(this@CustomModelViewer.view)
         engine.destroyScene(scene)
         engine.destroyCameraComponent(camera.entity)
         EntityManager.get().destroy(camera.entity)
-        EntityManager.get().destroy(light)
     }
 
     /**

@@ -11,6 +11,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.light.IndirectLightManger
+import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
 import io.sourcya.playx_3d_scene.core.models.states.ModelState
@@ -19,6 +20,9 @@ import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.*
+import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.HdrIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.KtxIndirectLight
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -62,6 +66,7 @@ class ModelViewerController constructor(
 
     private lateinit var gltfLoader: GltfLoader
 
+    private lateinit var lightManger:LightManger
     private lateinit var indirectLightManger: IndirectLightManger
 
     private lateinit var skyboxManger: SkyboxManger
@@ -74,8 +79,8 @@ class ModelViewerController constructor(
 
     init {
         setUpViewer()
-
         setUpSkybox()
+        setUpLight()
         setUpIndirectLight()
         setUpLoadingModel()
     }
@@ -121,6 +126,7 @@ class ModelViewerController constructor(
 
         gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
 
+        lightManger = LightManger(modelViewer)
         indirectLightManger = IndirectLightManger(modelViewer, iblProfiler, context, flutterAssets)
 
         skyboxManger = SkyboxManger(modelViewer, iblProfiler, context, flutterAssets)
@@ -184,12 +190,21 @@ class ModelViewerController constructor(
         return result
     }
 
+
+    private fun setUpLight(){
+        val light= scene?.light
+        Timber.d("setUpLight : $light")
+        if(light!=null){
+            lightManger.changeLight(light)
+        }else{
+            lightManger.setDefaultLight()
+        }
+
+    }
     private fun setUpIndirectLight() {
 
         coroutineScope.launch {
             val light = scene?.indirectLight
-
-
 
             if (light == null) {
                 indirectLightManger.setDefaultIndirectLight()
@@ -510,6 +525,29 @@ class ModelViewerController constructor(
     }
 
 
+
+    fun changeLight(light: Light?): Resource<String> {
+        removeFrameCallback()
+
+        val result= lightManger.changeLight(light)
+
+        Timber.d("change scene Light:$light, ${result}")
+        if(result is Resource.Success){
+            scene?.light = light
+        }
+        addFrameCallback()
+        return result
+    }
+
+
+    fun changeToDefaultLight(){
+        removeFrameCallback()
+        val result= lightManger.setDefaultLight()
+        addFrameCallback()
+        return result
+    }
+
+
     suspend fun loadGlbModelFromAssets(assetPath: String?): Resource<String> {
 
         removeFrameCallback()
@@ -626,7 +664,9 @@ class ModelViewerController constructor(
         glbModelStateJob = null
         sceneStateJob?.cancel()
         sceneStateJob = null
+        lightManger.destroyLight()
         modelViewer.destroy()
+
     }
 
 

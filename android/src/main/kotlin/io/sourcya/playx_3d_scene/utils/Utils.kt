@@ -3,7 +3,7 @@ package io.sourcya.playx_3d_scene.utils
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import io.sourcya.playx_3d_scene.core.models.model.Model
-import io.sourcya.playx_3d_scene.core.models.scene.IndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.Skybox
 import io.sourcya.playx_3d_scene.core.models.deserialisers.LightDeserializer
 import io.sourcya.playx_3d_scene.core.models.deserialisers.ModelDeserializer

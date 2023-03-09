@@ -6,21 +6,21 @@ class PlayxAnimation {
   String? name;
 
   /// auto play : decides whether to play the animation automatically or not
-  /// default is false.
+  /// default is true.
   bool autoPlay;
   Duration? duration;
 
   PlayxAnimation._(
-      {this.index, this.name, this.autoPlay = false, this.duration});
+      {this.index, this.name, this.autoPlay = true, this.duration});
 
   factory PlayxAnimation.byIndex(int index,
-      {bool autoPlay = false, Duration? duration}) {
+      {bool autoPlay = true, Duration? duration}) {
     return PlayxAnimation._(
         index: index, autoPlay: autoPlay, duration: duration);
   }
 
   factory PlayxAnimation.byName(String? name,
-      {bool autoPlay = false, Duration? duration}) {
+      {bool autoPlay = true, Duration? duration}) {
     return PlayxAnimation._(name: name, autoPlay: autoPlay, duration: duration);
   }
 

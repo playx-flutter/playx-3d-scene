@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
+import 'package:playx_3d_scene/models/scene/light/light.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
 class Playx3dSceneController {
@@ -253,6 +254,30 @@ class Playx3dSceneController {
         {},
       );
 
+  /// change scene light by given intensity.
+  /// it takes light light as an argument.
+  /// and update the scene light intensity with it.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeSceneLight(Light light) =>
+      _channel.invokeMethod<String>(
+        _changeLight,
+        {_changeLightKey: light.toJson()},
+      );
+
+  /// change scene indirect light to the default intensity which is 100_000.0.
+  /// with color temperature bands of 6_500.0,
+  /// and direction of [0.0, -1.0f, 0.0f],
+  /// and cast shadows true.
+  /// and returns whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeToDefaultLight() => _channel.invokeMethod<String>(
+        _changeToDefaultLight,
+        {},
+      );
+
   //load model
 
   /// Load glb model from assets.
@@ -381,6 +406,10 @@ const String _changeLightByIndirectLightKey =
 
 const String _changeToDefaultIndirectLight =
     "CHANGE_TO_DEFAULT_LIGHT_INTENSITY";
+
+const String _changeLight = "CHANGE_LIGHT";
+const String _changeLightKey = "CHANGE_LIGHT_KEY";
+const String _changeToDefaultLight = "CHANGE_TO_DEFAULT_LIGHT";
 
 const String _loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS";
 const String _loadGlbModelFromAssetsPathKey =
