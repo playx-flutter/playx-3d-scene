@@ -1,6 +1,6 @@
-import 'package:playx_3d_scene/models/scene/light/light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 
-class HdrLight extends Light {
+class HdrLight extends IndirectLight {
   HdrLight._({super.assetPath, super.url, super.intensity});
 
   factory HdrLight.asset(String path, {double? intensity}) {

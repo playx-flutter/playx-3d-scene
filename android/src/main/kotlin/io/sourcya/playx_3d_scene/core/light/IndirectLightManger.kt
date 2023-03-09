@@ -6,7 +6,7 @@ import com.google.android.filament.IndirectLight
 import com.google.android.filament.utils.HDRLoader
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.sourcya.playx_3d_scene.core.models.scene.Light
+import io.sourcya.playx_3d_scene.core.models.scene.IndirectLight
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.nio.Buffer
 
-internal class LightManger constructor(
+internal class IndirectLightManger constructor(
     private val modelViewer: CustomModelViewer,
     private val iblPrefilter: IBLProfiler,
     private val context: Context,
@@ -26,9 +26,9 @@ internal class LightManger constructor(
 
 ) {
 
-    fun setDefaultLight() {
+    fun setDefaultIndirectLight() {
         modelViewer.setLightState(SceneState.LOADING)
-        setIndirectLight(io.sourcya.playx_3d_scene.core.models.scene.IndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
+        setIndirectLight(io.sourcya.playx_3d_scene.core.models.scene.DefaultIndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
             radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f), irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f)))
         modelViewer.setLightState(SceneState.LOADED)
 
@@ -146,30 +146,30 @@ internal class LightManger constructor(
     }
 
 
-    fun setIndirectLight(light: Light? ) :Resource<String>{
+    fun setIndirectLight(indirectLight: io.sourcya.playx_3d_scene.core.models.scene.IndirectLight? ) :Resource<String>{
         modelViewer.setLightState(SceneState.LOADING)
-        Timber.d("setIndirectLight : $light")
+        Timber.d("setIndirectLight : $indirectLight")
 
-        if(light == null) {
+        if(indirectLight == null) {
             modelViewer.setLightState(SceneState.ERROR)
             return Resource.Error("Light is null")
 
         }
         try {
             val builder = IndirectLight.Builder().apply {
-                light.intensity?.toFloat()?.let {
+                indirectLight.intensity?.toFloat()?.let {
                     this.intensity(it)
                 }
 
-                if (light.radianceBands != null && light.radianceSh != null) {
-                    this.radiance(light.radianceBands, light.radianceSh)
+                if (indirectLight.radianceBands != null && indirectLight.radianceSh != null) {
+                    this.radiance(indirectLight.radianceBands, indirectLight.radianceSh)
                 }
 
-                if (light.irradianceBands != null && light.irradianceSh != null) {
-                    this.irradiance(light.irradianceBands, light.irradianceSh)
+                if (indirectLight.irradianceBands != null && indirectLight.irradianceSh != null) {
+                    this.irradiance(indirectLight.irradianceBands, indirectLight.irradianceSh)
                 }
 
-                light.rotation?.let {
+                indirectLight.rotation?.let {
                     this.rotation(it)
                 }
             }
@@ -234,7 +234,7 @@ internal class LightManger constructor(
     companion object {
         @SuppressLint("StaticFieldLeak")
         @Volatile
-        private var INSTANCE: LightManger? = null
+        private var INSTANCE: IndirectLightManger? = null
         const val DEFAULT_LIGHT_INTENSITY = 30_000.0
 
         fun getInstance(
@@ -242,9 +242,9 @@ internal class LightManger constructor(
             context: Context,
             iblPrefilter: IBLProfiler,
             flutterAssets: FlutterPlugin.FlutterAssets
-        ): LightManger =
+        ): IndirectLightManger =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: LightManger(modelViewer, iblPrefilter,context, flutterAssets).also {
+                INSTANCE ?: IndirectLightManger(modelViewer, iblPrefilter,context, flutterAssets).also {
                     INSTANCE = it
                 }
             }

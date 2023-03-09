@@ -1,6 +1,6 @@
-import 'package:playx_3d_scene/models/scene/light/light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 
-class KtxLight extends Light {
+class KtxLight extends IndirectLight {
   KtxLight._({super.assetPath, super.url, super.intensity});
 
   factory KtxLight.asset(String path, {double? intensity}) {
