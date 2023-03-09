@@ -1,4 +1,4 @@
-abstract class Light {
+abstract class IndirectLight {
   /// light asset path used to load KTX FILE from assets.
   /// used to change indirect lighting from Image-Based Light.
   String? assetPath;
@@ -42,7 +42,7 @@ abstract class Light {
   ///Specifies the rigid-body transformation to apply to the IBL.
   List<double>? rotation;
 
-  Light(
+  IndirectLight(
       {this.assetPath,
       this.url,
       this.intensity,

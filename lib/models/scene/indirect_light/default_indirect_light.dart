@@ -1,7 +1,7 @@
-import 'package:playx_3d_scene/models/scene/light/light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 
-class IndirectLight extends Light {
-  IndirectLight(
+class DefaultIndirectLight extends IndirectLight {
+  DefaultIndirectLight(
       {super.intensity,
       super.radianceBands,
       super.radianceSh,

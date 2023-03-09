@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:playx_3d_scene/models/scene/light/indirect_light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
 class Playx3dSceneController {
@@ -161,7 +161,7 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByKtxAsset(
+  Future<String?> changeIndirectLightByKtxAsset(
           {required String? path, double? intensity}) =>
       _channel.invokeMethod<String>(
         _changeLightByKtxAsset,
@@ -180,7 +180,7 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByKtxUrl(
+  Future<String?> changeIndirectLightByKtxUrl(
           {required String? url, double? intensity}) =>
       _channel.invokeMethod<String>(
         _changeLightByKtxUrl,
@@ -199,7 +199,7 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByHdrAsset(
+  Future<String?> changeIndirectLightByHdrAsset(
           {required String? path, double? intensity}) =>
       _channel.invokeMethod<String>(
         _changeLightByHdrAsset,
@@ -218,7 +218,7 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByHdrUrl(
+  Future<String?> changeIndirectLightByHdrUrl(
           {required String? url, double? intensity}) =>
       _channel.invokeMethod<String>(
         _changeLightByHdrUrl,
@@ -234,19 +234,22 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeLightByIndirectLight(IndirectLight light) =>
+  Future<String?> changeIndirectLightByDefaultIndirectLight(
+          IndirectLight indirectLight) =>
       _channel.invokeMethod<String>(
         _changeLightByIndirectLight,
-        {_changeLightByIndirectLightKey: light.toJson()},
+        {_changeLightByIndirectLightKey: indirectLight.toJson()},
       );
 
   /// change scene indirect light to the default intensity which is 40_000.0.
+  /// with radiance bands of 1.0, radiance sh of [1,1,1]
+  /// and irradiance bands of 1.0, irradiance sh of [1,1,1]
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeToDefaultLightIntensity() =>
+  Future<String?> changeToDefaultIndirectLight() =>
       _channel.invokeMethod<String>(
-        _changeToDefaultLightIntensity,
+        _changeToDefaultIndirectLight,
         {},
       );
 
@@ -376,7 +379,7 @@ const String _changeLightByIndirectLight = "CHANGE_LIGHT_BY_INDIRECT_LIGHT";
 const String _changeLightByIndirectLightKey =
     "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY";
 
-const String _changeToDefaultLightIntensity =
+const String _changeToDefaultIndirectLight =
     "CHANGE_TO_DEFAULT_LIGHT_INTENSITY";
 
 const String _loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS";

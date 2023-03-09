@@ -2,7 +2,7 @@ package io.sourcya.playx_3d_scene.core.light
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.google.android.filament.IndirectLight
+import com.google.android.filament.IndirectLight as FilamentIndirectLight
 import com.google.android.filament.utils.HDRLoader
 import com.google.android.filament.utils.KTX1Loader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -146,7 +146,7 @@ internal class IndirectLightManger constructor(
     }
 
 
-    fun setIndirectLight(indirectLight: io.sourcya.playx_3d_scene.core.models.scene.IndirectLight? ) :Resource<String>{
+    fun setIndirectLight(indirectLight: IndirectLight? ) :Resource<String>{
         modelViewer.setLightState(SceneState.LOADING)
         Timber.d("setIndirectLight : $indirectLight")
 
@@ -156,7 +156,7 @@ internal class IndirectLightManger constructor(
 
         }
         try {
-            val builder = IndirectLight.Builder().apply {
+            val builder = FilamentIndirectLight.Builder().apply {
                 indirectLight.intensity?.toFloat()?.let {
                     this.intensity(it)
                 }
@@ -208,7 +208,7 @@ internal class IndirectLightManger constructor(
                     val reflections = iblPrefilter.getLightReflection(skyboxTexture)
 
 
-                    val ibl = IndirectLight.Builder()
+                    val ibl = FilamentIndirectLight.Builder()
                         .reflections(reflections)
                         .intensity(intensity?.toFloat() ?:30_000f)
                         .build(engine)
