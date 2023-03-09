@@ -17,6 +17,10 @@ internal class LightManger(private val modelViewer: CustomModelViewer) {
     var entityLight: Int = EntityManager.get().create()
 
 
+    init {
+        setDefaultLight()
+    }
+
     fun setDefaultLight() {
         changeLight(
             Light(

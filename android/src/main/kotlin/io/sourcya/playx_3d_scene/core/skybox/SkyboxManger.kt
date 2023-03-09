@@ -27,6 +27,12 @@ internal class SkyboxManger constructor(
 
 ) {
 
+    init {
+        val whiteSkybox= Skybox.Builder()
+            .color(floatArrayOf(1f,1f,1f,1f))
+            .build(modelViewer.engine)
+        modelViewer.scene.skybox = whiteSkybox
+    }
 
     fun setDefaultSkybox() {
         modelViewer.setSkyboxState(SceneState.LOADING)

@@ -27,6 +27,14 @@ internal class IndirectLightManger constructor(
 
 ) {
 
+    init {
+        setIndirectLight(
+            DefaultIndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
+                radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f),
+                irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f))
+        )
+    }
+
     fun setDefaultIndirectLight() {
         modelViewer.setLightState(SceneState.LOADING)
         setIndirectLight(
