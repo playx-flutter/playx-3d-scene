@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
-import 'package:playx_3d_scene/models/scene/light/hdr_light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/hdr_indirect_light.dart';
+import 'package:playx_3d_scene/models/scene/light/light.dart';
+import 'package:playx_3d_scene/models/scene/light/light_type.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
@@ -40,16 +42,38 @@ class _MyAppState extends State<MyApp> {
           child: Stack(
             children: [
               Playx3dScene(
-                model: GlbModel.asset("assets/models/Fox.glb",
-                    scale: 1.0,
-                    animation: PlayxAnimation.byIndex(0, autoPlay: true)),
+                model: GlbModel.asset(
+                  "assets/models/Fox.glb",
+                  animation: PlayxAnimation.byIndex(
+                    0,
+                  ),
+                ),
                 scene: Scene(
                   skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),
-                  light: HdrLight.asset("assets/envs/courtyard.hdr"),
+                  indirectLight:
+                      HdrIndirectLight.asset("assets/envs/field2.hdr"),
+                  light: Light(
+                    type: LightType.directional,
+                    colorTemperature: 6500,
+                    intensity: 10000,
+                    castShadows: true,
+                    castLight: true,
+                  ),
                 ),
                 onCreated: (Playx3dSceneController controller) {
                   Fimber.d("My Playx3dScenePlugin onCreated");
                   this.controller = controller;
+                  controller.changeSceneLight(
+                    Light(
+                      type: LightType.directional,
+                      color: Colors.white,
+                      intensity: 100000,
+                      direction: [0, -1, 0],
+                      position: [0, 0, 0],
+                      castShadows: true,
+                      castLight: true,
+                    ),
+                  );
                 },
                 onModelStateChanged: (state) {
                   Fimber.d(
@@ -62,10 +86,10 @@ class _MyAppState extends State<MyApp> {
                   setState(() {
                     isSceneLoading = state == SceneState.loading;
                   });
-
                   Fimber.d(
                       "My Playx3dScenePlugin onSceneStateChanged : $state");
                 },
+                onEachRender: (frameTimeNano) {},
               ),
               isModelLoading || isSceneLoading
                   ? const Center(

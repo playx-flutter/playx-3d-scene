@@ -6,7 +6,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
-import io.sourcya.playx_3d_scene.core.models.scene.IndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.Light
+import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
 
@@ -40,12 +41,14 @@ class PlayxMethodHandler(
             changeSkyboxByHdrUrl-> changeSkyboxByHdrUrl(call, result)
             changeSkyboxColor -> changeSkyboxColor(call, result)
             changeToTransparentSkybox -> changeToTransparentSkybox(result)
-            changeLightByKtxAsset -> changeLightByKtxAsset(call, result)
-            changeLightByKtxUrl ->changeLightByKtxUrl(call,result)
-            changeLightByHdrAsset -> changeLightByHdrAsset(call, result)
-            changeLightByHdrUrl -> changeLightByHdrUrl(call, result)
-            changeLightByIndirectLight -> changeLightByIndirectLight(call, result)
-            changeToDefaultLightIntensity -> changeToDefaultLightIntensity(result)
+            changeIndirectLightByKtxAsset -> changeIndirectLightByKtxAsset(call, result)
+            changeIndirectLightByKtxUrl ->changeIndirectLightByKtxUrl(call,result)
+            changeIndirectLightByHdrAsset -> changeIndirectLightByHdrAsset(call, result)
+            changeIndirectLightByHdrUrl -> changeIndirectLightByHdrUrl(call, result)
+            changeIndirectLightByDefaultIndirectLight -> changeIndirectLightByDefaultIndirectLight(call, result)
+            changeToDefaultIndirectLight -> changeToDefaultIndirectLight(result)
+            changeLight -> changeSceneLight(call, result)
+            changeToDefaultLight -> changeToDefaultLight( result)
             loadGlbModelFromAssets -> loadGlbModelFromAssets(call, result)
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
@@ -264,12 +267,13 @@ class PlayxMethodHandler(
      * so it can update the scene light with it.
      * if intensity is provide, it will update the scene light intensity with it.
      */
-    private fun changeLightByKtxAsset(call: MethodCall, result: MethodChannel.Result) {
-        val assetPath: String? = getValue(call, changeLightByKtxAssetKey)
-        val intensity: Double? = getValue(call, changeLightByKtxAssetIntensityKey)
+    private fun changeIndirectLightByKtxAsset(call: MethodCall, result: MethodChannel.Result) {
+        val assetPath: String? = getValue(call, changeIndirectLightByKtxAssetKey)
+        val intensity: Double? = getValue(call, changeIndirectLightByKtxAssetIntensityKey)
+
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeLightFromKtxAsset(assetPath, intensity)) {
+            when (val resource = modelViewer?.changeIndirectLightFromKtxAsset(assetPath, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -290,12 +294,12 @@ class PlayxMethodHandler(
      * so it can update the scene light with it.
      * if intensity is provide, it will update the scene light intensity with it.
      */
-    private fun changeLightByKtxUrl(call: MethodCall, result: MethodChannel.Result) {
-        val url: String? = getValue(call, changeLightByKtxUrlKey)
-        val intensity: Double? = getValue(call, changeLightByKtxUrlIntensityKey)
+    private fun changeIndirectLightByKtxUrl(call: MethodCall, result: MethodChannel.Result) {
+        val url: String? = getValue(call, changeIndirectLightByKtxUrlKey)
+        val intensity: Double? = getValue(call, changeIndirectLightByKtxUrlIntensityKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeLightFromKtxUrl(url, intensity)) {
+            when (val resource = modelViewer?.changeIndirectLightFromKtxUrl(url, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -317,12 +321,12 @@ class PlayxMethodHandler(
      * so it can update the scene light with it.
      * if intensity is provide, it will update the scene light intensity with it.
      */
-    private fun changeLightByHdrAsset(call: MethodCall, result: MethodChannel.Result) {
-        val assetPath: String? = getValue(call, changeLightByHdrAssetKey)
-        val intensity: Double? = getValue(call, changeLightByHdrAssetIntensityKey)
+    private fun changeIndirectLightByHdrAsset(call: MethodCall, result: MethodChannel.Result) {
+        val assetPath: String? = getValue(call, changeIndirectLightByHdrAssetKey)
+        val intensity: Double? = getValue(call, changeIndirectLightByHdrAssetIntensityKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeLightFromHdrAsset(assetPath, intensity)) {
+            when (val resource = modelViewer?.changeIndirectLightFromHdrAsset(assetPath, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -343,12 +347,13 @@ class PlayxMethodHandler(
      * so it can update the scene light with it.
      * if intensity is provide, it will update the scene light intensity with it.
      */
-    private fun changeLightByHdrUrl(call: MethodCall, result: MethodChannel.Result) {
-        val url: String? = getValue(call, changeLightByHdrUrlKey)
-        val intensity: Double? = getValue(call, changeLightByHdrUrlIntensityKey)
+    private fun changeIndirectLightByHdrUrl(call: MethodCall, result: MethodChannel.Result) {
+        val url: String? = getValue(call, changeIndirectLightByHdrUrlKey)
+        val intensity: Double? = getValue(call, changeIndirectLightByHdrUrlIntensityKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeLightFromHdrUrl(url, intensity)) {
+
+            when (val resource = modelViewer?.changeIndirectLightFromHdrUrl(url, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -369,9 +374,9 @@ class PlayxMethodHandler(
      * it takes light intensity as an argument.
      * and update the scene light intensity with it.
      */
-    private fun changeLightByIndirectLight(call: MethodCall, result: MethodChannel.Result) {
-        val light = getValue<Map<String?, Any?>>(call, changeLightByIndirectLightKey)?.toObject<IndirectLight>()
-        when (val resource = modelViewer?.changeLightByIndirectLight(light)) {
+    private fun changeIndirectLightByDefaultIndirectLight(call: MethodCall, result: MethodChannel.Result) {
+        val light = getValue<Map<String?, Any?>>(call, changeIndirectLightByDefaultIndirectLightKey)?.toObject<DefaultIndirectLight>()
+        when (val resource = modelViewer?.changeIndirectLightByDefaultIndirectLight(light)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
             else -> result.error(
@@ -386,15 +391,45 @@ class PlayxMethodHandler(
     /**
      *change scene indirect light to the default intensity which is 40_000.0.
      */
-    private fun changeToDefaultLightIntensity(result: MethodChannel.Result) {
+    private fun changeToDefaultIndirectLight(result: MethodChannel.Result) {
         if (modelViewer != null) {
-            modelViewer.changeToDefaultLight()
+            modelViewer.changeToDefaultIndirectLight()
             result.success("Default light intensity changed")
         } else {
             result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
         }
     }
 
+    /**
+     * change scene direct light by light class
+     * by different types ,intensity, position, etc .
+     * it takes light object as an argument.
+     * and update the scene  light with it.
+     */
+    private fun changeSceneLight(call: MethodCall, result: MethodChannel.Result) {
+        val light = getValue<Map<String?, Any?>>(call, changeLightKey)?.toObject<Light>()
+        when (val resource = modelViewer?.changeLight(light)) {
+            is Resource.Success -> result.success(resource.data)
+            is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+            else -> result.error(
+                "Model viewer isn't initialized.",
+                "Model viewer isn't initialized.",
+                null
+            )
+        }
+    }
+
+
+    /**
+     *change scene indirect light to the default intensity which is 40_000.0.
+     */
+    private fun changeToDefaultLight(result: MethodChannel.Result) {
+        if (modelViewer != null) {
+           return modelViewer.changeToDefaultLight()
+        } else {
+            result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
+        }
+    }
 
     /**
      * Load glb model from assets.
@@ -418,7 +453,7 @@ class PlayxMethodHandler(
     }
 
     /**
-     *   * Load glb model from url.
+     * Load glb model from url.
      * it takes url as an argument.
      * and update the current model with it.
      */
@@ -548,28 +583,34 @@ class PlayxMethodHandler(
 
         private  const val changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX"
 
-        private const val changeLightByKtxAsset = "CHANGE_LIGHT_BY_ASSET"
-        private const val changeLightByKtxAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
-        private const val changeLightByKtxAssetIntensityKey = "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
+        private const val changeIndirectLightByKtxAsset = "CHANGE_LIGHT_BY_ASSET"
+        private const val changeIndirectLightByKtxAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
+        private const val changeIndirectLightByKtxAssetIntensityKey = "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
 
-        private const val changeLightByKtxUrl = "CHANGE_LIGHT_BY_KTX_URL"
-        private const val changeLightByKtxUrlKey = "CHANGE_LIGHT_BY_KTX_URL_KEY"
-        private const val changeLightByKtxUrlIntensityKey = "CHANGE_LIGHT_BY_KTX_URL_INTENSITY_KEY"
-
-
-        private const val changeLightByHdrAsset = "CHANGE_LIGHT_BY_HDR_ASSET"
-        private const val changeLightByHdrAssetKey = "CHANGE_LIGHT_BY_HDR_ASSET_KEY"
-        private const val changeLightByHdrAssetIntensityKey = "CHANGE_LIGHT_BY_HDR_ASSET_INTENSITY_KEY"
-
-        private const val changeLightByHdrUrl = "CHANGE_LIGHT_BY_HDR_URL"
-        private const val changeLightByHdrUrlKey = "CHANGE_LIGHT_BY_HDR_URL_KEY"
-        private const val changeLightByHdrUrlIntensityKey = "CHANGE_LIGHT_BY_HDR_URL_INTENSITY_KEY"
+        private const val changeIndirectLightByKtxUrl = "CHANGE_LIGHT_BY_KTX_URL"
+        private const val changeIndirectLightByKtxUrlKey = "CHANGE_LIGHT_BY_KTX_URL_KEY"
+        private const val changeIndirectLightByKtxUrlIntensityKey = "CHANGE_LIGHT_BY_KTX_URL_INTENSITY_KEY"
 
 
-        private const val changeLightByIndirectLight = "CHANGE_LIGHT_BY_INDIRECT_LIGHT"
-        private const val changeLightByIndirectLightKey = "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY"
+        private const val changeIndirectLightByHdrAsset = "CHANGE_LIGHT_BY_HDR_ASSET"
+        private const val changeIndirectLightByHdrAssetKey = "CHANGE_LIGHT_BY_HDR_ASSET_KEY"
+        private const val changeIndirectLightByHdrAssetIntensityKey = "CHANGE_LIGHT_BY_HDR_ASSET_INTENSITY_KEY"
 
-        private const val changeToDefaultLightIntensity = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
+        private const val changeIndirectLightByHdrUrl = "CHANGE_LIGHT_BY_HDR_URL"
+        private const val changeIndirectLightByHdrUrlKey = "CHANGE_LIGHT_BY_HDR_URL_KEY"
+        private const val changeIndirectLightByHdrUrlIntensityKey = "CHANGE_LIGHT_BY_HDR_URL_INTENSITY_KEY"
+
+
+        private const val changeIndirectLightByDefaultIndirectLight = "CHANGE_LIGHT_BY_INDIRECT_LIGHT"
+        private const val changeIndirectLightByDefaultIndirectLightKey = "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY"
+
+        private const val changeToDefaultIndirectLight = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
+
+        private const val changeLight="CHANGE_LIGHT"
+        private const val changeLightKey="CHANGE_LIGHT_KEY"
+
+        private const val changeToDefaultLight = "CHANGE_TO_DEFAULT_LIGHT"
+
 
         private const val loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS"
         private  const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"

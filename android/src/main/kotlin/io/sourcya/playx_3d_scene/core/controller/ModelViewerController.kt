@@ -10,6 +10,7 @@ import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
+import io.sourcya.playx_3d_scene.core.light.IndirectLightManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
@@ -19,6 +20,9 @@ import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.*
+import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.HdrIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.light.KtxIndirectLight
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
@@ -62,7 +66,8 @@ class ModelViewerController constructor(
 
     private lateinit var gltfLoader: GltfLoader
 
-    private lateinit var lightManger: LightManger
+    private lateinit var lightManger:LightManger
+    private lateinit var indirectLightManger: IndirectLightManger
 
     private lateinit var skyboxManger: SkyboxManger
 
@@ -74,9 +79,9 @@ class ModelViewerController constructor(
 
     init {
         setUpViewer()
-
         setUpSkybox()
         setUpLight()
+        setUpIndirectLight()
         setUpLoadingModel()
     }
 
@@ -121,7 +126,8 @@ class ModelViewerController constructor(
 
         gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
 
-        lightManger = LightManger(modelViewer, iblProfiler, context, flutterAssets)
+        lightManger = LightManger(modelViewer)
+        indirectLightManger = IndirectLightManger(modelViewer, iblProfiler, context, flutterAssets)
 
         skyboxManger = SkyboxManger(modelViewer, iblProfiler, context, flutterAssets)
 
@@ -184,33 +190,42 @@ class ModelViewerController constructor(
         return result
     }
 
-    private fun setUpLight() {
+
+    private fun setUpLight(){
+        val light= scene?.light
+        Timber.d("setUpLight : $light")
+        if(light!=null){
+            lightManger.changeLight(light)
+        }else{
+            lightManger.setDefaultLight()
+        }
+
+    }
+    private fun setUpIndirectLight() {
 
         coroutineScope.launch {
-            val light = scene?.light
-
-
+            val light = scene?.indirectLight
 
             if (light == null) {
-                lightManger.setDefaultLight()
+                indirectLightManger.setDefaultIndirectLight()
             } else {
                 when (light) {
-                    is KtxLight -> {
+                    is KtxIndirectLight -> {
                         if (!light.assetPath.isNullOrEmpty()) {
-                            lightManger.setIndirectLightFromKtxAsset(
+                            indirectLightManger.setIndirectLightFromKtxAsset(
                                 light.assetPath, light.intensity
                             )
                         } else if (!light.url.isNullOrEmpty()) {
-                            lightManger.setIndirectLightFromKtxUrl(light.url, light.intensity)
+                            indirectLightManger.setIndirectLightFromKtxUrl(light.url, light.intensity)
                         }
                     }
-                    is HdrLight -> {
+                    is HdrIndirectLight -> {
 
                         if (!light.assetPath.isNullOrEmpty()) {
                             val shouldUpdateLight = light.assetPath != scene?.skybox?.assetPath
 
                             if (shouldUpdateLight) {
-                                lightManger.setIndirectLightFromHdrAsset(
+                                indirectLightManger.setIndirectLightFromHdrAsset(
                                     light.assetPath, light.intensity
                                 )
                             }
@@ -218,12 +233,12 @@ class ModelViewerController constructor(
                         } else if (!light.url.isNullOrEmpty()) {
                             val shouldUpdateLight = light.url != scene?.skybox?.url
                             if (shouldUpdateLight) {
-                                lightManger.setIndirectLightFromHdrUrl(light.url, light.intensity)
+                                indirectLightManger.setIndirectLightFromHdrUrl(light.url, light.intensity)
                             }
                         }
                     }
                     else -> {
-                        lightManger.setIndirectLight(light)
+                        indirectLightManger.setIndirectLight(light)
                     }
 
                 }
@@ -252,20 +267,20 @@ class ModelViewerController constructor(
                     is HdrSkybox -> {
 
                         if (!skybox.assetPath.isNullOrEmpty()) {
-                            val shouldUpdateLight = skybox.assetPath == scene?.light?.assetPath
+                            val shouldUpdateLight = skybox.assetPath == scene?.indirectLight?.assetPath
                             skyboxManger.setSkyboxFromHdrAsset(
                                 skybox.assetPath,
                                 skybox.showSun ?: false,
                                 shouldUpdateLight,
-                                scene?.light?.intensity
+                                scene?.indirectLight?.intensity
                             )
                         } else if (!skybox.url.isNullOrEmpty()) {
-                            val shouldUpdateLight = skybox.url == scene?.light?.url
+                            val shouldUpdateLight = skybox.url == scene?.indirectLight?.url
                             skyboxManger.setSkyboxFromHdrUrl(
                                 skybox.url,
                                 skybox.showSun ?: false,
                                 shouldUpdateLight,
-                                scene?.light?.intensity
+                                scene?.indirectLight?.intensity
                             )
                         }
                     }
@@ -433,65 +448,65 @@ class ModelViewerController constructor(
         addFrameCallback()
     }
 
-    suspend fun changeLightFromKtxAsset(
+    suspend fun changeIndirectLightFromKtxAsset(
         assetPath: String?,
         intensity: Double? = null
     ): Resource<String> {
         removeFrameCallback()
-        val resource = lightManger.setIndirectLightFromKtxAsset(assetPath, intensity)
+        val resource = indirectLightManger.setIndirectLightFromKtxAsset(assetPath, intensity)
         if (resource is Resource.Success) {
-            scene?.light?.assetPath = assetPath
-            scene?.light?.intensity = intensity
+            scene?.indirectLight?.assetPath = assetPath
+            scene?.indirectLight?.intensity = intensity
         }
         addFrameCallback()
         return resource
 
     }
 
-    suspend fun changeLightFromKtxUrl(url: String?, intensity: Double? = null): Resource<String> {
+    suspend fun changeIndirectLightFromKtxUrl(url: String?, intensity: Double? = null): Resource<String> {
         removeFrameCallback()
-        val resource = lightManger.setIndirectLightFromKtxUrl(url, intensity)
+        val resource = indirectLightManger.setIndirectLightFromKtxUrl(url, intensity)
         if (resource is Resource.Success) {
-            scene?.light?.url = url
-            scene?.light?.intensity = intensity
+            scene?.indirectLight?.url = url
+            scene?.indirectLight?.intensity = intensity
         }
         addFrameCallback()
         return resource
     }
 
-    suspend fun changeLightFromHdrAsset(
+    suspend fun changeIndirectLightFromHdrAsset(
         assetPath: String?,
         intensity: Double? = null
     ): Resource<String> {
         removeFrameCallback()
-        val resource = lightManger.setIndirectLightFromHdrAsset(assetPath, intensity)
+        val resource = indirectLightManger.setIndirectLightFromHdrAsset(assetPath, intensity)
         if (resource is Resource.Success) {
-            scene?.light?.assetPath = assetPath
-            scene?.light?.intensity = intensity
+            scene?.indirectLight?.assetPath = assetPath
+            scene?.indirectLight?.intensity = intensity
         }
         addFrameCallback()
         return resource
 
     }
 
-    suspend fun changeLightFromHdrUrl(url: String?, intensity: Double? = null): Resource<String> {
+    suspend fun changeIndirectLightFromHdrUrl(url: String?, intensity: Double? = null): Resource<String> {
         removeFrameCallback()
-        val resource = lightManger.setIndirectLightFromHdrUrl(url, intensity)
+        val resource = indirectLightManger.setIndirectLightFromHdrUrl(url, intensity)
         if (resource is Resource.Success) {
-            scene?.light?.url = url
-            scene?.light?.intensity = intensity
+            scene?.indirectLight?.url = url
+            scene?.indirectLight?.intensity = intensity
         }
         addFrameCallback()
         return resource
     }
 
 
-    fun changeLightByIndirectLight(light: IndirectLight?): Resource<String> {
+    fun changeIndirectLightByDefaultIndirectLight(indirectLight: DefaultIndirectLight?): Resource<String> {
 
         removeFrameCallback()
-        val result = lightManger.setIndirectLight(light)
+        val result = indirectLightManger.setIndirectLight(indirectLight)
         if (result is Resource.Success) {
-            scene?.light = light
+            scene?.indirectLight = indirectLight
         }
         addFrameCallback()
 
@@ -500,13 +515,36 @@ class ModelViewerController constructor(
     }
 
 
-    fun changeToDefaultLight() {
+    fun changeToDefaultIndirectLight() {
 
         removeFrameCallback()
-        scene?.light?.intensity = LightManger.DEFAULT_LIGHT_INTENSITY
-        lightManger.setDefaultLight()
+        scene?.indirectLight?.intensity = IndirectLightManger.DEFAULT_LIGHT_INTENSITY
+        indirectLightManger.setDefaultIndirectLight()
         addFrameCallback()
 
+    }
+
+
+
+    fun changeLight(light: Light?): Resource<String> {
+        removeFrameCallback()
+
+        val result= lightManger.changeLight(light)
+
+        Timber.d("change scene Light:$light, ${result}")
+        if(result is Resource.Success){
+            scene?.light = light
+        }
+        addFrameCallback()
+        return result
+    }
+
+
+    fun changeToDefaultLight(){
+        removeFrameCallback()
+        val result= lightManger.setDefaultLight()
+        addFrameCallback()
+        return result
     }
 
 
@@ -626,7 +664,9 @@ class ModelViewerController constructor(
         glbModelStateJob = null
         sceneStateJob?.cancel()
         sceneStateJob = null
+        lightManger.destroyLight()
         modelViewer.destroy()
+
     }
 
 
