@@ -18,7 +18,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
 
 
     private var assetLoader: AssetLoader
-    private var materialProvider: MaterialProvider
+    private var materialProvider: MaterialProvider = UbershaderProvider(engine)
     private var resourceLoader: ResourceLoader
 
     private var fetchResourcesJob: Job? = null
@@ -27,7 +27,6 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     var normalizeSkinningWeights = true
 
     init {
-        materialProvider = UbershaderProvider(engine)
         assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
         resourceLoader = ResourceLoader(engine, normalizeSkinningWeights)
 
@@ -37,7 +36,8 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     /**
      * Loads a monolithic binary glTF and populates the Filament scene.
      */
-    suspend fun loadModelGlb(buffer: Buffer, transformToUnitCube: Boolean = false,scale: Float?) {
+    suspend fun loadModelGlb(buffer: Buffer, transformToUnitCube: Boolean = false,
+                             centerPosition: FloatArray?, scale: Float?) {
         withContext(Dispatchers.Main) {
             destroyModel()
             asset = assetLoader.createAsset(buffer)
@@ -47,7 +47,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
                 if (transformToUnitCube) {
-                    transformToUnitCube(scale=scale)
+                    transformToUnitCube(centerPoint = centerPosition, scale=scale)
                 }
             }
         }
@@ -62,6 +62,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         buffer: Buffer,
         transformToUnitCube: Boolean = false,
         scale: Float?,
+        centerPosition: FloatArray?,
         callback: suspend (String) -> Buffer?,
 
     ) {
@@ -80,7 +81,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             modelViewer.animator = asset.instance.animator
             asset.releaseSourceData()
             if (transformToUnitCube) {
-                transformToUnitCube(scale = scale)
+                transformToUnitCube(centerPoint = centerPosition,scale = scale)
             }
         }
     }
@@ -94,6 +95,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         buffer: Buffer,
         transformToUnitCube: Boolean = false,
         scale: Float?,
+        centerPosition: FloatArray?,
         callback: suspend (String) -> Buffer?,
     ) {
         withContext(Dispatchers.Main) {
@@ -107,7 +109,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             }
 
             if (transformToUnitCube) {
-                transformToUnitCube(scale=scale)
+                transformToUnitCube(centerPosition,scale=scale)
             }
         }
     }
@@ -154,16 +156,21 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: Float3 = CustomModelViewer.kDefaultObjectPosition, scale:Float? )   {
+    fun transformToUnitCube(centerPoint: FloatArray? , scale:Float? )   {
 
         val modelScale = if(scale ==null) 1f else {if(scale <=0) 1f else scale}
+        val centerPosition = if(centerPoint == null) CustomModelViewer.kDefaultObjectPosition else{
+            Float3(x = centerPoint.getOrElse(0){0f}, y = centerPoint.getOrElse(1){0f}, z = centerPoint.getOrElse(2){-4f})
+        }
+
+        Timber.d("transformToUnitCube center: $centerPosition centerpoint x =${centerPoint.contentToString()} scale = $modelScale")
         asset?.let { asset ->
             val tm = engine.transformManager
             var center = asset.boundingBox.center.let { v -> Float3(v[0], v[1], v[2]) }
             val halfExtent = asset.boundingBox.halfExtent.let { v -> Float3(v[0], v[1], v[2]) }
             val maxExtent = 2.0f * max(halfExtent)
             val scaleFactor = 2.0f *modelScale  / maxExtent
-            center -= centerPoint / scaleFactor
+            center -= centerPosition / scaleFactor
             val transform = scale(Float3(scaleFactor)) * translation(-center)
             tm.setTransform(tm.getInstance(asset.root), transpose(transform).toFloatArray())
         }

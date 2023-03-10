@@ -56,12 +56,13 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
 
     }
     override fun onDetachedFromActivityForConfigChanges() {
-        lifecycle = null
         Timber.d("My Playx3dScenePlugin : onDetachedFromActivityForConfigChanges")
 
     }
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
-    override fun onDetachedFromActivity() {}
+    override fun onDetachedFromActivity() {
+        lifecycle = null
+    }
 
 }

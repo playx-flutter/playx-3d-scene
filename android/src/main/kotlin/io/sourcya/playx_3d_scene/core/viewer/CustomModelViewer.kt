@@ -144,7 +144,7 @@ class CustomModelViewer(
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: Float3 = kDefaultObjectPosition, scale: Float = 1.0f) {
+    fun transformToUnitCube(centerPoint: FloatArray?, scale: Float? ) {
         modelLoader.transformToUnitCube(centerPoint,scale)
     }
 

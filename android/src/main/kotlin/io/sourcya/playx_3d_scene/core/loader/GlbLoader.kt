@@ -21,6 +21,7 @@ internal class GlbLoader constructor(
 
     suspend fun loadGlbFromAsset(path: String?,
                                  scale: Float?,
+                                 centerPosition: FloatArray?,
                                  isFallback: Boolean = false,
 
                                  ): Resource<String> {
@@ -29,7 +30,7 @@ internal class GlbLoader constructor(
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     bufferResource.data?.let {
-                        modelViewer.modelLoader.loadModelGlb(it, true,scale)
+                        modelViewer.modelLoader.loadModelGlb(it, true,centerPosition,scale)
                     }
                     modelViewer.setModelState( if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                     return@withContext Resource.Success("Loaded glb model successfully from ${path ?: ""}")
@@ -46,6 +47,7 @@ internal class GlbLoader constructor(
 
     suspend fun loadGlbFromUrl(url: String?,
                                scale: Float?,
+                               centerPosition: FloatArray?,
                                isFallback: Boolean = false,
                                ): Resource<String> {
         modelViewer.setModelState( ModelState.LOADING)
@@ -61,7 +63,7 @@ internal class GlbLoader constructor(
                     val buffer = NetworkClient.downloadFile(url)
                     Timber.d("downloadFile : Got buffer: ${buffer == null}")
                     if (buffer != null) {
-                        modelViewer.modelLoader.loadModelGlb(buffer, true,scale)
+                        modelViewer.modelLoader.loadModelGlb(buffer, true,centerPosition,scale)
                         modelViewer.setModelState(
                         if(isFallback) ModelState.FALLBACK_LOADED else  ModelState.LOADED)
                         return@withContext Resource.Success("Loaded glb model successfully from $url")

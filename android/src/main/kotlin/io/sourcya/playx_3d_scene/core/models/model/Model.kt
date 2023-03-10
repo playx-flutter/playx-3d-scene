@@ -4,14 +4,13 @@ import com.google.android.filament.utils.Float3
 import io.sourcya.playx_3d_scene.utils.toObject
 
 abstract class Model(
-    val  assetPath: String? = null,
+    val assetPath: String? = null,
     val url: String? = null,
     val fallback: Model?,
-    val position: Float3?,
-    val scale: Float?,
+    var scale: Float?,
+    var centerPosition: FloatArray?,
     val animation: Animation?,
-    ) {
-
+) {
 
 
     companion object {
@@ -19,8 +18,9 @@ abstract class Model(
             return map?.toObject<Model>()
         }
     }
+
     override fun toString(): String {
-        return "Model(assetPath=$assetPath, url=$url, fallback=$fallback, position=$position, scale=$scale, animation=$animation)"
+        return "Model(assetPath=$assetPath, url=$url, fallback=$fallback, position=$centerPosition, scale=$scale, animation=$animation)"
     }
 
 }

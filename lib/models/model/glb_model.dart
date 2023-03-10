@@ -8,18 +8,21 @@ class GlbModel extends Model {
       super.url,
       super.fallback,
       super.scale,
+      super.centerPosition,
       super.animation});
 
   factory GlbModel.asset(
     String path, {
     Model? fallback,
     double? scale,
+    List<double>? centerPosition,
     PlayxAnimation? animation,
   }) {
     return GlbModel._(
         assetPath: path,
         fallback: fallback,
         scale: scale,
+        centerPosition: centerPosition,
         animation: animation);
   }
 
@@ -27,10 +30,15 @@ class GlbModel extends Model {
     String url, {
     Model? fallback,
     double? scale,
+    List<double>? centerPosition,
     PlayxAnimation? animation,
   }) {
     return GlbModel._(
-        url: url, fallback: fallback, scale: scale, animation: animation);
+        url: url,
+        fallback: fallback,
+        scale: scale,
+        centerPosition: centerPosition,
+        animation: animation);
   }
 
   @override
@@ -39,6 +47,7 @@ class GlbModel extends Model {
         'url': url,
         'fallback': fallback?.toJson(),
         'scale': scale,
+        'centerPosition': centerPosition,
         'animation': animation?.toJson(),
         'isGlb': true,
       };

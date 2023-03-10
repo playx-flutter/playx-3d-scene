@@ -333,6 +333,30 @@ class Playx3dSceneController {
         },
       );
 
+  /// change model scale.
+  /// it takes scale as an argument.
+  /// and update the current model scale.
+  /// and returns a message whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeModelScale(double? scale) =>
+      _channel.invokeMethod<String>(
+        _changeModelScale,
+        {_changeModelScaleKey: scale},
+      );
+
+  /// change model center position.
+  /// it takes list of double of [x,y,z] coordinates as an argument.
+  /// and update the current model center position.
+  /// and returns a message whether it succeeded or not.
+  /// it can throw an exception if something went wrong.
+  /// you can catch the platform exception to get the error message.
+  Future<String?> changeModelCenterPosition(List<double>? centerPosition) =>
+      _channel.invokeMethod<String>(
+        _changeModelPosition,
+        {_changeModelPositionKey: centerPosition},
+      );
+
   /// Get current model state.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
@@ -427,3 +451,7 @@ const String _loadGltfModelFromAssetsPostfixPathKey =
     "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
 
 const String _getCurrentModelState = "GET_CURRENT_MODEL_STATE";
+const String _changeModelScale = "CHANGE_MODEL_SCALE";
+const String _changeModelScaleKey = "CHANGE_MODEL_SCALE_KEY";
+const String _changeModelPosition = "CHANGE_MODEL_POSITION";
+const String _changeModelPositionKey = "CHANGE_MODEL_POSITION_KEY";
