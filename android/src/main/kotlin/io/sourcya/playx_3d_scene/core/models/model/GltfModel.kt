@@ -8,12 +8,12 @@ class GltfModel(
     val pathPrefix: String = "",
     val pathPostfix: String = "",
     fallback: Model? = null,
-    position: Float3? = null,
     scale: Float? = null,
+    centerPosition: FloatArray?,
     animation: Animation? = null,
-) : Model(assetPath,url, fallback, position, scale, animation){
+) : Model(assetPath,url, fallback, scale, centerPosition,animation){
 
     override fun toString(): String {
-        return "GltfModel(pathPrefix='$pathPrefix', pathPostfix='$pathPostfix, animation=$animation, fallback=$fallback, position=$position, scale=$scale)')"
+        return "GltfModel(pathPrefix='$pathPrefix', pathPostfix='$pathPostfix, animation=$animation, fallback=$fallback, position=$centerPosition, scale=$scale)')"
     }
 }

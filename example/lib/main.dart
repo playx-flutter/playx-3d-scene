@@ -47,6 +47,7 @@ class _MyAppState extends State<MyApp> {
                   animation: PlayxAnimation.byIndex(
                     0,
                   ),
+                  centerPosition: [-1, -1, -4],
                 ),
                 scene: Scene(
                   skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),
@@ -60,20 +61,11 @@ class _MyAppState extends State<MyApp> {
                     castLight: true,
                   ),
                 ),
-                onCreated: (Playx3dSceneController controller) {
+                onCreated: (Playx3dSceneController controller) async {
                   Fimber.d("My Playx3dScenePlugin onCreated");
                   this.controller = controller;
-                  controller.changeSceneLight(
-                    Light(
-                      type: LightType.directional,
-                      color: Colors.white,
-                      intensity: 100000,
-                      direction: [0, -1, 0],
-                      position: [0, 0, 0],
-                      castShadows: true,
-                      castLight: true,
-                    ),
-                  );
+                  await controller.changeModelScale(2.0);
+                  await controller.changeModelCenterPosition([0, 1, -4]);
                 },
                 onModelStateChanged: (state) {
                   Fimber.d(

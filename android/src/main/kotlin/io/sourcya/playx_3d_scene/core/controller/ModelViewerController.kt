@@ -167,9 +167,9 @@ class ModelViewerController constructor(
         when (model) {
             is GlbModel -> {
                 if (!model.assetPath.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromAsset(model.assetPath,model.scale)
+                    result = glbLoader.loadGlbFromAsset(model.assetPath,model.scale,model.centerPosition)
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromUrl(model.url,model.scale)
+                    result = glbLoader.loadGlbFromUrl(model.url,model.scale,model.centerPosition)
                 }
             }
             is GltfModel -> {
@@ -179,10 +179,11 @@ class ModelViewerController constructor(
                         model.pathPrefix,
                         model.pathPostfix,
                         model.scale
+                        ,model.centerPosition
                     )
                 } else if (!model.url.isNullOrEmpty()) {
                     result =
-                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix,model.scale)
+                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix,model.scale,model.centerPosition)
                 }
             }
             else -> {}
@@ -552,7 +553,7 @@ class ModelViewerController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromAsset(assetPath,model?.scale)
+        val resource = glbLoader.loadGlbFromAsset(assetPath,model?.scale,model?.centerPosition)
         addFrameCallback()
         return resource
     }
@@ -561,7 +562,7 @@ class ModelViewerController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromUrl(url,model?.scale)
+        val resource = glbLoader.loadGlbFromUrl(url,model?.scale,model?.centerPosition)
         addFrameCallback()
         return resource
     }
@@ -576,11 +577,40 @@ class ModelViewerController constructor(
         modelJob?.cancel()
 
         val resource =
-            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix,model?.scale)
+            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix,model?.scale,model?.centerPosition)
         addFrameCallback()
         return resource
 
     }
+
+
+    fun changeModelScale(scale: Float?): Resource<String> {
+        removeFrameCallback()
+        if(scale == null){
+            addFrameCallback()
+          return  Resource.Error("Scale must be provided")
+        }
+        modelViewer.transformToUnitCube(model?.centerPosition,scale)
+        model?.scale = scale
+        addFrameCallback()
+        return Resource.Success("Model scale has been changed successfully")
+
+    }
+
+
+    fun changeModelPosition(position: FloatArray?): Resource<String> {
+        removeFrameCallback()
+        if(position == null){
+            addFrameCallback()
+            return  Resource.Error("Center position must be provided")
+        }
+        modelViewer.transformToUnitCube(position,model?.scale)
+        model?.centerPosition = position
+        addFrameCallback()
+        return Resource.Success("Model center position has been changed successfully")
+
+    }
+
 
     private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {

@@ -17,6 +17,12 @@ abstract class Model {
   // default is 1f;
   double? scale;
 
+  ///centerPoint Coordinate of center point of unit cube,
+  /// must provide x, y, and z coordinates.
+  /// as an array of 3 elements.
+  /// default is [ 0, 0, -4 ]
+  List<double>? centerPosition;
+
   ///control what animation should be played by glb or gltf model animation.
   PlayxAnimation? animation;
 
@@ -25,6 +31,7 @@ abstract class Model {
       this.url,
       this.fallback,
       this.scale = 1.0,
+      this.centerPosition,
       this.animation});
 
   Map<String, dynamic> toJson() {

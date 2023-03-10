@@ -18,6 +18,7 @@ class GltfModel extends Model {
   /// you will need to add prefix to be '.png'.
 
   String? postfix;
+
   GltfModel._(
       {super.assetPath,
       this.prefix,
@@ -25,6 +26,7 @@ class GltfModel extends Model {
       super.url,
       super.fallback,
       super.scale,
+      super.centerPosition,
       super.animation});
 
   factory GltfModel.asset(
@@ -33,6 +35,7 @@ class GltfModel extends Model {
     String? postfix,
     Model? fallback,
     double? scale,
+    List<double>? centerPosition,
     PlayxAnimation? animation,
   }) {
     return GltfModel._(
@@ -41,6 +44,7 @@ class GltfModel extends Model {
         postfix: postfix,
         fallback: fallback,
         scale: scale,
+        centerPosition: centerPosition,
         animation: animation);
   }
 
@@ -50,6 +54,7 @@ class GltfModel extends Model {
     String? postfix,
     Model? fallback,
     double? scale,
+    List<double>? centerPosition,
     PlayxAnimation? animation,
   }) {
     return GltfModel._(
@@ -58,6 +63,7 @@ class GltfModel extends Model {
         postfix: postfix,
         fallback: fallback,
         scale: scale,
+        centerPosition: centerPosition,
         animation: animation);
   }
 
@@ -69,6 +75,7 @@ class GltfModel extends Model {
         'postfix': postfix,
         'fallback': fallback?.toJson(),
         'scale': scale,
+        'centerPosition': centerPosition,
         'animation': animation?.toJson(),
         'isGlb': false,
       };

@@ -10,6 +10,7 @@ import io.sourcya.playx_3d_scene.core.models.scene.Light
 import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -52,6 +53,8 @@ class PlayxMethodHandler(
             loadGlbModelFromAssets -> loadGlbModelFromAssets(call, result)
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
+            changeModelScale -> changeModelScale(call, result)
+            changeModelPosition -> changeModelPosition(call, result)
             getCurrentModelState -> getCurrentModelState(result)
             else -> result.notImplemented()
         }
@@ -508,6 +511,50 @@ class PlayxMethodHandler(
     }
 
 
+    /**
+     *change current model scale.
+     * it takes an Float? scale as an argument.
+     * and updates current model scale.
+     * if intensity is provide, it will update the scene light intensity with it.
+     */
+    private fun changeModelScale(call: MethodCall, result: MethodChannel.Result) {
+        val scale: Float? = getValue<Double>(call, changeModelScaleKey)?.toFloat()
+        coroutineScope.launch {
+            when (val resource = modelViewer?.changeModelScale(scale)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
+    /**
+     *change current model position.
+     * it takes an FloatArray  of [x,y,z] coordinates as an argument.
+     * and updates current model center position.
+     */
+    private fun changeModelPosition(call: MethodCall, result: MethodChannel.Result) {
+        val position: FloatArray? = getValue<List<Double>>(call, changeModelPositionKey)?.map { it.toFloat() }?.toFloatArray()
+        coroutineScope.launch {
+            when (val resource = modelViewer?.changeModelPosition(position)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
+
     private fun getCurrentModelState( result: MethodChannel.Result) {
         if (modelViewer != null) {
             result.success(modelViewer.modelState.value.toString())
@@ -626,6 +673,10 @@ class PlayxMethodHandler(
             "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
        private const val getCurrentModelState = "GET_CURRENT_MODEL_STATE"
 
+        private const val changeModelScale ="CHANGE_MODEL_SCALE"
+        private const val changeModelScaleKey ="CHANGE_MODEL_SCALE_KEY"
+        private const val changeModelPosition ="CHANGE_MODEL_POSITION"
+        private const val changeModelPositionKey ="CHANGE_MODEL_POSITION_KEY"
 
 
 
