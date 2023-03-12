@@ -1,4 +1,8 @@
 import 'package:flutter/services.dart';
+import 'package:playx_3d_scene/models/scene/camera/camera.dart';
+import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
+import 'package:playx_3d_scene/models/scene/camera/lens_projection.dart';
+import 'package:playx_3d_scene/models/scene/camera/projection.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
@@ -371,6 +375,131 @@ class Playx3dSceneController {
       return ModelState.none;
     }
   }
+
+  Future<String?> updateCamera(Camera? camera) => _channel.invokeMethod<String>(
+        _updateCamera,
+        {_updateCameraKey: camera?.toJson()},
+      );
+
+  Future<String?> updateExposure(Exposure? exposure) =>
+      _channel.invokeMethod<String>(
+        _updateExposure,
+        {_updateExposureKey: exposure?.toJson()},
+      );
+
+  Future<String?> updateProjection(Projection? projection) =>
+      _channel.invokeMethod<String>(
+        _updateProjection,
+        {_updateProjectionKey: projection?.toJson()},
+      );
+
+  Future<String?> updateLensProjection(LensProjection? lensProjection) =>
+      _channel.invokeMethod<String>(
+        _updateLensProjection,
+        {_updateLensProjectionKey: lensProjection?.toJson()},
+      );
+
+  Future<String?> updateCameraShift(List<double>? shift) =>
+      _channel.invokeMethod<String>(
+        _updateCameraShift,
+        {_updateCameraShiftKey: shift},
+      );
+
+  Future<String?> updateCameraScaling(List<double>? scaling) =>
+      _channel.invokeMethod<String>(
+        _updateCameraScaling,
+        {_updateCameraScalingKey: scaling},
+      );
+
+  Future<String?> setDefaultCamera() => _channel.invokeMethod<String>(
+        _setDefaultCamera,
+        {},
+      );
+
+  Future<String?> lookAtDefaultCameraPosition() =>
+      _channel.invokeMethod<String>(
+        _lookAtDefaultPosition,
+        {},
+      );
+
+  Future<List<double>?> getCameraLookAtPositions() async {
+    final positions = await _channel.invokeMethod<List<Object?>?>(
+      _getLookAt,
+      {},
+    );
+    return positions?.map((e) => (e as double)).toList();
+  }
+
+  Future<String?> lookAtCameraPosition({
+    List<double>? eyePos,
+    List<double>? targetPos,
+    List<double>? upwardPos,
+  }) =>
+      _channel.invokeMethod<String>(
+        _lookAtPosition,
+        {
+          _eyeArrayKey: eyePos,
+          _targetArrayKey: targetPos,
+          _upwardArrayKey: upwardPos
+        },
+      );
+
+  Future<String?> scrollCameraTo({
+    num? x,
+    num? y,
+    double? scrollDelta,
+  }) =>
+      _channel.invokeMethod<String>(
+        _cameraScroll,
+        {
+          _cameraScrollXKey: x,
+          _cameraScrollYKey: y,
+          _cameraScrollDeltaKey: scrollDelta
+        },
+      );
+
+  Future<String?> beginCameraGrab({
+    num? x,
+    num? y,
+    bool? strafe,
+  }) =>
+      _channel.invokeMethod<String>(
+        _cameraGrabBegin,
+        {
+          _cameraGrabBeginXKey: x,
+          _cameraGrabBeginYKey: y,
+          _cameraGrabBeginStrafeKey: strafe
+        },
+      );
+
+  Future<String?> updateCameraGrab({
+    num? x,
+    num? y,
+  }) =>
+      _channel.invokeMethod<String>(
+        _cameraGrabUpdate,
+        {
+          _cameraGrabUpdateXKey: x,
+          _cameraGrabUpdateYKey: y,
+        },
+      );
+
+  Future<String?> endCameraGrab() => _channel.invokeMethod<String>(
+        _cameraGrabEnd,
+        {},
+      );
+
+  Future<String?> getCameraRayCast({
+    num? x,
+    num? y,
+  }) =>
+      _channel.invokeMethod<String>(
+        _cameraRayCast,
+        {
+          _cameraRayCastXKey: x,
+          _cameraRayCastYKey: y,
+        },
+      );
 }
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
@@ -455,3 +584,49 @@ const String _changeModelScale = "CHANGE_MODEL_SCALE";
 const String _changeModelScaleKey = "CHANGE_MODEL_SCALE_KEY";
 const String _changeModelPosition = "CHANGE_MODEL_POSITION";
 const String _changeModelPositionKey = "CHANGE_MODEL_POSITION_KEY";
+const String _updateCamera = "UPDATE_CAMERA";
+const String _updateCameraKey = "UPDATE_CAMERA_KEY";
+
+const String _updateExposure = "UPDATE_EXPOSURE";
+const String _updateExposureKey = "UPDATE_EXPOSURE_KEY";
+
+const String _updateProjection = "UPDATE_PROJECTION";
+const String _updateProjectionKey = "UPDATE_PROJECTION_KEY";
+
+const String _updateLensProjection = "UPDATE_LENS_PROJECTION";
+const String _updateLensProjectionKey = "UPDATE_LENS_PROJECTION_KEY";
+
+const String _updateCameraShift = "UPDATE_CAMERA_SHIFT";
+const String _updateCameraShiftKey = "UPDATE_CAMERA_SHIFT_KEY";
+
+const String _updateCameraScaling = "UPDATE_CAMERA_SCALING";
+const String _updateCameraScalingKey = "UPDATE_CAMERA_SCALING_KEY";
+
+const String _setDefaultCamera = "SET_DEFAULT_CAMERA";
+const String _lookAtDefaultPosition = "LOOK_AT_DEFAULT_POSITION";
+
+const String _lookAtPosition = "LOOK_AT_POSITION";
+const String _eyeArrayKey = "EYE_ARRAY_KEY";
+const String _targetArrayKey = "TARGET_ARRAY_KEY";
+const String _upwardArrayKey = "UPWARD_ARRAY_KEY";
+
+const String _getLookAt = "GET_LOOK_AT";
+const String _cameraScroll = "CAMERA_SCROLL";
+
+const String _cameraScrollXKey = "CAMERA_SCROLL_X_KEY";
+const String _cameraScrollYKey = "CAMERA_SCROLL_Y_KEY";
+const String _cameraScrollDeltaKey = "CAMERA_SCROLL_DELTA_KEY";
+
+const String _cameraRayCast = "CAMERA_RAYCAST";
+const String _cameraRayCastXKey = "CAMERA_RAYCAST_X_KEY";
+const String _cameraRayCastYKey = "CAMERA_RAYCAST_Y_KEY";
+
+const String _cameraGrabBegin = "CAMERA_GRAB_BEGIN";
+const String _cameraGrabBeginXKey = "CAMERA_GRAB_BEGIN_X_KEY";
+const String _cameraGrabBeginYKey = "CAMERA_GRAB_BEGIN_Y_KEY";
+const String _cameraGrabBeginStrafeKey = "CAMERA_GRAB_BEGIN_STRAFE_KEY";
+
+const String _cameraGrabUpdate = "CAMERA_GRAB_UPDATE";
+const String _cameraGrabUpdateXKey = "CAMERA_GRAB_UPDATE_X_KEY";
+const String _cameraGrabUpdateYKey = "CAMERA_GRAB_UPDATE_Y_KEY";
+const String _cameraGrabEnd = "CAMERA_GRAB_END";

@@ -1,4 +1,4 @@
-import 'package:playx_3d_scene/models/scene/camera.dart';
+import 'package:playx_3d_scene/models/scene/camera/camera.dart';
 import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';

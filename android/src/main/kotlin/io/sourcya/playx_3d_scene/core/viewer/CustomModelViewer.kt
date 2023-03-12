@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.viewer
 
-import android.hardware.lights.LightState
 import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceView
@@ -8,13 +7,12 @@ import android.view.TextureView
 import com.google.android.filament.*
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
-import com.google.android.filament.gltfio.*
-import com.google.android.filament.utils.*
-import io.sourcya.playx_3d_scene.core.light.LightManger
+import com.google.android.filament.gltfio.Animator
+import com.google.android.filament.utils.Float3
+import io.sourcya.playx_3d_scene.core.camera.CameraManger
 import io.sourcya.playx_3d_scene.core.loader.ModelLoader
 import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
 
@@ -52,16 +50,11 @@ class CustomModelViewer(
 
     var animator: Animator? = null
 
-    var cameraFocalLength = 28f
-        set(value) {
-            field = value
-            updateCameraProjection()
-        }
 
     val scene: Scene = engine.createScene()
     val view: View = engine.createView()
-    private val camera: Camera = engine.createCamera(engine.entityManager.create())
-        .apply { setExposure(kAperture, kShutterSpeed, kSensitivity) }
+
+
     val renderer: Renderer = engine.createRenderer()
     val modelLoader: ModelLoader = ModelLoader(this)
 
@@ -70,24 +63,20 @@ class CustomModelViewer(
     val currentSkyboxState = MutableStateFlow(SceneState.NONE)
     val currentLightState = MutableStateFlow(SceneState.NONE)
 
+    lateinit var  cameraManger :CameraManger
+
 
 
     private lateinit var displayHelper: DisplayHelper
-    private lateinit var cameraManipulator: Manipulator
-    private lateinit var gestureDetector: GestureDetector
     private var surfaceView: SurfaceView? = null
     private var textureView: TextureView? = null
 
 
     private var swapChain: SwapChain? = null
 
-    private val eyePos = DoubleArray(3)
-    private val target = DoubleArray(3)
-    private val upward = DoubleArray(3)
 
     init {
         view.scene = scene
-        view.camera = camera
 
 
     }
@@ -95,20 +84,14 @@ class CustomModelViewer(
     constructor(
         surfaceView: SurfaceView,
         engine: Engine = Engine.create(),
-        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
-        manipulator: Manipulator? = null
+        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
     ) : this(engine, uiHelper) {
-        cameraManipulator = manipulator ?: Manipulator.Builder()
-            .targetPosition(
-                kDefaultObjectPosition.x,
-                kDefaultObjectPosition.y,
-                kDefaultObjectPosition.z
-            )
-            .viewport(surfaceView.width, surfaceView.height)
-            .build(Manipulator.Mode.ORBIT)
 
         this.surfaceView = surfaceView
-        gestureDetector = GestureDetector(surfaceView, cameraManipulator)
+        cameraManger = CameraManger(this,view,surfaceView)
+        view.camera = cameraManger.camera
+
+
         displayHelper = DisplayHelper(surfaceView.context)
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(surfaceView)
@@ -119,19 +102,13 @@ class CustomModelViewer(
         textureView: TextureView,
         engine: Engine = Engine.create(),
         uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
-        manipulator: Manipulator? = null
     ) : this(engine, uiHelper) {
-        cameraManipulator = manipulator ?: Manipulator.Builder()
-            .targetPosition(
-                kDefaultObjectPosition.x,
-                kDefaultObjectPosition.y,
-                kDefaultObjectPosition.z
-            )
-            .viewport(textureView.width, textureView.height)
-            .build(Manipulator.Mode.ORBIT)
+
 
         this.textureView = textureView
-        gestureDetector = GestureDetector(textureView, cameraManipulator)
+        cameraManger = CameraManger(this,view,textureView)
+        view.camera = cameraManger.camera
+
         displayHelper = DisplayHelper(textureView.context)
         uiHelper.renderCallback = SurfaceCallback()
 
@@ -170,13 +147,7 @@ class CustomModelViewer(
 
         modelLoader.updateScene()
 
-        // Extract the camera basis from the helper and push it to the Filament camera.
-        cameraManipulator.getLookAt(eyePos, target, upward)
-        camera.lookAt(
-            eyePos[0], eyePos[1], eyePos[2],
-            target[0], target[1], target[2],
-            upward[0], upward[1], upward[2]
-        )
+        cameraManger.lookAtDefaultPosition()
 
         // Render the scene, unless the renderer wants to skip the frame.
         if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
@@ -205,15 +176,14 @@ class CustomModelViewer(
         engine.destroyRenderer(renderer)
         engine.destroyView(this@CustomModelViewer.view)
         engine.destroyScene(scene)
-        engine.destroyCameraComponent(camera.entity)
-        EntityManager.get().destroy(camera.entity)
+        cameraManger.destroyCamera()
     }
 
     /**
      * Handles a [MotionEvent] to enable one-finger orbit, two-finger pan, and pinch-to-zoom.
      */
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
+    private fun onTouchEvent(event: MotionEvent) {
+        cameraManger.onTouchEvent(event)
     }
 
     @SuppressWarnings("ClickableViewAccessibility")
@@ -222,13 +192,6 @@ class CustomModelViewer(
         return true
     }
 
-
-    private fun updateCameraProjection() {
-        val width = view.viewport.width
-        val height = view.viewport.height
-        val aspect = width.toDouble() / height.toDouble()
-        camera.setLensProjection(cameraFocalLength.toDouble(), aspect, kNearPlane, kFarPlane)
-    }
 
     inner class SurfaceCallback : UiHelper.RendererCallback {
         override fun onNativeWindowChanged(surface: Surface) {
@@ -251,8 +214,7 @@ class CustomModelViewer(
 
         override fun onResized(width: Int, height: Int) {
             view.viewport = Viewport(0, 0, width, height)
-            cameraManipulator.setViewport(width, height)
-            updateCameraProjection()
+            cameraManger.updateCameraOnResize(width,height)
         }
     }
 
@@ -270,10 +232,5 @@ class CustomModelViewer(
     }
     companion object {
         val kDefaultObjectPosition = Float3(0.0f, 0.0f, -4.0f)
-        private const val kNearPlane = 0.05     // 5 cm
-        private const val kFarPlane = 1000.0    // 1 km
-        private const val kAperture = 16f
-        private const val kShutterSpeed = 1f / 125f
-        private const val kSensitivity = 100f
     }
 }
