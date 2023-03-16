@@ -5,7 +5,7 @@ import com.google.android.filament.LightManager
 
 data class Light(
     val type: LightManager.Type? = null,
-    val color:Int? =null,
+    val color:String? =null,
     val colorTemperature: Float? =null,
     val intensity : Float? =null,
     val position: FloatArray? =null,

@@ -26,7 +26,7 @@ class HdrSkybox extends Skybox {
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'color': toInt(color),
+        'color': color?.toHex(),
         'showSun': showSun,
         'skyboxType': 2
       };

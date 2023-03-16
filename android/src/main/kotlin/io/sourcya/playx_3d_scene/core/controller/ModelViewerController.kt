@@ -5,26 +5,36 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Choreographer
 import android.view.SurfaceView
+import androidx.annotation.Size
 import com.google.android.filament.Engine
 import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
-import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
+import io.sourcya.playx_3d_scene.core.camera.CameraManger
+import io.sourcya.playx_3d_scene.core.ground.GroundManger
 import io.sourcya.playx_3d_scene.core.light.IndirectLightManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
-import io.sourcya.playx_3d_scene.core.models.states.ModelState
+import io.sourcya.playx_3d_scene.core.material.MaterialManger
 import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.*
+import io.sourcya.playx_3d_scene.core.models.scene.camera.Camera
+import io.sourcya.playx_3d_scene.core.models.scene.camera.Exposure
+import io.sourcya.playx_3d_scene.core.models.scene.camera.LensProjection
+import io.sourcya.playx_3d_scene.core.models.scene.camera.Projection
 import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.HdrIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.KtxIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.material.Material
+import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
+import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
@@ -73,12 +83,20 @@ class ModelViewerController constructor(
 
     private lateinit var animationManger: AnimationManger
 
+    private lateinit var cameraManger :CameraManger
+
+    private lateinit var groundManger :GroundManger
+
+    private lateinit var materialManger: MaterialManger
+
     val modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
     val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
 
 
     init {
         setUpViewer()
+        setUpGround()
+        setUpCamera()
         setUpSkybox()
         setUpLight()
         setUpIndirectLight()
@@ -122,6 +140,7 @@ class ModelViewerController constructor(
         }
 
 
+
         glbLoader = GlbLoader.getInstance(modelViewer, context, flutterAssets)
 
         gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
@@ -132,6 +151,9 @@ class ModelViewerController constructor(
         skyboxManger = SkyboxManger(modelViewer, iblProfiler, context, flutterAssets)
 
         animationManger = AnimationManger(modelViewer, context)
+        cameraManger = modelViewer.cameraManger
+        materialManger = MaterialManger(modelViewer,context,flutterAssets)
+        groundManger = GroundManger(modelViewer,materialManger)
 
 
 //        // bloom is pretty expensive but adds a fair amount of realism
@@ -309,6 +331,20 @@ class ModelViewerController constructor(
         }
     }
 
+    private fun setUpCamera(){
+        Timber.d("setUpCamera : ${scene?.camera}")
+        val camera = scene?.camera?: return
+        cameraManger.updateCamera(camera)
+    }
+
+    private fun setUpGround(){
+        coroutineScope.launch {
+            groundManger.createGround(scene?.ground)
+
+        }
+
+    }
+
 
     private fun makeSurfaceViewTransparent() {
         modelViewer.let {
@@ -430,7 +466,7 @@ class ModelViewerController constructor(
     }
 
 
-    fun changeSkyboxByColor(color: Int?): Resource<String> {
+    fun changeSkyboxByColor(color: String?): Resource<String> {
 
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromColor(color)
@@ -611,6 +647,112 @@ class ModelViewerController constructor(
 
     }
 
+
+
+    /***===========================================CAMERA===============================================***/
+
+    fun updateCamera(cameraInfo: Camera?): Resource<String> {
+        return cameraManger.updateCamera(cameraInfo)
+
+    }
+    fun updateExposure(exposure: Exposure?): Resource<String> {
+        return cameraManger.updateExposure(exposure)
+    }
+
+    fun updateProjection(projection: Projection?): Resource<String> {
+        return cameraManger.updateProjection(projection)
+    }
+
+
+    fun updateLensProjection(lensProjection: LensProjection?): Resource<String> {
+        return cameraManger.updateLensProjection(lensProjection)
+    }
+
+
+    fun updateCameraShift(shift: DoubleArray?): Resource<String> {
+        Timber.d("updateCameraShift shift: $shift")
+        return cameraManger.updateCameraShift(shift)
+    }
+
+    fun updateCameraScaling(scaling: DoubleArray?): Resource<String> {
+        return cameraManger.updateCameraScaling(scaling)
+    }
+
+
+    fun setDefaultCamera():Resource<String> {
+        cameraManger.setDefaultCamera()
+        return Resource.Success("Default camera updated successfully")
+    }
+
+
+
+
+
+    fun lookAtDefaultPosition(): Resource<String> {
+        return cameraManger.lookAtDefaultPosition()
+    }
+
+
+    fun lookAtPosition(
+        eyeArray: DoubleArray?,
+        targetArray: DoubleArray?,
+        upwardArray: DoubleArray?,
+    ): Resource<String> {
+        return cameraManger.lookAtPosition(eyeArray, targetArray, upwardArray)
+    }
+
+
+    fun getLookAt(): Resource<List<Double>> {
+        return cameraManger.getLookAt()
+    }
+
+    fun scroll(x: Int?, y: Int?, scrollDelta: Float?) :Resource<String>{
+        return cameraManger.scroll(x,y,scrollDelta)
+    }
+
+
+    /**
+     * Given a viewport coordinate, picks a point in the ground plane.
+     */
+    @Size(min = 3)
+    fun raycast(x: Int?, y: Int?): Resource<FloatArray> {
+        return cameraManger.raycast(x, y)
+    }
+
+    /**
+     * Starts a grabbing session (i.e. the user is dragging around in the viewport).
+     *
+     * In MAP mode, this starts a panning session.
+     * In ORBIT mode, this starts either rotating or strafing.
+     * In FREE_FLIGHT mode, this starts a nodal panning session.
+     *
+     * @param x X-coordinate for point of interest in viewport space
+     * @param y Y-coordinate for point of interest in viewport space
+     * @param strafe ORBIT mode only; if true, starts a translation rather than a rotation
+     */
+    fun grabBegin(x: Int?, y: Int?, strafe: Boolean?): Resource<String> {
+        return cameraManger.grabBegin(x,y,strafe)
+    }
+
+    /**
+     * Updates a grabbing session.
+     *
+     * This must be called at least once between grabBegin / grabEnd to dirty the camera.
+     */
+    fun grabUpdate(x: Int?, y: Int?): Resource<String> {
+        return cameraManger.grabUpdate(x,y)
+    }
+    fun grabEnd(): Resource<String> {
+        return cameraManger.grabEnd()
+    }
+
+
+    suspend fun updateGround(ground: Ground?): Resource<String> {
+        return groundManger.updateGround(ground)
+    }
+    suspend fun updateGroundMaterial(material: Material?): Resource<String> {
+        return groundManger.updateGroundMaterial(material)
+    }
 
     private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {

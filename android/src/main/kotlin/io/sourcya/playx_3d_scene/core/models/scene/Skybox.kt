@@ -3,7 +3,7 @@ package io.sourcya.playx_3d_scene.core.models.scene
 abstract class Skybox(
     var assetPath: String? = null,
     var url: String? = null,
-    var color: Int? =null,
+    var color: String? =null,
     )
 
 
@@ -25,7 +25,7 @@ class HdrSkybox(  assetPath: String? = null,
     }
 }
 
-class ColoredSkybox(  color: Int?= null ):Skybox(color = color){
+class ColoredSkybox(  color: String?= null ):Skybox(color = color){
 
 
 }

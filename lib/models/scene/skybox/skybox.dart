@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 abstract class Skybox {
@@ -27,16 +26,12 @@ abstract class Skybox {
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'color': toInt(color),
+        'color': color?.toHex(),
       };
 }
 
-num? toInt(Color? color) {
-  if (color == null) return null;
-
-  num value = color.value;
-  while (value > pow(2, 31)) {
-    value = value - pow(2, 32);
+extension ColorsExt on Color {
+  String toHex() {
+    return "#${value.toRadixString(16)}";
   }
-  return value;
 }

@@ -46,6 +46,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
                 resourceLoader.asyncBeginLoad(asset)
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
+
                 if (transformToUnitCube) {
                     transformToUnitCube(centerPoint = centerPosition, scale=scale)
                 }
@@ -55,7 +56,6 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
 
     /**
      * Loads a JSON-style glTF file and populates the Filament scene.
-     *
      * The given callback is triggered for each requested resource.
      */
     suspend fun loadModelGltf(
@@ -164,6 +164,8 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         }
 
         Timber.d("transformToUnitCube center: $centerPosition centerpoint x =${centerPoint.contentToString()} scale = $modelScale")
+
+
         asset?.let { asset ->
             val tm = engine.transformManager
             var center = asset.boundingBox.center.let { v -> Float3(v[0], v[1], v[2]) }
@@ -174,6 +176,16 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             val transform = scale(Float3(scaleFactor)) * translation(-center)
             tm.setTransform(tm.getInstance(asset.root), transpose(transform).toFloatArray())
         }
+        Timber.d("transformToUnitCube asset ${asset?.root} , bounding center ${asset?.boundingBox?.center?.toList()}" +
+                " half Extent ${asset?.boundingBox?.halfExtent?.toList()}  ,getTransform : ${asset?.root?.getTransform()}}"
+        )
+
+
+    }
+
+    fun getModelTransform(): Mat4? {
+        return asset?.root?.getTransform()
+
     }
 
     /**
@@ -185,6 +197,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
             tm.setTransform(tm.getInstance(it.root), Mat4().toFloatArray())
         }
     }
+
 
 
     fun updateScene() {
@@ -228,4 +241,14 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         get() = resourceLoader.asyncGetLoadProgress()
 
 
+    private fun Int.getTransform(): Mat4 {
+        val tm = modelViewer.engine.transformManager
+        return Mat4.of(*tm.getTransform(tm.getInstance(this), null as? FloatArray?))
+    }
+
+    private fun Int.setTransform(mat: Mat4) {
+        val tm = modelViewer.engine.transformManager
+        tm.setTransform(tm.getInstance(this), mat.toFloatArray())
+    }
 }
+
