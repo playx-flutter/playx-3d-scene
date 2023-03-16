@@ -8,17 +8,15 @@ import android.view.SurfaceView
 import androidx.annotation.Size
 import com.google.android.filament.Engine
 import com.google.android.filament.View
-import com.google.android.filament.utils.GestureDetector
-import com.google.android.filament.utils.Manipulator
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.camera.CameraManger
-import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
+import io.sourcya.playx_3d_scene.core.ground.GroundManger
 import io.sourcya.playx_3d_scene.core.light.IndirectLightManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
 import io.sourcya.playx_3d_scene.core.loader.GlbLoader
 import io.sourcya.playx_3d_scene.core.loader.GltfLoader
-import io.sourcya.playx_3d_scene.core.models.states.ModelState
+import io.sourcya.playx_3d_scene.core.material.MaterialManger
 import io.sourcya.playx_3d_scene.core.models.model.Animation
 import io.sourcya.playx_3d_scene.core.models.model.GlbModel
 import io.sourcya.playx_3d_scene.core.models.model.GltfModel
@@ -31,8 +29,12 @@ import io.sourcya.playx_3d_scene.core.models.scene.camera.Projection
 import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.HdrIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.KtxIndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.material.Material
+import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
+import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
+import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
@@ -83,12 +85,17 @@ class ModelViewerController constructor(
 
     private lateinit var cameraManger :CameraManger
 
+    private lateinit var groundManger :GroundManger
+
+    private lateinit var materialManger: MaterialManger
+
     val modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
     val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
 
 
     init {
         setUpViewer()
+        setUpGround()
         setUpCamera()
         setUpSkybox()
         setUpLight()
@@ -133,6 +140,7 @@ class ModelViewerController constructor(
         }
 
 
+
         glbLoader = GlbLoader.getInstance(modelViewer, context, flutterAssets)
 
         gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
@@ -144,6 +152,8 @@ class ModelViewerController constructor(
 
         animationManger = AnimationManger(modelViewer, context)
         cameraManger = modelViewer.cameraManger
+        materialManger = MaterialManger(modelViewer,context,flutterAssets)
+        groundManger = GroundManger(modelViewer,materialManger)
 
 
 //        // bloom is pretty expensive but adds a fair amount of realism
@@ -327,6 +337,14 @@ class ModelViewerController constructor(
         cameraManger.updateCamera(camera)
     }
 
+    private fun setUpGround(){
+        coroutineScope.launch {
+            groundManger.createGround(scene?.ground)
+
+        }
+
+    }
+
 
     private fun makeSurfaceViewTransparent() {
         modelViewer.let {
@@ -448,7 +466,7 @@ class ModelViewerController constructor(
     }
 
 
-    fun changeSkyboxByColor(color: Int?): Resource<String> {
+    fun changeSkyboxByColor(color: String?): Resource<String> {
 
         removeFrameCallback()
         val resource = skyboxManger.setSkyboxFromColor(color)
@@ -662,7 +680,6 @@ class ModelViewerController constructor(
 
 
     fun setDefaultCamera():Resource<String> {
-
         cameraManger.setDefaultCamera()
         return Resource.Success("Default camera updated successfully")
     }
@@ -730,6 +747,12 @@ class ModelViewerController constructor(
     }
 
 
+    suspend fun updateGround(ground: Ground?): Resource<String> {
+        return groundManger.updateGround(ground)
+    }
+    suspend fun updateGroundMaterial(material: Material?): Resource<String> {
+        return groundManger.updateGroundMaterial(material)
+    }
 
     private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {

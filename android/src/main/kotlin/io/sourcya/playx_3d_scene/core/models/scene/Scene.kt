@@ -2,6 +2,7 @@ package io.sourcya.playx_3d_scene.core.models.scene
 
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Camera
 import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
+import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
 import io.sourcya.playx_3d_scene.utils.toObject
 
 data class Scene(

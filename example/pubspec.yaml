@@ -27,4 +27,6 @@ flutter:
     - assets/envs/venetian_crossroads_2k/
     - assets/models/
     - assets/models/textures/
+    - assets/materials/
+    - assets/materials/texture/
 

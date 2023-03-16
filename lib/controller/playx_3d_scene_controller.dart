@@ -3,8 +3,11 @@ import 'package:playx_3d_scene/models/scene/camera/camera.dart';
 import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
 import 'package:playx_3d_scene/models/scene/camera/lens_projection.dart';
 import 'package:playx_3d_scene/models/scene/camera/projection.dart';
+import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';
+import 'package:playx_3d_scene/models/scene/material/material.dart';
+import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
 class Playx3dSceneController {
@@ -139,7 +142,7 @@ class Playx3dSceneController {
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
   Future<String?> changeSkyboxColor(Color? color) {
-    final environmentColor = color?.value;
+    final environmentColor = color?.toHex;
     return _channel.invokeMethod<String>(
       _changeSkyboxColor,
       {_changeSkyboxColorKey: environmentColor},
@@ -500,6 +503,17 @@ class Playx3dSceneController {
           _cameraRayCastYKey: y,
         },
       );
+
+  Future<String?> updateGround(Ground? ground) => _channel.invokeMethod<String>(
+        _updateGround,
+        {_updateGroundKey: ground?.toJson()},
+      );
+
+  Future<String?> updateGroundMaterial(PlayxMaterial? material) =>
+      _channel.invokeMethod<String>(
+        _updateGroundMaterial,
+        {_updateGroundMaterialKey: material?.toJson()},
+      );
 }
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
@@ -630,3 +644,9 @@ const String _cameraGrabUpdate = "CAMERA_GRAB_UPDATE";
 const String _cameraGrabUpdateXKey = "CAMERA_GRAB_UPDATE_X_KEY";
 const String _cameraGrabUpdateYKey = "CAMERA_GRAB_UPDATE_Y_KEY";
 const String _cameraGrabEnd = "CAMERA_GRAB_END";
+
+const String _updateGround = "UPDATE_GROUND";
+const String _updateGroundKey = "UPDATE_GROUND_KEY";
+
+const String _updateGroundMaterial = "UPDATE_GROUND_MATERIAL";
+const String _updateGroundMaterialKey = "UPDATE_GROUND_MATERIAL_KEY";

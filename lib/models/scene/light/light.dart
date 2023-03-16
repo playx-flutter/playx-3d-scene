@@ -110,7 +110,7 @@ class Light {
 
   Map<String, dynamic> toJson() => {
         'type': LightType.toName(type),
-        'color': toInt(color),
+        'color': color?.toHex(),
         'colorTemperature': colorTemperature,
         'intensity': intensity,
         'position': position,

@@ -7,7 +7,7 @@ class ColoredSkybox extends Skybox {
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'color': toInt(color),
+        'color': color?.toHex(),
         'skyboxType': 3
       };
 }

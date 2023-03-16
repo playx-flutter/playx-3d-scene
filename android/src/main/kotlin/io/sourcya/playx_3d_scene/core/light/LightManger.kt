@@ -6,7 +6,7 @@ import com.google.android.filament.Entity
 import com.google.android.filament.EntityManager
 import com.google.android.filament.LightManager
 import io.sourcya.playx_3d_scene.core.models.scene.Light
-import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.utils.*
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 
 // Always add a direct light source since it is required for shadowing.
@@ -43,10 +43,8 @@ internal class LightManger(private val modelViewer: CustomModelViewer) {
 
         val color = light.color
         if (color != null) {
-            val red: Float = Color.red(color) / 255f
-            val green: Float = Color.green(color) / 255f
-            val blue: Float = Color.blue(color) / 255f
-            builder.color(red, green, blue)
+            val colorValue = colorOf(color)
+            builder.color(colorValue.red(), colorValue.green(), colorValue.blue())
         } else if (light.colorTemperature != null) {
             val (red, green, blue) = Colors.cct(light.colorTemperature)
             builder.color(red, green, blue)

@@ -28,6 +28,10 @@ inline fun <reified T> Map<String?, Any?>.toObject(): T {
     return convert()
 }
 
+inline fun <reified T> Map<*, *>.convertToObject(): T {
+    return convert()
+}
+
 //convert an object of type I to type O
 inline fun <I, reified O> I.convert(): O {
     val json = gson.toJson(this)

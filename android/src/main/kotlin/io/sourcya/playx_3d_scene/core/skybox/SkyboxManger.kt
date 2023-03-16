@@ -12,6 +12,7 @@ import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
+import io.sourcya.playx_3d_scene.core.utils.colorOf
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
@@ -214,20 +215,18 @@ internal class SkyboxManger constructor(
 
 
 
-    fun setSkyboxFromColor(color: Int?): Resource<String> {
+    fun setSkyboxFromColor(color: String?): Resource<String> {
         modelViewer.setSkyboxState(SceneState.LOADING)
 
         if (color == null) {
             modelViewer.setSkyboxState(SceneState.ERROR)
             return Resource.Error("Color is Invalid")
         }
-        val red: Float = Color.red(color) / 255f
-        val green: Float = Color.green(color) / 255f
-        val blue: Float = Color.blue(color) / 255f
-        val alpha: Float = Color.alpha(color) / 255f
+
+        val colorArray= colorOf( color).toFloatArray()
 
         val skybox =
-            Skybox.Builder().color(red, green, blue, alpha)
+            Skybox.Builder().color(colorArray)
                 .build(modelViewer.engine)
         modelViewer.scene.skybox = skybox
         modelViewer.setSkyboxState(SceneState.LOADED)

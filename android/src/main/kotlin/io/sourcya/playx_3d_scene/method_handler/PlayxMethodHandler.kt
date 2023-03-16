@@ -4,7 +4,6 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import io.sourcya.playx_3d_scene.core.models.scene.Light
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Camera
@@ -12,12 +11,11 @@ import io.sourcya.playx_3d_scene.core.models.scene.camera.Exposure
 import io.sourcya.playx_3d_scene.core.models.scene.camera.LensProjection
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Projection
 import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
-import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler.Companion.cameraGrabBegin
-import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler.Companion.changeModelPosition
-import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler.Companion.lookAtPosition
+import io.sourcya.playx_3d_scene.core.models.scene.material.Material
+import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
+import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
-import timber.log.Timber
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -78,6 +76,8 @@ class PlayxMethodHandler(
             cameraGrabUpdate -> updateCameraGrab(call,result)
             cameraGrabEnd-> endCameraGrab(call,result)
             cameraRayCast-> getCameraRayCast(call,result)
+            updateGround -> updateGround(call,result)
+            updateGroundMaterial -> updateGroundMaterial(call,result)
             else -> result.notImplemented()
         }
     }
@@ -260,7 +260,7 @@ class PlayxMethodHandler(
      * and updates the environment skybox color
      */
     private fun changeSkyboxColor(call: MethodCall, result: MethodChannel.Result) {
-        val color: Int? = getValue<Long>(call, changeSkyboxColorKey)?.toInt()
+        val color: String? = getValue(call, changeSkyboxColorKey)
         when (val resource = modelViewer?.changeSkyboxByColor(color)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
@@ -889,6 +889,50 @@ class PlayxMethodHandler(
     }
 
 
+    /**
+     *update ground.
+     * it takes an Ground object as an argument.
+     * and updates current camera.
+     */
+    private fun updateGround(call: MethodCall, result: MethodChannel.Result) {
+        val ground = getValue<Map<String?, Any?>>(call, updateGroundKey)?.toObject<Ground>()
+        coroutineScope.launch {
+            when (val resource = modelViewer?.updateGround(ground)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
+
+
+    /**
+     *update ground.
+     * it takes an Ground object as an argument.
+     * and updates current camera.
+     */
+    private fun updateGroundMaterial(call: MethodCall, result: MethodChannel.Result) {
+        val material = getValue<Map<String?, Any?>>(call, updateGroundMaterialKey)?.toObject<Material>()
+        coroutineScope.launch {
+            when (val resource = modelViewer?.updateGroundMaterial(material)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
     fun startListeningToChannel() {
         methodChannel = MethodChannel(messenger, "${MAIN_CHANNEL_NAME}_$id")
         methodChannel?.setMethodCallHandler(this)
@@ -1052,6 +1096,15 @@ class PlayxMethodHandler(
         private const val cameraGrabUpdateXKey = "CAMERA_GRAB_UPDATE_X_KEY"
         private const val cameraGrabUpdateYKey = "CAMERA_GRAB_UPDATE_Y_KEY"
         private const val cameraGrabEnd = "CAMERA_GRAB_END"
+
+
+        private const val updateGround = "UPDATE_GROUND"
+        private const val updateGroundKey = "UPDATE_GROUND_KEY"
+
+        private const val updateGroundMaterial = "UPDATE_GROUND_MATERIAL"
+        private const val updateGroundMaterialKey = "UPDATE_GROUND_MATERIAL_KEY"
+
+
 
 
 

@@ -133,6 +133,8 @@ class CustomModelViewer(
     }
 
 
+    fun getModelTransform()= modelLoader.getModelTransform()
+
     /**
      * Renders the model and updates the Filament camera.
      *
