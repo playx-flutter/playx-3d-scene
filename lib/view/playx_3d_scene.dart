@@ -7,8 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/models/model/model.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
+import 'package:playx_3d_scene/models/shapes/shape.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 import 'package:playx_3d_scene/models/state/scene_state.dart';
+import 'package:playx_3d_scene/models/state/shape_state.dart';
 
 typedef Playx3dSceneCreatedCallback = void Function(
     Playx3dSceneController controller);
@@ -19,6 +21,8 @@ typedef Playx3dOnEachRenderCallback = void Function(num? frameTimeNanos);
 
 typedef Playx3dSceneStateCallback = void Function(SceneState state);
 
+typedef Playx3dShapeStateCallback = void Function(ShapeState state);
+
 const String _channelName = "io.sourcya.playx.3d.scene.channel";
 const String _viewType = "${_channelName}_3d_scene";
 const String _modelStateChannelName =
@@ -27,6 +31,7 @@ const String _rendererChannelName =
     "io.sourcya.playx.3d.scene.renderer_channel";
 
 const String _sceneStateChannelName = "io.sourcya.playx.3d.scene.scene_state";
+const String _shapeStateChannelName = "io.sourcya.playx.3d.scene.shape_state";
 
 class Playx3dScene extends StatefulWidget {
   /// Model to be rendered.
@@ -38,6 +43,11 @@ class Playx3dScene extends StatefulWidget {
   /// provide details about the scene to be rendered.
   /// like skybox, lightening, camera, etc.
   final Scene? scene;
+
+  /// List of shapes to be rendered.
+  /// could be plane cube or sphere.
+  /// each shape will be rendered with its own position size and material.
+  final List<Shape>? shapes;
 
   /// onCreated callback provides PlayX Model viewer controller.
   /// when the viewer is created.
@@ -53,6 +63,10 @@ class Playx3dScene extends StatefulWidget {
   /// whether is none, loading, loaded ,error.
   final Playx3dSceneStateCallback? onSceneStateChanged;
 
+  /// onShapeStateChanged callback provides current state of the shape;
+  /// whether is none, loading, loaded ,error.
+  final Playx3dShapeStateCallback? onShapeStateChanged;
+
   /// onEachRenderCallback callback that is called on each frame render.
   /// it also provides last frame render time in nanoseconds.
   final Playx3dOnEachRenderCallback? onEachRender;
@@ -61,10 +75,12 @@ class Playx3dScene extends StatefulWidget {
       {super.key,
       this.model,
       this.scene,
+      this.shapes,
       this.onCreated,
       this.onModelStateChanged,
       this.onEachRender,
-      this.onSceneStateChanged});
+      this.onSceneStateChanged,
+      this.onShapeStateChanged});
 
   @override
   State<StatefulWidget> createState() {
@@ -81,6 +97,8 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   StreamSubscription? _rendererSubscription;
   late EventChannel _sceneStateChannel;
   StreamSubscription? _sceneStateSubscription;
+  late EventChannel _shapeStateChannel;
+  StreamSubscription? _shapeStateSubscription;
 
   PlayxModelViewerState();
 
@@ -109,6 +127,8 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     final scene = widget.scene?.toJson();
     creationParams["model"] = model;
     creationParams["scene"] = scene;
+    creationParams["shapes"] =
+        widget.shapes?.map((param) => param.toJson()).toList();
   }
 
   void setUpModelState(Playx3dSceneController controller) {
@@ -126,6 +146,16 @@ class PlayxModelViewerState extends State<Playx3dScene> {
       _sceneStateSubscription = getSceneState().listen((state) {
         if (widget.onSceneStateChanged != null) {
           widget.onSceneStateChanged!(state);
+        }
+      });
+    }
+  }
+
+  void setUpShapeState(Playx3dSceneController controller) {
+    if (widget.onShapeStateChanged != null) {
+      _shapeStateSubscription = getShapeState().listen((state) {
+        if (widget.onShapeStateChanged != null) {
+          widget.onShapeStateChanged!(state);
         }
       });
     }
@@ -149,9 +179,12 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     }
     _modelLoadingChannel = EventChannel('${_modelStateChannelName}_$id');
     _sceneStateChannel = EventChannel('${_sceneStateChannelName}_$id');
+    _shapeStateChannel = EventChannel('${_shapeStateChannelName}_$id');
     _rendererChannel = EventChannel('${_rendererChannelName}_$id');
+
     setUpModelState(controller);
     setUpSceneState(controller);
+    setUpShapeState(controller);
     setUpOnEachRenderCallback(controller);
   }
 
@@ -160,6 +193,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     _modelLoadingSubscription?.cancel();
     _rendererSubscription?.cancel();
     _sceneStateSubscription?.cancel();
+    _shapeStateSubscription?.cancel();
     super.dispose();
   }
 
@@ -180,6 +214,13 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     return _sceneStateChannel.receiveBroadcastStream().map((state) {
       final currentState = state as String?;
       return SceneState.from(currentState);
+    });
+  }
+
+  Stream<ShapeState> getShapeState() {
+    return _shapeStateChannel.receiveBroadcastStream().map((state) {
+      final currentState = state as String?;
+      return ShapeState.from(currentState);
     });
   }
 }

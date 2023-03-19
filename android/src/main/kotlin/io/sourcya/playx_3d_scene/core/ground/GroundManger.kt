@@ -1,11 +1,12 @@
 package io.sourcya.playx_3d_scene.core.ground
 
-import io.sourcya.playx_3d_scene.core.geometry.Plane
+import io.sourcya.playx_3d_scene.core.geometry.PlaneGeometry
 import io.sourcya.playx_3d_scene.core.material.MaterialManger
+import io.sourcya.playx_3d_scene.core.models.scene.Ground
 import io.sourcya.playx_3d_scene.core.models.scene.material.Material
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.Direction
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.Position
+import io.sourcya.playx_3d_scene.core.models.shapes.Direction
+import io.sourcya.playx_3d_scene.core.models.shapes.Position
+import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import timber.log.Timber
@@ -17,13 +18,19 @@ class GroundManger(
     private val engine = modelViewer.engine
 
     var ground: Ground? = null
-    var plane: Plane? = null
+    var plane: PlaneGeometry? = null
 
     suspend fun createGround(ground: Ground?): Resource<String> {
-
+        modelViewer.setGroundState(SceneState.LOADING)
         Timber.d("create ground :$ground")
-        if (ground == null) return Resource.Error("Ground is null")
-        if (ground.size == null) return Resource.Error("Size must be provided")
+        if (ground == null) {
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("Ground is null")
+        }
+        if (ground.size == null) {
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("Size must be provided")
+        }
 
 
         val materialInstanceResult = materialManger.getMaterialInstance(ground.material)
@@ -41,7 +48,7 @@ class GroundManger(
         }
         this.ground = ground
 
-        val plane = Plane.Builder(
+        val plane = PlaneGeometry.Builder(
             center = center,
             size = ground.size,
             normal = ground.normal ?: Direction(y = 1f)
@@ -50,6 +57,7 @@ class GroundManger(
         plane.setupScene(modelViewer, materialInstanceResult.data)
 
         this.plane = plane
+        modelViewer.setGroundState(SceneState.LOADED)
 
         return Resource.Success("Ground created successfully")
 
@@ -57,9 +65,16 @@ class GroundManger(
 
 
     suspend fun updateGround(newGround: Ground?): Resource<String> {
+        modelViewer.setGroundState(SceneState.LOADING)
 
-        if (newGround == null) return Resource.Error("Ground is null")
-        if (newGround.size == null) return Resource.Error("Size must be provided")
+        if (newGround == null) {
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("Ground is null")
+        }
+        if (newGround.size == null){
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("Size must be provided")
+        }
 
         val isBelowModel = newGround.isBelowModel
         if (plane == null) {
@@ -80,22 +95,35 @@ class GroundManger(
                 normal = newGround.normal ?: Direction(y = 1f)
             )
         }
+        modelViewer.setGroundState(SceneState.LOADED)
         return Resource.Success("updated ground successfully")
     }
 
 
     suspend fun updateGroundMaterial(newMaterial: Material?): Resource<String> {
+        modelViewer.setGroundState(SceneState.LOADING)
 
-        if (newMaterial == null) return Resource.Error("Material must be provided")
+        if (newMaterial == null) {
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("Material must be provided")
+        }
+
 
         val materialInstanceResult = materialManger.getMaterialInstance(newMaterial)
 
-        if (materialInstanceResult is Resource.Success && materialInstanceResult.data != null) {
-            plane?.updateMaterial(modelViewer, materialInstanceResult.data)
-                ?: return Resource.Error("Couldn't find current ground plane")
-            return Resource.Success("updated ground material successfully")
+        return if (materialInstanceResult is Resource.Success && materialInstanceResult.data != null) {
+            if(plane == null) {
+                modelViewer.setGroundState(SceneState.ERROR)
+                 Resource.Error("couldn't find ground")
+            }else{
+                plane?.updateMaterial(modelViewer, materialInstanceResult.data)
+                modelViewer.setGroundState(SceneState.LOADED)
+                Resource.Success("updated ground material successfully")
+            }
+
         } else {
-            return Resource.Error(
+            modelViewer.setGroundState(SceneState.ERROR)
+            Resource.Error(
                 materialInstanceResult.message ?: "couldn't update ground material"
             )
 

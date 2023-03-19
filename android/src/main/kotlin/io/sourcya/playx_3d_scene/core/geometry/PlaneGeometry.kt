@@ -1,11 +1,9 @@
 package io.sourcya.playx_3d_scene.core.geometry
 
 import com.google.android.filament.Engine
-import com.google.android.filament.MaterialInstance
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.*
-import timber.log.Timber
+import io.sourcya.playx_3d_scene.core.models.shapes.*
 
-class Plane private constructor(
+class PlaneGeometry private constructor(
     center: Position,
     size: Size,
     normal: Direction,
@@ -21,11 +19,6 @@ class Plane private constructor(
 
 
 
-    init {
-
-
-        Timber.d("Building ground Plane init gemotry bounding box:${geometry.boundingBox}, plane :$boundingBox ")
-    }
 
     /**
      * Center of the constructed plane
@@ -51,8 +44,8 @@ class Plane private constructor(
      */
     class Builder(
         val center: Position = Position(0.0f,0f,-4f),
-         val size: Size = Size(x = 2.0f, y = 2.0f),
-        val normal :Direction = Direction(y=1f)
+        val size: Size = Size(x = 2.0f, y = 2.0f),
+        val normal : Direction = Direction(y=1f)
     ) : Geometry.Builder(
 
         vertices = getVertices(center, size,normal),
@@ -65,7 +58,7 @@ class Plane private constructor(
             )
         )
     ) {
-         override fun build(engine: Engine): Plane  = Plane(center, size,normal,super.build(engine))
+         override fun build(engine: Engine): PlaneGeometry  = PlaneGeometry(center, size,normal,super.build(engine))
     }
 
     fun update(
@@ -84,7 +77,7 @@ class Plane private constructor(
         fun getVertices(
             center: Position = Position(0.0f),
             size: Size = Size(x = 2.0f, y = 2.0f),
-            normal :Direction = Direction(y=1f)
+            normal : Direction = Direction(y=1f)
         ): List<Vertex> = mutableListOf<Vertex>().apply {
             val extents = size / 2.0f
 

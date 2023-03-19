@@ -6,6 +6,7 @@ import 'package:playx_3d_scene/models/model/glb_model.dart';
 import 'package:playx_3d_scene/models/scene/camera/camera.dart';
 import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
 import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
+import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/geometry/size.dart';
 import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/hdr_indirect_light.dart';
@@ -18,8 +19,11 @@ import 'package:playx_3d_scene/models/scene/material/texture/texture.dart';
 import 'package:playx_3d_scene/models/scene/material/texture/texture_sampler.dart';
 import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
+import 'package:playx_3d_scene/models/shapes/cube.dart';
+import 'package:playx_3d_scene/models/shapes/plane.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 import 'package:playx_3d_scene/models/state/scene_state.dart';
+import 'package:playx_3d_scene/models/state/shape_state.dart';
 import 'package:playx_3d_scene/view/playx_3d_scene.dart';
 
 void main() {
@@ -37,6 +41,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool isModelLoading = false;
   bool isSceneLoading = false;
+  bool isShapeLoading = false;
   late Playx3dSceneController controller;
 
   @override
@@ -68,7 +73,8 @@ class _MyAppState extends State<MyApp> {
                     castLight: true,
                   ),
                   ground: Ground(
-                    size: PlayxSize(width: 4.0, height: 4.0),
+                    width: 4.0,
+                    height: 4.0,
                     isBelowModel: true,
                     normal: PlayxDirection.y(1.0),
                     material: PlayxMaterial.asset(
@@ -112,14 +118,102 @@ class _MyAppState extends State<MyApp> {
                     upVector: [0, 1, 0],
                   ),
                 ),
+                shapes: [
+                  Cube(
+                    id: 1,
+                    length: 2.0,
+                    centerPosition: PlayxPosition(x: 0, y: .4, z: -4),
+                    // material: PlayxMaterial.asset(
+                    //   "assets/materials/textured_pbr.filamat",
+                    //   parameters: [
+                    //     MaterialParameter.texture(
+                    //       value: PlayxTexture.asset(
+                    //         "assets/materials/texture/floor_basecolor.png",
+                    //         type: TextureType.color,
+                    //         sampler: PlayxTextureSampler(anisotropy: 8),
+                    //       ),
+                    //       name: "baseColor",
+                    //     ),
+                    //     MaterialParameter.texture(
+                    //       value: PlayxTexture.asset(
+                    //         "assets/materials/texture/floor_normal.png",
+                    //         type: TextureType.normal,
+                    //         sampler: PlayxTextureSampler(anisotropy: 8),
+                    //       ),
+                    //       name: "normal",
+                    //     ),
+                    //     MaterialParameter.texture(
+                    //       value: PlayxTexture.asset(
+                    //         "assets/materials/texture/floor_ao_roughness_metallic.png",
+                    //         type: TextureType.data,
+                    //         sampler: PlayxTextureSampler(anisotropy: 8),
+                    //       ),
+                    //       name: "aoRoughnessMetallic",
+                    //     ),
+                    //   ],
+                    // ),
+                  ),
+                  Plane(
+                    id: 2,
+                    size: PlayxSize(x: 3.0, y: 3.0),
+                    centerPosition: PlayxPosition(x: 0, y: .6, z: -5),
+                    material: PlayxMaterial.asset(
+                        "assets/materials/lit.filamat",
+                        parameters: [
+                          MaterialParameter.baseColor(color: Colors.brown)
+                        ]),
+                  )
+                ],
                 onCreated: (Playx3dSceneController controller) async {
-                  await Future.delayed(const Duration(seconds: 5), () {
-                    controller.updateGroundMaterial(PlayxMaterial.asset(
-                      "assets/materials/lit.filamat",
-                      parameters: [
-                        MaterialParameter.baseColor(color: Colors.cyan)
-                      ],
-                    ));
+                  await controller.addShape(
+                    Cube(
+                      id: 3,
+                      length: .8,
+                      centerPosition: PlayxPosition(x: -1, y: 1, z: -4),
+                    ),
+                  );
+
+                  await Future.delayed(const Duration(seconds: 5), () async {
+                    final ids = await controller.getCurrentShapesIds();
+                    Fimber.d("get created shapes $ids");
+                    controller.removeShape(2);
+                    controller.updateShape(
+                      1,
+                      Cube(
+                        id: 1,
+                        length: .5,
+                        centerPosition: PlayxPosition(x: 0, y: 0, z: -4),
+                        material: PlayxMaterial.asset(
+                          "assets/materials/textured_pbr.filamat",
+                          parameters: [
+                            MaterialParameter.texture(
+                              value: PlayxTexture.url(
+                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_basecolor.png",
+                                type: TextureType.color,
+                                sampler: PlayxTextureSampler(anisotropy: 8),
+                              ),
+                              name: "baseColor",
+                            ),
+                            MaterialParameter.texture(
+                              value: PlayxTexture.url(
+                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_normal.png",
+                                type: TextureType.normal,
+                                sampler: PlayxTextureSampler(anisotropy: 8),
+                              ),
+                              name: "normal",
+                            ),
+                            MaterialParameter.texture(
+                              value: PlayxTexture.url(
+                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_ao_roughness_metallic.png",
+                                type: TextureType.data,
+                                sampler: PlayxTextureSampler(anisotropy: 8),
+                              ),
+                              name: "aoRoughnessMetallic",
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   });
                 },
                 onModelStateChanged: (state) {
@@ -136,9 +230,16 @@ class _MyAppState extends State<MyApp> {
                   Fimber.d(
                       "My Playx3dScenePlugin onSceneStateChanged : $state");
                 },
+                onShapeStateChanged: (state) {
+                  setState(() {
+                    isShapeLoading = state == ShapeState.loading;
+                  });
+                  Fimber.d(
+                      "My Playx3dScenePlugin onShapeStateChanged : $state");
+                },
                 onEachRender: (frameTimeNano) {},
               ),
-              isModelLoading || isSceneLoading
+              isModelLoading || isSceneLoading || isShapeLoading
                   ? const Center(
                       child: CircularProgressIndicator(
                         color: Colors.pink,

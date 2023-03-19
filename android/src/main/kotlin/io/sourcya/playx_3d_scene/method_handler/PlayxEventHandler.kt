@@ -26,9 +26,13 @@ class PlayxEventHandler (
     private var sceneStateEventChannel: EventChannel = EventChannel(messenger, "${SCENE_STATE_CHANNEL_NAME}_$id")
     private var sceneStateEventSink : EventChannel.EventSink? =null
 
+    private var shapeStateEventChannel: EventChannel = EventChannel(messenger, "${SHAPE_STATE_CHANNEL_NAME}_$id")
+    private var shapeStateEventSink : EventChannel.EventSink? =null
+
     private var modelLoadingJob : Job? =null
     private var rendererJob : Job?= null
     private var sceneStateJob : Job?= null
+    private var shapeStateJob : Job?= null
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -113,6 +117,47 @@ class PlayxEventHandler (
 
 
 
+    private fun listenToShapeState(){
+        shapeStateJob = coroutineScope.launch {
+            modelViewer?.shapeState?.collectLatest {
+                Timber.d("My Playx3dScenePlugin  listenToShapeState method : $it")
+                shapeStateEventSink?.success(it.toString())
+            }
+        }
+    }
+
+
+    private fun setShapeStateEventChannel(){
+        Timber.d("My Playx3dScenePlugin : setSceneStateEventChannel")
+        shapeStateEventChannel.setStreamHandler(object : StreamHandler(),
+            EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                shapeStateEventSink = events
+                Timber.d("My Playx3dScenePlugin : sceneState onListen : ${modelViewer?.sceneState?.value?.toString()}")
+                shapeStateEventSink?.success(modelViewer?.shapeState?.value?.toString())
+            }
+            override fun onCancel(arguments: Any?) {
+                Timber.d("My Playx3dScenePlugin : onCancel")
+                shapeStateEventSink =null
+            }
+        })
+
+    }
+
+    private fun cancelShapeStateEventChannel(){
+        Timber.d("My Playx3dScenePlugin : cancelSceneStateEventChannel")
+        shapeStateJob?.cancel()
+        shapeStateEventChannel.setStreamHandler(null)
+        shapeStateEventSink = null
+
+
+
+    }
+
+
+
+
+
     private fun listenToEachRender(){
         rendererJob = coroutineScope.launch {
             modelViewer?.getRenderStateFlow()?.collectLatest {
@@ -153,6 +198,7 @@ class PlayxEventHandler (
         setUpModelStateEventChannel()
         setUpRendererEventChannel()
         setSceneStateEventChannel()
+        setShapeStateEventChannel()
 
     }
 
@@ -160,12 +206,14 @@ class PlayxEventHandler (
         cancelModelStateEventChannel()
         cancelRendererEventChannel()
         cancelSceneStateEventChannel()
+        cancelShapeStateEventChannel()
     }
 
     fun handleOnResume() {
         listenToModelLoading()
         listenToEachRender()
         listenToSceneState()
+        listenToShapeState()
     }
 
     fun handleOnPause() {
@@ -183,6 +231,7 @@ class PlayxEventHandler (
         private  const val  MODEL_STATE_CHANNEL_NAME= "io.sourcya.playx.3d.scene.model_state_channel"
         private const val  RENDERER_CHANNEL_NAME= "io.sourcya.playx.3d.scene.renderer_channel"
         private const val SCENE_STATE_CHANNEL_NAME = "io.sourcya.playx.3d.scene.scene_state"
+        private const val SHAPE_STATE_CHANNEL_NAME = "io.sourcya.playx.3d.scene.shape_state"
 
     }
 

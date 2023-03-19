@@ -11,6 +11,7 @@ import com.google.android.filament.View
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.camera.CameraManger
+import io.sourcya.playx_3d_scene.core.geometry.ShapeManger
 import io.sourcya.playx_3d_scene.core.ground.GroundManger
 import io.sourcya.playx_3d_scene.core.light.IndirectLightManger
 import io.sourcya.playx_3d_scene.core.light.LightManger
@@ -30,10 +31,11 @@ import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.HdrIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.light.KtxIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.material.Material
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
+import io.sourcya.playx_3d_scene.core.models.shapes.Shape
 import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState.Companion.getSceneState
+import io.sourcya.playx_3d_scene.core.models.states.ShapeState
 import io.sourcya.playx_3d_scene.core.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
@@ -57,6 +59,7 @@ class ModelViewerController constructor(
     private val flutterAssets: FlutterAssets,
     private val scene: Scene?,
     private val model: Model?,
+    private val shapes: List<Shape>?,
 
     ) {
     private lateinit var modelViewer: CustomModelViewer
@@ -65,6 +68,7 @@ class ModelViewerController constructor(
     private var modelJob: Job? = null
     private var glbModelStateJob: Job? = null
     private var sceneStateJob: Job? = null
+    private var shapeStateJob: Job? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -89,8 +93,11 @@ class ModelViewerController constructor(
 
     private lateinit var materialManger: MaterialManger
 
+    private lateinit var shapeManger: ShapeManger
+
     val modelState: MutableStateFlow<ModelState> = MutableStateFlow(ModelState.NONE)
     val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
+    val shapeState: MutableStateFlow<ShapeState> = MutableStateFlow(ShapeState.NONE)
 
 
     init {
@@ -101,7 +108,10 @@ class ModelViewerController constructor(
         setUpLight()
         setUpIndirectLight()
         setUpLoadingModel()
+        setUpShapes()
     }
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
@@ -154,6 +164,8 @@ class ModelViewerController constructor(
         cameraManger = modelViewer.cameraManger
         materialManger = MaterialManger(modelViewer,context,flutterAssets)
         groundManger = GroundManger(modelViewer,materialManger)
+
+        shapeManger = ShapeManger(modelViewer,materialManger)
 
 
 //        // bloom is pretty expensive but adds a fair amount of realism
@@ -344,6 +356,14 @@ class ModelViewerController constructor(
         }
 
     }
+
+
+    private fun setUpShapes() {
+        coroutineScope.launch {
+            shapeManger.createShapes(shapes)
+        }
+    }
+
 
 
     private fun makeSurfaceViewTransparent() {
@@ -754,6 +774,35 @@ class ModelViewerController constructor(
         return groundManger.updateGroundMaterial(material)
     }
 
+
+    suspend fun addShape(shape: Shape?):Resource<String> {
+        return shapeManger.addShape(shape)
+    }
+
+    suspend fun removeShape(id: Int?):Resource<String> {
+        return shapeManger.removeShape(id)
+    }
+
+    suspend fun updateShape(id: Int?, shape: Shape?):Resource<String> {
+        return shapeManger.updateShape(id,shape)
+    }
+
+    fun getCreatedShapesIds(): List<Int> {
+        return shapeManger.getCurrentCreatedShapeIds()
+    }
+
+
+    private fun listenToShapeState() {
+        shapeStateJob = coroutineScope.launch {
+            modelViewer.currentShapesState.collectLatest {
+                Timber.d("My Playx3dScenePlugin  setUpModelLoading : $it")
+                shapeState.value = it
+            }
+        }
+    }
+
+
+
     private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {
             modelViewer.currentModelState.collectLatest {
@@ -767,9 +816,10 @@ class ModelViewerController constructor(
         sceneStateJob = coroutineScope.launch {
             combine(
                 modelViewer.currentSkyboxState,
-                modelViewer.currentLightState
-            ) { (skyboxState, lightState) ->
-                getSceneState(skyboxState, lightState)
+                modelViewer.currentLightState,
+                modelViewer.currentGroundState
+            ) { (skyboxState, lightState,groundState) ->
+                getSceneState(skyboxState, lightState,groundState)
             }.collectLatest { state ->
                 sceneState.value = state
             }
@@ -803,6 +853,7 @@ class ModelViewerController constructor(
         Timber.d("My Playx3dScenePlugin  handleOnResume")
         listenToModelState()
         listenToSceneState()
+        listenToShapeState()
         surfaceView.invalidate()
         surfaceView.setZOrderOnTop(true)
         addFrameCallback()
@@ -814,6 +865,8 @@ class ModelViewerController constructor(
         glbModelStateJob = null
         sceneStateJob?.cancel()
         sceneStateJob = null
+        shapeStateJob?.cancel()
+        shapeStateJob = null
     }
 
     fun getView() = surfaceView
