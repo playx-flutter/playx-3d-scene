@@ -16,7 +16,6 @@ class GroundManger(
     private val materialManger: MaterialManger
 ) {
     private val engine = modelViewer.engine
-
     var ground: Ground? = null
     var plane: PlaneGeometry? = null
 

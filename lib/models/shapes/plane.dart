@@ -1,9 +1,12 @@
+import 'package:playx_3d_scene/models/scene/geometry/size.dart';
 import 'package:playx_3d_scene/models/shapes/shape.dart';
 
 class Plane extends Shape {
+  PlayxSize size;
+
   Plane(
       {required super.id,
-      required super.size,
+      required this.size,
       required super.centerPosition,
       super.normal,
       super.material});

@@ -1,8 +1,11 @@
 package io.sourcya.playx_3d_scene.core.viewer
 
-import android.animation.Animator
-import android.view.*
+import android.view.MotionEvent
+import android.view.Surface
+import android.view.SurfaceView
+import android.view.TextureView
 import com.google.android.filament.*
+import com.google.android.filament.View
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.Animator

@@ -21,6 +21,7 @@ import 'package:playx_3d_scene/models/scene/scene.dart';
 import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
 import 'package:playx_3d_scene/models/shapes/cube.dart';
 import 'package:playx_3d_scene/models/shapes/plane.dart';
+import 'package:playx_3d_scene/models/shapes/sphere.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 import 'package:playx_3d_scene/models/state/scene_state.dart';
 import 'package:playx_3d_scene/models/state/shape_state.dart';
@@ -121,37 +122,37 @@ class _MyAppState extends State<MyApp> {
                 shapes: [
                   Cube(
                     id: 1,
-                    length: 2.0,
-                    centerPosition: PlayxPosition(x: 0, y: .4, z: -4),
-                    // material: PlayxMaterial.asset(
-                    //   "assets/materials/textured_pbr.filamat",
-                    //   parameters: [
-                    //     MaterialParameter.texture(
-                    //       value: PlayxTexture.asset(
-                    //         "assets/materials/texture/floor_basecolor.png",
-                    //         type: TextureType.color,
-                    //         sampler: PlayxTextureSampler(anisotropy: 8),
-                    //       ),
-                    //       name: "baseColor",
-                    //     ),
-                    //     MaterialParameter.texture(
-                    //       value: PlayxTexture.asset(
-                    //         "assets/materials/texture/floor_normal.png",
-                    //         type: TextureType.normal,
-                    //         sampler: PlayxTextureSampler(anisotropy: 8),
-                    //       ),
-                    //       name: "normal",
-                    //     ),
-                    //     MaterialParameter.texture(
-                    //       value: PlayxTexture.asset(
-                    //         "assets/materials/texture/floor_ao_roughness_metallic.png",
-                    //         type: TextureType.data,
-                    //         sampler: PlayxTextureSampler(anisotropy: 8),
-                    //       ),
-                    //       name: "aoRoughnessMetallic",
-                    //     ),
-                    //   ],
-                    // ),
+                    length: .5,
+                    centerPosition: PlayxPosition(x: -1, y: .4, z: -4),
+                    material: PlayxMaterial.asset(
+                      "assets/materials/textured_pbr.filamat",
+                      parameters: [
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_basecolor.png",
+                            type: TextureType.color,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "baseColor",
+                        ),
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_normal.png",
+                            type: TextureType.normal,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "normal",
+                        ),
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_ao_roughness_metallic.png",
+                            type: TextureType.data,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "aoRoughnessMetallic",
+                        ),
+                      ],
+                    ),
                   ),
                   Plane(
                     id: 2,
@@ -162,59 +163,86 @@ class _MyAppState extends State<MyApp> {
                         parameters: [
                           MaterialParameter.baseColor(color: Colors.brown)
                         ]),
+                  ),
+                  Sphere(
+                    id: 3,
+                    centerPosition: PlayxPosition(x: 0, y: 0, z: -4),
+                    radius: 1,
+                    material: PlayxMaterial.asset(
+                      "assets/materials/textured_pbr.filamat",
+                      parameters: [
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_basecolor.png",
+                            type: TextureType.color,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "baseColor",
+                        ),
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_normal.png",
+                            type: TextureType.normal,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "normal",
+                        ),
+                        MaterialParameter.texture(
+                          value: PlayxTexture.asset(
+                            "assets/materials/texture/floor_ao_roughness_metallic.png",
+                            type: TextureType.data,
+                            sampler: PlayxTextureSampler(anisotropy: 8),
+                          ),
+                          name: "aoRoughnessMetallic",
+                        ),
+                      ],
+                    ),
                   )
                 ],
                 onCreated: (Playx3dSceneController controller) async {
-                  await controller.addShape(
-                    Cube(
-                      id: 3,
-                      length: .8,
-                      centerPosition: PlayxPosition(x: -1, y: 1, z: -4),
-                    ),
-                  );
-
                   await Future.delayed(const Duration(seconds: 5), () async {
                     final ids = await controller.getCurrentShapesIds();
                     Fimber.d("get created shapes $ids");
                     controller.removeShape(2);
-                    controller.updateShape(
-                      1,
-                      Cube(
-                        id: 1,
-                        length: .5,
-                        centerPosition: PlayxPosition(x: 0, y: 0, z: -4),
-                        material: PlayxMaterial.asset(
-                          "assets/materials/textured_pbr.filamat",
-                          parameters: [
-                            MaterialParameter.texture(
-                              value: PlayxTexture.url(
-                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_basecolor.png",
-                                type: TextureType.color,
-                                sampler: PlayxTextureSampler(anisotropy: 8),
-                              ),
-                              name: "baseColor",
-                            ),
-                            MaterialParameter.texture(
-                              value: PlayxTexture.url(
-                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_normal.png",
-                                type: TextureType.normal,
-                                sampler: PlayxTextureSampler(anisotropy: 8),
-                              ),
-                              name: "normal",
-                            ),
-                            MaterialParameter.texture(
-                              value: PlayxTexture.url(
-                                "https://github.com/google/filament/raw/734d8ff85c4177db8cf4a8ba64d833f5dbb79acf/android/samples/sample-textured-object/src/main/res/drawable-nodpi/floor_ao_roughness_metallic.png",
-                                type: TextureType.data,
-                                sampler: PlayxTextureSampler(anisotropy: 8),
-                              ),
-                              name: "aoRoughnessMetallic",
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
                   });
+
+                  await controller.updateShape(
+                    3,
+                    Sphere(
+                      id: 3,
+                      centerPosition: PlayxPosition(x: 0, y: 1, z: -4),
+                      radius: 1.5,
+                      material: PlayxMaterial.asset(
+                        "assets/materials/textured_pbr.filamat",
+                        parameters: [
+                          MaterialParameter.texture(
+                            value: PlayxTexture.asset(
+                              "assets/materials/texture/floor_basecolor.png",
+                              type: TextureType.color,
+                              sampler: PlayxTextureSampler(anisotropy: 8),
+                            ),
+                            name: "baseColor",
+                          ),
+                          MaterialParameter.texture(
+                            value: PlayxTexture.asset(
+                              "assets/materials/texture/floor_normal.png",
+                              type: TextureType.normal,
+                              sampler: PlayxTextureSampler(anisotropy: 8),
+                            ),
+                            name: "normal",
+                          ),
+                          MaterialParameter.texture(
+                            value: PlayxTexture.asset(
+                              "assets/materials/texture/floor_ao_roughness_metallic.png",
+                              type: TextureType.data,
+                              sampler: PlayxTextureSampler(anisotropy: 8),
+                            ),
+                            name: "aoRoughnessMetallic",
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
                 onModelStateChanged: (state) {
                   Fimber.d(

@@ -6,7 +6,6 @@ import io.sourcya.playx_3d_scene.utils.convert
 abstract class Shape(
     val id:Int? = null,
      val centerPosition: Position? = null,
-     val size : Size? = null,
      val normal: Direction? = null,
      val material: Material? = null
 ) {

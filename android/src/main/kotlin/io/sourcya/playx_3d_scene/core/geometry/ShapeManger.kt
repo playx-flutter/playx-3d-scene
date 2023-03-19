@@ -1,10 +1,7 @@
 package io.sourcya.playx_3d_scene.core.geometry
 
 import io.sourcya.playx_3d_scene.core.material.MaterialManger
-import io.sourcya.playx_3d_scene.core.models.shapes.Cube
-import io.sourcya.playx_3d_scene.core.models.shapes.Direction
-import io.sourcya.playx_3d_scene.core.models.shapes.Plane
-import io.sourcya.playx_3d_scene.core.models.shapes.Shape
+import io.sourcya.playx_3d_scene.core.models.shapes.*
 import io.sourcya.playx_3d_scene.core.models.states.ShapeState
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
@@ -88,12 +85,32 @@ class ShapeManger(
         return Resource.Success("created shape successfully")
     }
 
+    private suspend fun createSphere(sphere: Sphere?): Resource<String> {
 
+        Timber.d("create shape sphere :$sphere id :${sphere?.id}")
+        if (sphere == null) return Resource.Error("sphere must be provided")
+        if (sphere.radius == null) return Resource.Error("radius must be provided")
+        if (sphere.centerPosition == null) return Resource.Error("position must be provided")
+
+        val materialInstanceResult = materialManger.getMaterialInstance(sphere.material)
+
+        val sphereGeometry = SphereGeometry.Builder(
+            center = sphere.centerPosition,
+            radius = sphere.radius,
+            stacks = sphere.stacks ?: SphereGeometry.DEFAULT_STACKS,
+            slices = sphere.slices  ?: SphereGeometry.DEFAULT_SLICES
+        )
+            .build(engine)
+            .apply {
+                setupScene(modelViewer, materialInstanceResult.data)
+            }
+
+
+        sphere.id?.let { currentShapesGeometries.put(it, sphereGeometry) }
+        return Resource.Success("created shape successfully")
+    }
     suspend fun updateShape(id: Int?, shape: Shape?): Resource<String> {
-        Timber.d("create shape update $id")
         currentShapeState.value= ShapeState.LOADING
-        Timber.d("GotMATERIAL : updateShape")
-
 
         if (id == null){
             currentShapeState.value= ShapeState.ERROR
@@ -102,10 +119,6 @@ class ShapeManger(
         if (shape == null){
             currentShapeState.value= ShapeState.ERROR
             return Resource.Error("shape must be provided")
-        }
-        if (shape.size == null) {
-            currentShapeState.value= ShapeState.ERROR
-            return Resource.Error("Size must be provided")
         }
         val currentShape = currentShapesGeometries.getOrElse(id) {
             //if it doesn't exist then create it
@@ -118,16 +131,25 @@ class ShapeManger(
                 Resource.Error(result.message ?: "could not update shape")
             }
         }
+        Timber.d("current shape : $currentShape , shape :$shape")
         when (currentShape) {
             is PlaneGeometry -> {
-
                 if (shape is Plane) {
                     val center = shape.centerPosition
-                        ?: return Resource.Error("shape center position must be provided")
+                    val size = shape.size
+
+                    if(center == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape center position must be provided")
+                    }
+                    if(size == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape size must be provided")
+                    }
                     currentShape.update(
                         engine,
                         center,
-                        shape.size,
+                        size ,
                         shape.normal ?: Direction(y = 1f)
                     )
                     val materialInstanceResult = materialManger.getMaterialInstance(shape.material)
@@ -163,11 +185,20 @@ class ShapeManger(
             is CubeGeometry -> {
                 if (shape is Cube) {
                     val center = shape.centerPosition
-                        ?: return Resource.Error("shape center position must be provided")
+                    val size = shape.size
+
+                    if(center == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape center position must be provided")
+                    }
+                    if(size == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape size must be provided")
+                    }
                     currentShape.update(
                         engine,
                         center,
-                        shape.size,
+                        size,
                     )
                     val materialInstanceResult = materialManger.getMaterialInstance(shape.material)
                     materialInstanceResult.data?.let {
@@ -192,7 +223,52 @@ class ShapeManger(
                 }
 
             }
+            is SphereGeometry ->{
+                if (shape is Sphere) {
+                    val center = shape.centerPosition
+                    val radius = shape.radius
+
+                    if(center == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape center position must be provided")
+                    }
+                    if(radius == null){
+                        currentShapeState.value= ShapeState.ERROR
+                        return Resource.Error("shape radius must be provided")
+                    }
+                    currentShape.update(
+                        engine,
+                        radius,
+                        center,
+                        shape.stacks?: SphereGeometry.DEFAULT_STACKS,
+                        shape.slices?: SphereGeometry.DEFAULT_SLICES,
+                        )
+                    val materialInstanceResult = materialManger.getMaterialInstance(shape.material)
+                    materialInstanceResult.data?.let {
+                        currentShape.updateMaterial(
+                            modelViewer,
+                            it
+                        )
+                    }
+                    currentShapeState.value= ShapeState.LOADED
+
+                    return Resource.Success("shape with id $id updated successfully")
+                } else {
+                    removeShape(id)
+                    val result = createShape(shape)
+                    return if (result is Resource.Success) {
+                        currentShapeState.value= ShapeState.LOADED
+                        Resource.Success("shape with id $id updated successfully")
+                    } else {
+                        currentShapeState.value= ShapeState.ERROR
+                        Resource.Error(result.message ?: "could not update shape")
+                    }
+                }
+
+            }
             else -> {
+                Timber.d("current shape : else")
+
                 currentShapeState.value= ShapeState.ERROR
                 return Resource.Error("could identify shape with id $id")
             }
@@ -231,11 +307,12 @@ class ShapeManger(
     }
 
 
-    suspend fun createShape(shape: Shape): Resource<String> {
+    private suspend fun createShape(shape: Shape): Resource<String> {
 
         return when (shape) {
             is Plane -> createPlane(shape)
             is Cube -> createCube(shape)
+            is Sphere -> createSphere(shape)
             else -> Resource.Error("couldn't identify shape")
         }
     }

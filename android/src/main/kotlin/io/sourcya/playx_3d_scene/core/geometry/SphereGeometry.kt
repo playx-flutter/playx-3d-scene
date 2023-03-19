@@ -48,11 +48,12 @@ class SphereGeometry private constructor(
      * @param center the center of the constructed sphere
      */
     class Builder(
-        radius: Float = 1.0f,
-        center: Position = Position(0.0f),
-        stacks: Int = DEFAULT_STACKS,
-        slices: Int = DEFAULT_SLICES
+       val radius: Float = 1.0f,
+       val center: Position = Position(0.0f),
+       val stacks: Int = DEFAULT_STACKS,
+       val slices: Int = DEFAULT_SLICES
     ) : Geometry.Builder(
+
         vertices = getVertices(radius,center,stacks,slices),
         submeshes = mutableListOf<Submesh>().apply {
             var v = 0
@@ -77,8 +78,11 @@ class SphereGeometry private constructor(
                 add(Submesh(triangleIndices))
                 v += slices + 1
             }
-        })
-
+        }) {
+        override fun build(engine: Engine): SphereGeometry {
+            return SphereGeometry(radius, center,stacks,slices, super.build(engine))
+        }
+    }
 
 
     fun update(
