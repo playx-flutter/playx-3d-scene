@@ -1,15 +1,16 @@
 package io.sourcya.playx_3d_scene.core.geometry
 
-import android.renderscript.Float3
 import com.google.android.filament.*
 import com.google.android.filament.utils.*
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.*
+import io.sourcya.playx_3d_scene.core.models.shapes.Direction
+import io.sourcya.playx_3d_scene.core.models.shapes.Submesh
+import io.sourcya.playx_3d_scene.core.models.shapes.Transform
+import io.sourcya.playx_3d_scene.core.models.shapes.Vertex
 import io.sourcya.playx_3d_scene.core.utils.geometry
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import timber.log.Timber
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import java.text.Normalizer.normalize
 
 private const val kPositionSize = 3 // x, y, z
 private const val kTangentSize = 4 // Quaternion: x, y, z, w
@@ -282,6 +283,15 @@ open class Geometry(
         Timber.d("Building ground : boundingBox  $boundingBox")
 
     }
+
+    fun removeGeometry(modelViewer:CustomModelViewer){
+
+        modelViewer.scene.removeEntity(renderable)
+        modelViewer.engine.destroyEntity(renderable)
+
+        modelViewer.engine.destroyGeometry(this)
+
+    }
 }
 
 val List<Vertex>.hasNormals get() = any { it.normal != null }
@@ -291,7 +301,10 @@ val List<Vertex>.hasColors get() = any { it.color != null }
 fun Engine.destroyGeometry(geometry: Geometry) {
     destroyVertexBuffer(geometry.vertexBuffer)
     destroyIndexBuffer(geometry.indexBuffer)
+
 }
+
+
 
 
 fun normalToTangent(normal: Float3): Quaternion {

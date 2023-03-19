@@ -5,6 +5,7 @@ import android.view.Surface
 import android.view.SurfaceView
 import android.view.TextureView
 import com.google.android.filament.*
+import com.google.android.filament.View
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.Animator
@@ -13,6 +14,7 @@ import io.sourcya.playx_3d_scene.core.camera.CameraManger
 import io.sourcya.playx_3d_scene.core.loader.ModelLoader
 import io.sourcya.playx_3d_scene.core.models.states.ModelState
 import io.sourcya.playx_3d_scene.core.models.states.SceneState
+import io.sourcya.playx_3d_scene.core.models.states.ShapeState
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
 
@@ -62,6 +64,9 @@ class CustomModelViewer(
     val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
     val currentSkyboxState = MutableStateFlow(SceneState.NONE)
     val currentLightState = MutableStateFlow(SceneState.NONE)
+    val currentGroundState = MutableStateFlow(SceneState.NONE)
+
+    val currentShapesState = MutableStateFlow(ShapeState.NONE)
 
     lateinit var  cameraManger :CameraManger
 
@@ -231,6 +236,9 @@ class CustomModelViewer(
 
     fun setSkyboxState(state : SceneState){
         currentSkyboxState.value = state
+    }
+    fun setGroundState(state : SceneState){
+        currentGroundState.value = state
     }
     companion object {
         val kDefaultObjectPosition = Float3(0.0f, 0.0f, -4.0f)

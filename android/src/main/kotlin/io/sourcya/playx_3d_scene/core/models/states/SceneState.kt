@@ -16,6 +16,10 @@ enum class SceneState {
             }
         }
 
+        fun getSceneState(first :SceneState , second:SceneState, third:SceneState): SceneState {
+            val firstAndSecondState = getSceneState(first,second)
+            return getSceneState(firstAndSecondState,third)
+        }
 
         private fun getValue(state:SceneState): Int {
            return when(state){

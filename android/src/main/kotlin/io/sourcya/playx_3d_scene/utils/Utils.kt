@@ -1,13 +1,16 @@
 package io.sourcya.playx_3d_scene.utils
 
-import com.google.gson.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import io.sourcya.playx_3d_scene.core.models.model.Model
-import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
-import io.sourcya.playx_3d_scene.core.models.scene.Skybox
 import io.sourcya.playx_3d_scene.core.models.deserialisers.LightDeserializer
 import io.sourcya.playx_3d_scene.core.models.deserialisers.ModelDeserializer
+import io.sourcya.playx_3d_scene.core.models.deserialisers.ShapeDeserializer
 import io.sourcya.playx_3d_scene.core.models.deserialisers.SkyboxDeserializer
+import io.sourcya.playx_3d_scene.core.models.model.Model
+import io.sourcya.playx_3d_scene.core.models.scene.Skybox
+import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
+import io.sourcya.playx_3d_scene.core.models.shapes.Shape
 
 inline fun <reified T> getMapValue(key: String, map : Map<String?, Any?>?, default: T? = null): T? {
     val item = map?.get(key)
@@ -22,6 +25,7 @@ val gson: Gson = GsonBuilder()
     .registerTypeAdapter(Model::class.java, ModelDeserializer())
     .registerTypeAdapter(Skybox::class.java, SkyboxDeserializer())
     .registerTypeAdapter(IndirectLight::class.java, LightDeserializer())
+    .registerTypeAdapter(Shape::class.java, ShapeDeserializer())
     .create()
 
 inline fun <reified T> Map<String?, Any?>.toObject(): T {

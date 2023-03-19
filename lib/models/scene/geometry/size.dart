@@ -1,17 +1,19 @@
 class PlayxSize {
-  double width = 0.0;
-  double height = 0.0;
+  double x = 0.0;
+  double y = 0.0;
+  double z = 0.0;
 
-  PlayxSize({this.width = 0.0, this.height = 0.0});
+  PlayxSize({this.x = 0.0, this.y = 0.0, this.z = 0.0});
 
   PlayxSize.all(double v) {
-    width = v;
-    height = v;
+    x = v;
+    y = v;
+    z = v;
   }
 
   Map<String, dynamic> toJson() => {
-        'x': width,
-        'y': 0,
-        'z': height,
+        'x': x,
+        'y': y,
+        'z': z,
       };
 }

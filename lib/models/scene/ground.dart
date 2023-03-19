@@ -1,22 +1,19 @@
-import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
 import 'package:playx_3d_scene/models/scene/geometry/size.dart';
+import 'package:playx_3d_scene/models/shapes/plane.dart';
 
-import 'geometry/position.dart';
-import 'material/material.dart';
-
-class Ground {
-  PlayxPosition? centerPosition;
-  PlayxSize size;
-  PlayxDirection? normal;
+class Ground extends Plane {
+  double width;
+  double height;
   bool isBelowModel = true;
-  PlayxMaterial? material;
 
   Ground(
-      {required this.size,
-      this.centerPosition,
-      this.normal,
+      {required this.width,
+      required this.height,
+      super.centerPosition,
+      super.normal,
       this.isBelowModel = false,
-      this.material});
+      super.material})
+      : super(size: PlayxSize(x: width, z: height), id: 0);
 
   Map<String, dynamic> toJson() => {
         'centerPosition': centerPosition?.toJson(),

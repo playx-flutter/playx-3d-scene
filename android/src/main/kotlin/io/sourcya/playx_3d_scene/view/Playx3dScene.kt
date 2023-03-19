@@ -8,12 +8,13 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
-import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
 import io.sourcya.playx_3d_scene.core.models.model.Model
 import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.core.models.shapes.Shape
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
+import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
 import timber.log.Timber
@@ -45,9 +46,11 @@ class Playx3dScene(
 
         val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
         val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)
+        val shapeList = getMapValue<List<Any>>("shapes",creationParams)
 
         val model = Model.fromMap(modelMap)
         val scene = Scene.fromMap(sceneMap)
+        val shapes = Shape.fromJson(shapeList)
 
         Timber.d("My Playx3dScenePlugin : model :$model scene $scene")
         modelViewer = ModelViewerController(
@@ -56,7 +59,8 @@ class Playx3dScene(
             iblProfiler,
             binding.flutterAssets,
             model = model,
-            scene = scene
+            scene = scene,
+            shapes = shapes
         )
 
 

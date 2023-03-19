@@ -8,6 +8,7 @@ import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';
 import 'package:playx_3d_scene/models/scene/material/material.dart';
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/models/shapes/shape.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 
 class Playx3dSceneController {
@@ -509,11 +510,42 @@ class Playx3dSceneController {
         {_updateGroundKey: ground?.toJson()},
       );
 
-  Future<String?> updateGroundMaterial(PlayxMaterial? material) =>
+  Future<String?> updateGroundMaterial(PlayxMaterial material) =>
       _channel.invokeMethod<String>(
         _updateGroundMaterial,
-        {_updateGroundMaterialKey: material?.toJson()},
+        {_updateGroundMaterialKey: material.toJson()},
       );
+
+  Future<String?> addShape(Shape shape) => _channel.invokeMethod<String>(
+        _addShape,
+        {_addShapeKey: shape.toJson()},
+      );
+
+  Future<String?> removeShape(int id) => _channel.invokeMethod<String>(
+        _removeShape,
+        {_removeShapeKey: id},
+      );
+
+  Future<String?> updateShape(int id, Shape shape) =>
+      _channel.invokeMethod<String>(
+        _updateShape,
+        {_updateShapeKey: shape.toJson(), _updateShapeIdKey: id},
+      );
+
+  Future<List<int>> getCurrentShapesIds() =>
+      _channel.invokeMethod<List<Object?>?>(
+        _getCurrentCreatedShapesIds,
+        {},
+      ).then((value) {
+        final List<int> ids = [];
+        value?.forEach((element) {
+          final id = element as int?;
+          if (id != null) {
+            ids.add(id);
+          }
+        });
+        return ids;
+      });
 }
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
@@ -650,3 +682,12 @@ const String _updateGroundKey = "UPDATE_GROUND_KEY";
 
 const String _updateGroundMaterial = "UPDATE_GROUND_MATERIAL";
 const String _updateGroundMaterialKey = "UPDATE_GROUND_MATERIAL_KEY";
+
+const String _addShape = "ADD_SHAPE";
+const String _addShapeKey = "ADD_SHAPE_KEY";
+const String _removeShape = "REMOVE_SHAPE";
+const String _removeShapeKey = "REMOVE_SHAPE_KEY";
+const String _updateShape = "UPDATE_SHAPE";
+const String _updateShapeKey = "UPDATE_SHAPE_KEY";
+const String _updateShapeIdKey = "UPDATE_SHAPE_ID_KEY";
+const String _getCurrentCreatedShapesIds = "CREATED_SHAPES_IDS";

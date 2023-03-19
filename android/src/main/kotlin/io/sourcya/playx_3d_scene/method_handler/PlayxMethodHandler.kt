@@ -5,6 +5,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
+import io.sourcya.playx_3d_scene.core.models.scene.Ground
 import io.sourcya.playx_3d_scene.core.models.scene.Light
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Camera
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Exposure
@@ -12,10 +13,11 @@ import io.sourcya.playx_3d_scene.core.models.scene.camera.LensProjection
 import io.sourcya.playx_3d_scene.core.models.scene.camera.Projection
 import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.models.scene.material.Material
-import io.sourcya.playx_3d_scene.core.models.scene.shapes.Ground
+import io.sourcya.playx_3d_scene.core.models.shapes.Shape
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -78,6 +80,10 @@ class PlayxMethodHandler(
             cameraRayCast-> getCameraRayCast(call,result)
             updateGround -> updateGround(call,result)
             updateGroundMaterial -> updateGroundMaterial(call,result)
+            addShape->addShape(call,result)
+            removeShape -> removeShape(call,result)
+            updateShape -> updateShape(call,result)
+            getCurrentCreatedShapesIds -> getCurrentCreatedShapesIds(result)
             else -> result.notImplemented()
         }
     }
@@ -933,6 +939,102 @@ class PlayxMethodHandler(
         }
     }
 
+
+
+    /**
+     *add Shape.
+     * it takes an shape object as an argument.
+     * and adds the shape to current rendered shapes.
+     */
+    private fun addShape(call: MethodCall, result: MethodChannel.Result) {
+        val shape = getValue<Map<String?, Any?>>(call, addShapeKey)?.toObject<Shape>()
+        coroutineScope.launch {
+            when (val resource = modelViewer?.addShape(shape)) {
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
+
+    /**
+     *remove Shape.
+     * it takes an shape id  as an argument.
+     * and removes the shape to current rendered shapes.
+     */
+    private fun removeShape(call: MethodCall, result: MethodChannel.Result) {
+        val id = getValue<Int>(call, removeShapeKey)
+
+        coroutineScope.launch {
+            when (val resource = modelViewer?.removeShape(id)) {
+                is Resource.Success -> {
+                    Timber.d("update shape remove with $id success ")
+
+                    result.success(resource.data)
+                }
+                is Resource.Error -> {
+                    Timber.d("update shape remove with $id error ${resource.message} ")
+                    result.error(resource.message ?: "", resource.message, null)
+                }
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+        }
+    }
+
+    /**
+     *add Shape.
+     * it takes an shape object as an argument.
+     * and adds the shape to current rendered shapes.
+     */
+    private fun updateShape(call: MethodCall, result: MethodChannel.Result) {
+        val shape = getValue<Map<String?, Any?>>(call, updateShapeKey)?.toObject<Shape>()
+        val id = getValue<Int>(call, updateShapeIdKey)
+
+        Timber.d("update shape with $id, $shape" )
+        coroutineScope.launch {
+            when (val resource = modelViewer?.updateShape(id, shape)) {
+                is Resource.Success ->{
+                    Timber.d("update shape with $id successed ")
+                 result.success(resource.data)
+                }
+                is Resource.Error -> {
+                    Timber.d("update shape with $id error ${resource.message} ")
+
+                    result.error(resource.message ?: "", resource.message, null)
+                }
+                else -> result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+        }
+    }
+
+    private fun getCurrentCreatedShapesIds( result: MethodChannel.Result) {
+        if(modelViewer != null) {
+            val ids = modelViewer.getCreatedShapesIds()
+            result.success(ids)
+        }else{
+            result.error(
+                    "Model viewer isn't initialized.",
+                    "Model viewer isn't initialized.",
+                    null
+                )
+            }
+
+    }
     fun startListeningToChannel() {
         methodChannel = MethodChannel(messenger, "${MAIN_CHANNEL_NAME}_$id")
         methodChannel?.setMethodCallHandler(this)
@@ -1104,7 +1206,15 @@ class PlayxMethodHandler(
         private const val updateGroundMaterial = "UPDATE_GROUND_MATERIAL"
         private const val updateGroundMaterialKey = "UPDATE_GROUND_MATERIAL_KEY"
 
+        private const val addShape = "ADD_SHAPE"
+        private const val addShapeKey = "ADD_SHAPE_KEY"
+        private const val removeShape = "REMOVE_SHAPE"
+        private const val removeShapeKey = "REMOVE_SHAPE_KEY"
+        private const val updateShape = "UPDATE_SHAPE"
+        private const val updateShapeKey = "UPDATE_SHAPE_KEY"
+        private const val updateShapeIdKey = "UPDATE_SHAPE_ID_KEY"
 
+        private const val getCurrentCreatedShapesIds = "CREATED_SHAPES_IDS"
 
 
 

@@ -1,4 +1,4 @@
-package io.sourcya.playx_3d_scene.core.models.scene.shapes
+package io.sourcya.playx_3d_scene.core.models.shapes
 
 import com.google.android.filament.Box
 import com.google.android.filament.utils.*
