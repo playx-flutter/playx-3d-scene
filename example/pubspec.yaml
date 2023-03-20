@@ -1,5 +1,5 @@
-name: playx_3d_scene_example
-description: Demonstrates how to use the playx_model_viewer plugin.
+name: my_fox_example
+description: Demonstrates how to use the playx 3d Scene plugin to show 3d model.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
@@ -11,8 +11,6 @@ dependencies:
 
   playx_3d_scene:
     path: ../
-  cupertino_icons: ^1.0.5
-  fimber: ^0.6.6
 
 dev_dependencies:
   flutter_test:
