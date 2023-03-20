@@ -2,18 +2,17 @@ package io.sourcya.playx_3d_scene.method_handler
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
-import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
+import io.sourcya.playx_3d_scene.core.Playx3dSceneController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.logging.StreamHandler
 
 class PlayxEventHandler (
     private val messenger: BinaryMessenger,
-    private val modelViewer: ModelViewerController?,
+    private val modelViewer: Playx3dSceneController?,
     private val id: Int,
     ) {
 
@@ -40,7 +39,6 @@ class PlayxEventHandler (
     private fun listenToModelLoading(){
         modelLoadingJob = coroutineScope.launch {
             modelViewer?.modelState?.collectLatest {
-                Timber.d("My Playx3dScenePlugin  listenToModelLoading method : $it")
                 modelLoadingEventSink?.success(it.toString())
 
             }
@@ -49,16 +47,13 @@ class PlayxEventHandler (
 
 
     private fun setUpModelStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : startListeningToEventChannels")
         modelLoadingEventChannel.setStreamHandler(object : StreamHandler(),
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 modelLoadingEventSink = events
-                Timber.d("My Playx3dScenePlugin : onListen : ${modelViewer?.modelState?.value?.toString()}")
                 modelLoadingEventSink?.success(modelViewer?.modelState?.value?.toString())
             }
             override fun onCancel(arguments: Any?) {
-                Timber.d("My Playx3dScenePlugin : onCancel")
                 modelLoadingEventSink =null
             }
         })
@@ -66,7 +61,6 @@ class PlayxEventHandler (
     }
 
     private fun cancelModelStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : stopListeningToEventChannels")
         modelLoadingJob?.cancel()
         modelLoadingEventChannel.setStreamHandler(null)
         modelLoadingEventSink = null
@@ -79,7 +73,6 @@ class PlayxEventHandler (
     private fun listenToSceneState(){
         sceneStateJob = coroutineScope.launch {
             modelViewer?.sceneState?.collectLatest {
-                Timber.d("My Playx3dScenePlugin  listenToSceneState method : $it")
                 sceneStateEventSink?.success(it.toString())
 
             }
@@ -88,16 +81,13 @@ class PlayxEventHandler (
 
 
     private fun setSceneStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : setSceneStateEventChannel")
         sceneStateEventChannel.setStreamHandler(object : StreamHandler(),
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 sceneStateEventSink = events
-                Timber.d("My Playx3dScenePlugin : sceneState onListen : ${modelViewer?.sceneState?.value?.toString()}")
                 sceneStateEventSink?.success(modelViewer?.sceneState?.value?.toString())
             }
             override fun onCancel(arguments: Any?) {
-                Timber.d("My Playx3dScenePlugin : onCancel")
                 sceneStateEventSink =null
             }
         })
@@ -105,7 +95,6 @@ class PlayxEventHandler (
     }
 
     private fun cancelSceneStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : cancelSceneStateEventChannel")
         sceneStateJob?.cancel()
         sceneStateEventChannel.setStreamHandler(null)
         sceneStateEventSink = null
@@ -120,7 +109,6 @@ class PlayxEventHandler (
     private fun listenToShapeState(){
         shapeStateJob = coroutineScope.launch {
             modelViewer?.shapeState?.collectLatest {
-                Timber.d("My Playx3dScenePlugin  listenToShapeState method : $it")
                 shapeStateEventSink?.success(it.toString())
             }
         }
@@ -128,16 +116,13 @@ class PlayxEventHandler (
 
 
     private fun setShapeStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : setSceneStateEventChannel")
         shapeStateEventChannel.setStreamHandler(object : StreamHandler(),
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 shapeStateEventSink = events
-                Timber.d("My Playx3dScenePlugin : sceneState onListen : ${modelViewer?.sceneState?.value?.toString()}")
                 shapeStateEventSink?.success(modelViewer?.shapeState?.value?.toString())
             }
             override fun onCancel(arguments: Any?) {
-                Timber.d("My Playx3dScenePlugin : onCancel")
                 shapeStateEventSink =null
             }
         })
@@ -145,7 +130,6 @@ class PlayxEventHandler (
     }
 
     private fun cancelShapeStateEventChannel(){
-        Timber.d("My Playx3dScenePlugin : cancelSceneStateEventChannel")
         shapeStateJob?.cancel()
         shapeStateEventChannel.setStreamHandler(null)
         shapeStateEventSink = null
@@ -168,16 +152,13 @@ class PlayxEventHandler (
 
 
     private fun setUpRendererEventChannel(){
-        Timber.d("My Playx3dScenePlugin : setUpRendererEventChannel")
 
         rendererEventChannel.setStreamHandler(object : StreamHandler(),
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 rendererEventSink = events
-                Timber.d("My Playx3dScenePlugin : onListen :}")
             }
             override fun onCancel(arguments: Any?) {
-                Timber.d("My Playx3dScenePlugin : onCancel")
                 rendererEventSink =null
             }
         })
@@ -185,7 +166,6 @@ class PlayxEventHandler (
     }
 
     private fun cancelRendererEventChannel(){
-        Timber.d("My Playx3dScenePlugin : stopListeningToEventChannels")
         rendererJob?.cancel()
         rendererEventChannel.setStreamHandler(null)
         rendererEventSink = null

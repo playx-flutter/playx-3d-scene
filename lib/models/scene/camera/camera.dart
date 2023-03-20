@@ -4,6 +4,7 @@ import 'package:playx_3d_scene/models/scene/camera/enums/camera_mode.dart';
 import 'package:playx_3d_scene/models/scene/camera/enums/fov.dart';
 import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
 import 'package:playx_3d_scene/models/scene/camera/projection.dart';
+import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 
 import 'lens_projection.dart';
 
@@ -15,11 +16,11 @@ class Camera {
   List<double>? shift;
 
   Mode? _mode;
-  List<double>? targetPosition;
-  List<double>? upVector;
+  PlayxPosition? targetPosition;
+  PlayxPosition? upVector;
   double? zoomSpeed;
   //orbit
-  List<double>? orbitHomePosition;
+  PlayxPosition? orbitHomePosition;
   List<double>? orbitSpeed;
   Fov? fovDirection;
   double? fovDegrees;
@@ -28,7 +29,7 @@ class Camera {
   List<double>? mapExtent;
   double? mapMinDistance;
   //freeflight
-  List<double>? flightStartPosition;
+  PlayxPosition? flightStartPosition;
   List<double>? flightStartOrientation;
   double? flightMaxMoveSpeed;
   num? flightSpeedSteps;
@@ -97,17 +98,17 @@ class Camera {
       "scaling": scaling,
       "shift": shift,
       "mode": _mode?.toName(),
-      "targetPosition": targetPosition,
-      "upVector": upVector,
+      "targetPosition": targetPosition?.toJson(),
+      "upVector": upVector?.toJson(),
       "zoomSpeed": zoomSpeed,
-      "orbitHomePosition": orbitHomePosition,
+      "orbitHomePosition": orbitHomePosition?.toJson(),
       "orbitSpeed": orbitSpeed,
       "fovDirection": fovDirection?.toName(),
       "fovDegrees": fovDegrees,
       "farPlane": farPlane,
       "mapExtent": mapExtent,
       "mapMinDistance": mapMinDistance,
-      "flightStartPosition": flightStartPosition,
+      "flightStartPosition": flightStartPosition?.toJson(),
       "flightStartOrientation": flightStartOrientation,
       "flightMaxMoveSpeed": flightMaxMoveSpeed,
       "flightSpeedSteps": flightSpeedSteps,

@@ -5,16 +5,16 @@ import android.view.Surface
 import android.view.SurfaceView
 import android.view.TextureView
 import com.google.android.filament.*
-import com.google.android.filament.View
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.Animator
 import com.google.android.filament.utils.Float3
-import io.sourcya.playx_3d_scene.core.camera.CameraManger
-import io.sourcya.playx_3d_scene.core.loader.ModelLoader
-import io.sourcya.playx_3d_scene.core.models.states.ModelState
-import io.sourcya.playx_3d_scene.core.models.states.SceneState
-import io.sourcya.playx_3d_scene.core.models.states.ShapeState
+import io.sourcya.playx_3d_scene.core.model.common.loader.ModelLoader
+import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
+import io.sourcya.playx_3d_scene.core.scene.camera.CameraManger
+import io.sourcya.playx_3d_scene.core.scene.common.model.SceneState
+import io.sourcya.playx_3d_scene.core.shape.common.model.Position
+import io.sourcya.playx_3d_scene.core.shape.common.model.ShapeState
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
 
@@ -68,7 +68,7 @@ class CustomModelViewer(
 
     val currentShapesState = MutableStateFlow(ShapeState.NONE)
 
-    lateinit var  cameraManger :CameraManger
+    lateinit var  cameraManger : CameraManger
 
 
 
@@ -100,6 +100,9 @@ class CustomModelViewer(
         displayHelper = DisplayHelper(surfaceView.context)
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(surfaceView)
+
+        setupView()
+
     }
 
     @Suppress("unused")
@@ -113,11 +116,14 @@ class CustomModelViewer(
         this.textureView = textureView
         cameraManger = CameraManger(this,view,textureView)
         view.camera = cameraManger.camera
-
         displayHelper = DisplayHelper(textureView.context)
         uiHelper.renderCallback = SurfaceCallback()
 
         uiHelper.attachTo(textureView)
+
+        setupView()
+
+
     }
 
 
@@ -126,7 +132,7 @@ class CustomModelViewer(
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: FloatArray?, scale: Float? ) {
+    fun transformToUnitCube(centerPoint: Position?, scale: Float? ) {
         modelLoader.transformToUnitCube(centerPoint,scale)
     }
 
@@ -137,6 +143,40 @@ class CustomModelViewer(
         modelLoader.clearRootTransform()
     }
 
+
+    private fun setupView(){
+        view.let {
+            //on mobile, better use lower quality color buffer
+            view.renderQuality = view.renderQuality.apply {
+                hdrColorBuffer = View.QualityLevel.MEDIUM
+            }
+
+            // dynamic resolution often helps a lot
+            view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
+                enabled = true
+                quality = View.QualityLevel.MEDIUM
+            }
+
+            // MSAA is needed with dynamic resolution MEDIUM
+            view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
+                enabled = true
+            }
+
+            // FXAA is pretty cheap and helps a lot
+            view.antiAliasing = View.AntiAliasing.FXAA
+
+            // ambient occlusion is the cheapest effect that adds a lot of quality
+            view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
+                enabled = true
+            }
+
+//        // bloom is pretty expensive but adds a fair amount of realism
+//        view.bloomOptions = view.bloomOptions.apply {
+//            enabled = true
+//        }
+
+        }
+    }
 
     fun getModelTransform()= modelLoader.getModelTransform()
 

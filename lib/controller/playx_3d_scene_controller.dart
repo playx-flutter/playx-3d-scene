@@ -3,6 +3,7 @@ import 'package:playx_3d_scene/models/scene/camera/camera.dart';
 import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
 import 'package:playx_3d_scene/models/scene/camera/lens_projection.dart';
 import 'package:playx_3d_scene/models/scene/camera/projection.dart';
+import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';
@@ -359,10 +360,10 @@ class Playx3dSceneController {
   /// and returns a message whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeModelCenterPosition(List<double>? centerPosition) =>
+  Future<String?> changeModelCenterPosition(PlayxPosition centerPosition) =>
       _channel.invokeMethod<String>(
         _changeModelPosition,
-        {_changeModelPositionKey: centerPosition},
+        {_changeModelPositionKey: centerPosition.toJson()},
       );
 
   /// Get current model state.

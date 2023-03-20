@@ -3,14 +3,14 @@ package io.sourcya.playx_3d_scene.utils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import io.sourcya.playx_3d_scene.core.models.deserialisers.LightDeserializer
-import io.sourcya.playx_3d_scene.core.models.deserialisers.ModelDeserializer
-import io.sourcya.playx_3d_scene.core.models.deserialisers.ShapeDeserializer
-import io.sourcya.playx_3d_scene.core.models.deserialisers.SkyboxDeserializer
-import io.sourcya.playx_3d_scene.core.models.model.Model
-import io.sourcya.playx_3d_scene.core.models.scene.Skybox
-import io.sourcya.playx_3d_scene.core.models.scene.light.IndirectLight
-import io.sourcya.playx_3d_scene.core.models.shapes.Shape
+import io.sourcya.playx_3d_scene.core.model.common.deserialisers.ModelDeserializer
+import io.sourcya.playx_3d_scene.core.model.common.model.Model
+import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.IndirectLight
+import io.sourcya.playx_3d_scene.core.scene.light.deserialisers.LightDeserializer
+import io.sourcya.playx_3d_scene.core.scene.skybox.deserialisers.SkyboxDeserializer
+import io.sourcya.playx_3d_scene.core.scene.skybox.model.Skybox
+import io.sourcya.playx_3d_scene.core.shape.common.deserialisers.ShapeDeserializer
+import io.sourcya.playx_3d_scene.core.shape.common.model.Shape
 
 inline fun <reified T> getMapValue(key: String, map : Map<String?, Any?>?, default: T? = null): T? {
     val item = map?.get(key)

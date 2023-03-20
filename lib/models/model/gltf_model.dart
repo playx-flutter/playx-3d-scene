@@ -1,4 +1,3 @@
-import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/model.dart';
 
 class GltfModel extends Model {
@@ -19,53 +18,25 @@ class GltfModel extends Model {
 
   String? postfix;
 
-  GltfModel._(
-      {super.assetPath,
-      this.prefix,
-      this.postfix,
-      super.url,
-      super.fallback,
-      super.scale,
-      super.centerPosition,
-      super.animation});
-
-  factory GltfModel.asset(
+  GltfModel.asset(
     String path, {
-    String? prefix,
-    String? postfix,
-    Model? fallback,
-    double? scale,
-    List<double>? centerPosition,
-    PlayxAnimation? animation,
-  }) {
-    return GltfModel._(
-        assetPath: path,
-        prefix: prefix,
-        postfix: postfix,
-        fallback: fallback,
-        scale: scale,
-        centerPosition: centerPosition,
-        animation: animation);
-  }
+    this.prefix,
+    this.postfix,
+    super.fallback,
+    super.scale,
+    super.centerPosition,
+    super.animation,
+  }) : super(assetPath: path);
 
-  factory GltfModel.url(
+  GltfModel.url(
     String url, {
-    String? prefix,
-    String? postfix,
-    Model? fallback,
-    double? scale,
-    List<double>? centerPosition,
-    PlayxAnimation? animation,
-  }) {
-    return GltfModel._(
-        url: url,
-        prefix: prefix,
-        postfix: postfix,
-        fallback: fallback,
-        scale: scale,
-        centerPosition: centerPosition,
-        animation: animation);
-  }
+    this.prefix,
+    this.postfix,
+    super.fallback,
+    super.scale,
+    super.centerPosition,
+    super.animation,
+  }) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() => {
@@ -75,7 +46,7 @@ class GltfModel extends Model {
         'postfix': postfix,
         'fallback': fallback?.toJson(),
         'scale': scale,
-        'centerPosition': centerPosition,
+        'centerPosition': centerPosition?.toJson(),
         'animation': animation?.toJson(),
         'isGlb': false,
       };

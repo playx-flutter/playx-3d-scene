@@ -11,6 +11,7 @@ class Plane extends Shape {
       super.normal,
       super.material});
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'centerPosition': centerPosition?.toJson(),

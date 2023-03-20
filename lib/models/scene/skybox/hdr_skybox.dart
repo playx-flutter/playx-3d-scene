@@ -4,23 +4,17 @@ class HdrSkybox extends Skybox {
   ///Indicates whether the sun should be rendered. The sun can only be rendered
   ///if there is at least one light of type LightManager.Type.SUN in the Scene.
   ///The default value is false.
-  bool showSun;
+  bool showSun = false;
 
-  HdrSkybox._({super.assetPath, super.url, this.showSun = false});
-
-  factory HdrSkybox.asset(
+  HdrSkybox.asset(
     String path, {
     bool showSun = false,
-  }) {
-    return HdrSkybox._(assetPath: path, showSun: showSun);
-  }
+  }) : super(assetPath: path);
 
-  factory HdrSkybox.url(
+  HdrSkybox.url(
     String url, {
     bool showSun = false,
-  }) {
-    return HdrSkybox._(url: url, showSun: showSun);
-  }
+  }) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() => {

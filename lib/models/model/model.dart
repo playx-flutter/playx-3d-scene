@@ -1,6 +1,7 @@
 import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/glb_model.dart';
 import 'package:playx_3d_scene/models/model/gltf_model.dart';
+import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 
 abstract class Model {
   /// glb or gltf model asset path to be loaded from assets.
@@ -21,7 +22,7 @@ abstract class Model {
   /// must provide x, y, and z coordinates.
   /// as an array of 3 elements.
   /// default is [ 0, 0, -4 ]
-  List<double>? centerPosition;
+  PlayxPosition? centerPosition;
 
   ///control what animation should be played by glb or gltf model animation.
   PlayxAnimation? animation;

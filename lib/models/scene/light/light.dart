@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
+import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/light/light_type.dart';
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
 
@@ -31,7 +33,7 @@ class Light {
   /// x – Light's position x coordinate in world space. The default is 0.
   /// y – Light's position y coordinate in world space. The default is 0.
   /// z – Light's position z coordinate in world space. The default is 0.
-  List<double>? position;
+  PlayxPosition? position;
 
   ///Sets the initial direction of a light in world space.
   /// The light direction is specified in world space and should be a unit vector.
@@ -40,7 +42,7 @@ class Light {
   // x – light's direction x coordinate (default is 0)
   // y – light's direction y coordinate (default is -1)
   // z – light's direction z coordinate (default is 0)
-  List<double>? direction;
+  PlayxDirection? direction;
 
   ///Whether this light casts light (enabled by default)
   // In some situations it can be useful to have a light in the scene
@@ -113,8 +115,8 @@ class Light {
         'color': color?.toHex(),
         'colorTemperature': colorTemperature,
         'intensity': intensity,
-        'position': position,
-        'direction': direction,
+        'position': position?.toJson(),
+        'direction': direction?.toJson(),
         'castLight': castLight,
         'castShadows': castShadows,
         'falloffRadius': falloffRadius,

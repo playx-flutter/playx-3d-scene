@@ -54,15 +54,6 @@ object ImageClient {
     }
 
 
-
-
-
-
-
-
-
-
-
     private suspend fun loadImage(context : Context, uri: Uri) = suspendCancellableCoroutine {
         Glide.with(context)
             .asBitmap()

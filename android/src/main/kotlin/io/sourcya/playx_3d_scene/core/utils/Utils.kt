@@ -3,7 +3,7 @@ package io.sourcya.playx_3d_scene.core.utils
 import android.content.Context
 import com.google.android.filament.RenderableManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
-import io.sourcya.playx_3d_scene.core.geometry.Geometry
+import io.sourcya.playx_3d_scene.core.shape.common.geometry.Geometry
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
 

@@ -8,26 +8,14 @@ class PlayxAnimation {
   /// auto play : decides whether to play the animation automatically or not
   /// default is true.
   bool autoPlay;
-  Duration? duration;
 
-  PlayxAnimation._(
-      {this.index, this.name, this.autoPlay = true, this.duration});
+  PlayxAnimation.byIndex(this.index, {this.autoPlay = true});
 
-  factory PlayxAnimation.byIndex(int index,
-      {bool autoPlay = true, Duration? duration}) {
-    return PlayxAnimation._(
-        index: index, autoPlay: autoPlay, duration: duration);
-  }
-
-  factory PlayxAnimation.byName(String? name,
-      {bool autoPlay = true, Duration? duration}) {
-    return PlayxAnimation._(name: name, autoPlay: autoPlay, duration: duration);
-  }
+  PlayxAnimation.byName(this.name, {this.autoPlay = true});
 
   Map<String, dynamic> toJson() => {
         'index': index,
         'name': name,
         'autoPlay': autoPlay,
-        'duration': duration,
       };
 }

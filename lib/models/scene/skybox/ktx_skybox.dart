@@ -1,15 +1,9 @@
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
 
 class KtxSkybox extends Skybox {
-  KtxSkybox._({super.assetPath, super.url});
+  KtxSkybox.asset(String path) : super(assetPath: path);
 
-  factory KtxSkybox.asset(String path) {
-    return KtxSkybox._(assetPath: path);
-  }
-
-  factory KtxSkybox.url(String url) {
-    return KtxSkybox._(url: url);
-  }
+  KtxSkybox.url(String url) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() => {

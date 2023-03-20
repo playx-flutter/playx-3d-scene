@@ -14,6 +14,7 @@ class Cube extends Shape {
     _size = PlayxSize.all(length);
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'centerPosition': centerPosition?.toJson(),

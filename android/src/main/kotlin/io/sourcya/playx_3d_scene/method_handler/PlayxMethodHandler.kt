@@ -4,27 +4,27 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
-import io.sourcya.playx_3d_scene.core.models.scene.Ground
-import io.sourcya.playx_3d_scene.core.models.scene.Light
-import io.sourcya.playx_3d_scene.core.models.scene.camera.Camera
-import io.sourcya.playx_3d_scene.core.models.scene.camera.Exposure
-import io.sourcya.playx_3d_scene.core.models.scene.camera.LensProjection
-import io.sourcya.playx_3d_scene.core.models.scene.camera.Projection
-import io.sourcya.playx_3d_scene.core.models.scene.light.DefaultIndirectLight
-import io.sourcya.playx_3d_scene.core.models.scene.material.Material
-import io.sourcya.playx_3d_scene.core.models.shapes.Shape
+import io.sourcya.playx_3d_scene.core.Playx3dSceneController
+import io.sourcya.playx_3d_scene.core.scene.camera.model.Camera
+import io.sourcya.playx_3d_scene.core.scene.camera.model.Exposure
+import io.sourcya.playx_3d_scene.core.scene.camera.model.LensProjection
+import io.sourcya.playx_3d_scene.core.scene.camera.model.Projection
+import io.sourcya.playx_3d_scene.core.scene.ground.model.Ground
+import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.DefaultIndirectLight
+import io.sourcya.playx_3d_scene.core.scene.light.model.Light
+import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
+import io.sourcya.playx_3d_scene.core.shape.common.model.Position
+import io.sourcya.playx_3d_scene.core.shape.common.model.Shape
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.*
-import timber.log.Timber
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
  */
 class PlayxMethodHandler(
     private val messenger: BinaryMessenger,
-    private val modelViewer: ModelViewerController?,
+    private val modelViewer: Playx3dSceneController?,
     private val id: Int,
 ) : MethodCallHandler {
 
@@ -567,7 +567,7 @@ class PlayxMethodHandler(
      * and updates current model center position.
      */
     private fun changeModelPosition(call: MethodCall, result: MethodChannel.Result) {
-        val position: FloatArray? = getValue<List<Double>>(call, changeModelPositionKey)?.map { it.toFloat() }?.toFloatArray()
+        val position = getValue<Map<String?, Any?>>(call, changeModelPositionKey)?.toObject<Position>()
         coroutineScope.launch {
             when (val resource = modelViewer?.changeModelPosition(position)) {
                 is Resource.Success -> result.success(resource.data)
@@ -973,15 +973,8 @@ class PlayxMethodHandler(
 
         coroutineScope.launch {
             when (val resource = modelViewer?.removeShape(id)) {
-                is Resource.Success -> {
-                    Timber.d("update shape remove with $id success ")
-
-                    result.success(resource.data)
-                }
-                is Resource.Error -> {
-                    Timber.d("update shape remove with $id error ${resource.message} ")
-                    result.error(resource.message ?: "", resource.message, null)
-                }
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
@@ -1000,18 +993,10 @@ class PlayxMethodHandler(
         val shape = getValue<Map<String?, Any?>>(call, updateShapeKey)?.toObject<Shape>()
         val id = getValue<Int>(call, updateShapeIdKey)
 
-        Timber.d("update shape with $id, $shape" )
         coroutineScope.launch {
             when (val resource = modelViewer?.updateShape(id, shape)) {
-                is Resource.Success ->{
-                    Timber.d("update shape with $id successed ")
-                 result.success(resource.data)
-                }
-                is Resource.Error -> {
-                    Timber.d("update shape with $id error ${resource.message} ")
-
-                    result.error(resource.message ?: "", resource.message, null)
-                }
+                is Resource.Success -> result.success(resource.data)
+                is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
                     "Model viewer isn't initialized.",
                     "Model viewer isn't initialized.",
