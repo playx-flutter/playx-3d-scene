@@ -9,7 +9,6 @@ import io.sourcya.playx_3d_scene.core.shape.common.material.model.PlayxTexture
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.colorOf
 import io.sourcya.playx_3d_scene.utils.convertToObject
-import timber.log.Timber
 
 
 suspend fun MaterialInstance.setParameter(materialParameter: MaterialParameter, textureLoader: TextureLoader) {
@@ -221,17 +220,11 @@ suspend fun MaterialInstance.setParameter(materialParameter: MaterialParameter, 
             }
         }
         MaterialType.TEXTURE -> {
-            Timber.d("loading Textures : MaterialType.TEXTURE value :${materialParameter.value} ")
-
             if (materialParameter.value is Map<*, *>) {
                 val playxTexture = materialParameter.value.convertToObject<PlayxTexture>()
-
                 val textureResult = textureLoader.loadTexture(playxTexture)
-                Timber.d("loading Textures:${playxTexture} with result :${textureResult.message} Success :${textureResult is Resource.Success}")
                 if (textureResult is Resource.Success) {
                     val texture = textureResult.data
-                    Timber.d("loading Textures set :texture :${texture == null}}")
-
                     if (texture != null) {
                         val sampler = playxTexture.sampler?.toTextureSampler() ?: TextureSampler()
                         setParameter(materialParameter.name, texture, sampler)

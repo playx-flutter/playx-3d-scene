@@ -2,13 +2,9 @@ package io.sourcya.playx_3d_scene.core.shape.common.geometry
 
 import com.google.android.filament.*
 import com.google.android.filament.utils.*
-import io.sourcya.playx_3d_scene.core.shape.common.model.Direction
-import io.sourcya.playx_3d_scene.core.shape.common.model.Submesh
-import io.sourcya.playx_3d_scene.core.shape.common.model.Transform
-import io.sourcya.playx_3d_scene.core.shape.common.model.Vertex
+import io.sourcya.playx_3d_scene.core.shape.common.model.*
 import io.sourcya.playx_3d_scene.core.utils.geometry
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
-import timber.log.Timber
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
@@ -37,9 +33,7 @@ open class Geometry(
     ) {
     var renderable = EntityManager.get().create()
 
-    init {
-        Timber.d("Building ground Plane init2 gemotry bounding box $boundingBox ")
-    }
+
 
     open class Builder(val vertices: List<Vertex>, val submeshes: List<Submesh>) {
         open fun build(engine: Engine): Geometry {
@@ -104,7 +98,6 @@ open class Geometry(
                 .indexCount(submeshes.sumOf { it.triangleIndices.size })
                 .bufferType(IndexBuffer.Builder.IndexType.UINT)
                 .build(engine)
-            Timber.d("Building ground :return Geometry Gemoetry builder build")
 
             return Geometry(vertexBuffer, indexBuffer).apply {
                 setBufferVertices(engine, this@Builder.vertices)
@@ -141,42 +134,14 @@ open class Geometry(
         val builder = RenderableManager.Builder(
             submeshes.size
         ).geometry(this)
-        Timber.d("materialInstance : setupScene")
             for(i in 0..submeshes.size){
-                Timber.d("materialInstance : material : $i")
                 builder.material(i,materialInstance)
             }
         builder.build(modelViewer.engine, renderable)
     }
-    fun updateScene(modelViewer: CustomModelViewer, materialInstance: MaterialInstance?) {
-        modelViewer.scene.removeEntity(renderable)
-        modelViewer.engine.destroyEntity(renderable)
-
-        renderable = EntityManager.get().create()
-        val builder = RenderableManager.Builder(
-            submeshes.size
-        ).geometry(this)
-        Timber.d("materialInstance : setupScene")
-
-        materialInstance?.let {
-            for(i in 0..submeshes.size){
-                Timber.d("materialInstance : material : $i")
-                builder.material(i,it)
-            }
-        }
-
-        builder.build(modelViewer.engine, renderable)
-
-        // Add the entity to the scene to render it
-        modelViewer.scene.addEntity(renderable)
-    }
 
     fun setBufferVertices(engine: Engine, vertices: List<Vertex>) {
-        Timber.d("Building ground :return Geometry  setBufferVertices")
-
         this.vertices = vertices
-        Timber.d("plane get vertices : $vertices")
-
         var bufferIndex = 0
 
         // Create position Buffer
@@ -192,7 +157,6 @@ open class Geometry(
 
         // Create tangents Buffer
         if (vertices.hasNormals) {
-            Timber.d("plane has normals ")
             bufferIndex++
             vertexBuffer.setBufferAt(
                 engine, bufferIndex,
@@ -246,7 +210,6 @@ open class Geometry(
 
 
     fun setBufferIndices(engine: Engine, submeshes: List<Submesh>) {
-        Timber.d("Building ground :return Geometry  setBufferIndices")
 
         this.submeshes = submeshes
 
@@ -276,11 +239,8 @@ open class Geometry(
         val halfExtent = (maxPosition - minPosition) * 0.5f
         val center = minPosition + halfExtent
 
-        Timber.d("Building ground : boundingBox build: $center , $halfExtent")
 
         boundingBox = Box(center.toFloatArray(), halfExtent.toFloatArray())
-        Timber.d("Building ground : boundingBox initializeD ?:  ${::boundingBox == null}")
-        Timber.d("Building ground : boundingBox  $boundingBox")
 
     }
 
@@ -322,7 +282,6 @@ fun normalToTangent(normal: Float3): Quaternion {
         tangent = normalize(tangent)
         bitangent = normalize(cross(normal, tangent))
     }
-    Timber.d("plane normal = $normal")
     // Rotation of a 4x4 Transformation Matrix is represented by the top-left 3x3 elements.
     return Transform(right = tangent, up = bitangent, forward = normal).toQuaternion()
 }

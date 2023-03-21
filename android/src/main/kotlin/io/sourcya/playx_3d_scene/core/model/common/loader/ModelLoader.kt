@@ -4,6 +4,7 @@ import com.google.android.filament.EntityManager
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
+import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
 import java.nio.Buffer
@@ -101,11 +102,8 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         withContext(Dispatchers.Main) {
             destroyModel()
             asset = assetLoader.createAsset(buffer)
-
             withContext(Dispatchers.IO) {
-                fetchResourcesJob = CoroutineScope(Dispatchers.IO).launch {
-                    fetchResources(asset!!, callback)
-                }
+                    asset?.let { fetchResources(it, callback) }
             }
 
             if (transformToUnitCube) {
@@ -133,21 +131,23 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     private suspend fun fetchResources(
         asset: FilamentAsset,
         callback: suspend (String) -> Buffer?
-    ) {
+    ) :Resource<String>{
         val items = HashMap<String, Buffer>()
         val resourceUris = asset.resourceUris
-        for (resourceUri in resourceUris) {
-            items[resourceUri] = callback(resourceUri) ?: continue
-        }
 
+        for (resourceUri in resourceUris) {
+            items[resourceUri] = callback(resourceUri) ?: throw Exception("couldn't load file from :$resourceUri")
+        }
         withContext(Dispatchers.Main) {
             for ((uri, buffer) in items) {
                 resourceLoader.addResourceData(uri, buffer)
             }
-            resourceLoader.asyncBeginLoad(asset)
-            modelViewer.animator = asset.instance.animator
-            asset.releaseSourceData()
+                resourceLoader.asyncBeginLoad(asset)
+                modelViewer.animator = asset.instance.animator
+                asset.releaseSourceData()
         }
+
+        return Resource.Success("Loaded Gltf model successfully")
     }
 
 

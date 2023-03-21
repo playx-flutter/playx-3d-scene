@@ -7,7 +7,7 @@ class GltfModel extends Model {
   /// LIKE if in the gltf file, the image path is textures/texture.png
   /// and in assets the image path is assets/models/textures/texture.png
   /// you will need to add prefix to be 'assets/models/'.
-  String? prefix;
+  String prefix = "";
 
   /// postfix path for gltf image assets.
   /// if the images path that in the gltf file different from the flutter asset path,
@@ -16,12 +16,12 @@ class GltfModel extends Model {
   /// and in assets the image path is assets/textures/texture.png
   /// you will need to add prefix to be '.png'.
 
-  String? postfix;
+  String postfix = "";
 
   GltfModel.asset(
     String path, {
-    this.prefix,
-    this.postfix,
+    this.prefix = "",
+    this.postfix = "",
     super.fallback,
     super.scale,
     super.centerPosition,
@@ -30,8 +30,8 @@ class GltfModel extends Model {
 
   GltfModel.url(
     String url, {
-    this.prefix,
-    this.postfix,
+    this.prefix = "",
+    this.postfix = "",
     super.fallback,
     super.scale,
     super.centerPosition,
@@ -42,8 +42,8 @@ class GltfModel extends Model {
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'prefix': prefix,
-        'postfix': postfix,
+        'pathPrefix': prefix,
+        'pathPostfix': postfix,
         'fallback': fallback?.toJson(),
         'scale': scale,
         'centerPosition': centerPosition?.toJson(),
