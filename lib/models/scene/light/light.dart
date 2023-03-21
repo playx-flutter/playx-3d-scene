@@ -5,6 +5,32 @@ import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/light/light_type.dart';
 import 'package:playx_3d_scene/utils/utils.dart';
 
+/// An object that allows you to create a light source in the scene, such as a sun or street lights.
+/// Light types - Lights come in three flavors:
+///
+/// directional lights
+/// point lights
+/// spot lights
+/// -Directional lights
+/// Directional lights have a direction, but don't have a position.
+/// All light rays are parallel and come from infinitely far away and from everywhere. Typically a directional light is used to simulate the sun.
+/// Directional lights and spot lights are able to cast shadows.
+/// To create a directional light use LightType.DIRECTIONAL or LightType.SUN, both are similar,
+/// but the later also draws a sun's disk in the sky and its reflection on glossy objects.
+/// -Point lights
+/// Unlike directional lights, point lights have a position but emit light in all directions.
+///The intensity of the light diminishes with the inverse square of the distance to the light.
+/// -Spot lights
+/// Spot lights are similar to point lights but the light they emit is limited to a cone defined by spotLightCone and the light's direction.
+/// A spot light is therefore defined by a position, a direction and inner and outer cones.
+/// The spot light's influence is limited to inside the outer cone. The inner cone defines the light's falloff attenuation.
+/// A physically correct spot light is a little difficult to use because changing the outer angle of the cone changes the illumination levels,
+/// as the same amount of light is spread over a changing volume.
+/// The coupling of illumination and the outer cone means that an artist cannot tweak the influence cone of a spot light without also changing the perceived illumination.
+/// It therefore makes sense to provide artists with a parameter to disable this coupling.
+///
+///Defaults to Directional light with  colorTemperature = 6_500.0, intensity = 100_000.0f,
+// And direction = Direction(x:0.0, y:-1.0,z: 0.0), castShadows = true, cast light=false
 class Light {
   ///Denotes the type of the light being created.
   LightType type;

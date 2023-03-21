@@ -1,3 +1,4 @@
+/// An object that represents shape size in the world space.
 class PlayxSize {
   double x = 0.0;
   double y = 0.0;

@@ -1,7 +1,16 @@
 import 'dart:ui';
 
+import 'package:playx_3d_scene/models/scene/skybox/ktx_skybox.dart';
 import 'package:playx_3d_scene/utils/utils.dart';
 
+/// An object that represents the skybox to be rendered in the scene.
+///
+/// See Also:
+/// [KtxSkybox] : creates Skybox from Ktx file.
+/// [HdrSkybox] : creates Skybox from Hdr file.
+/// [ColoredSkybox] : creates Skybox from color.
+///
+/// Defaults to transparent skybox.
 abstract class Skybox {
   /// environment asset path used to load KTX FILE from assets.
   /// changes scene skybox from images converted to KTX FILE.

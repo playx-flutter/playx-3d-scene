@@ -1,23 +1,30 @@
 import 'package:playx_3d_scene/models/model/model.dart';
 
+/// represents object of model that will be loaded from gltf file.
+///
+///glTF is a 3D file format maintained by the Khronos Group.
 class GltfModel extends Model {
-  /// prefix for gltf image assets.
+  /// Prefix path for gltf image assets to be added before image path.
+  ///
   /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add prefix to the images path to be before the image.
-  /// LIKE if in the gltf file, the image path is textures/texture.png
+  /// consider adding prefix to the images path to be before the image.
+  ///
+  /// For example, if the image path in the gltf file is textures/texture.png
   /// and in assets the image path is assets/models/textures/texture.png
   /// you will need to add prefix to be 'assets/models/'.
   String prefix = "";
 
-  /// postfix path for gltf image assets.
+  /// postfix path for gltf image assets to be added after image path.
+  ///
   /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add postfix to the images path to be after the image.
-  /// LIKE if in the gltf file, the image path is assets/textures/texture
+  /// consider adding to the images path to be after the image.
+  ///
+  /// For example, if the image path in the gltf file is assets/textures/texture
   /// and in assets the image path is assets/textures/texture.png
   /// you will need to add prefix to be '.png'.
-
   String postfix = "";
 
+  /// creates gltf model based on glb file asset path.
   GltfModel.asset(
     String path, {
     this.prefix = "",
@@ -28,6 +35,7 @@ class GltfModel extends Model {
     super.animation,
   }) : super(assetPath: path);
 
+  /// creates gltf model based on glb file url.
   GltfModel.url(
     String url, {
     this.prefix = "",

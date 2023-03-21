@@ -1,3 +1,4 @@
+///Type of the direct that will be used in the scene.
 enum LightType {
   /// Directional light that also draws a sun's disk in the sky.
   sun,

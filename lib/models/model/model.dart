@@ -3,28 +3,35 @@ import 'package:playx_3d_scene/models/model/glb_model.dart';
 import 'package:playx_3d_scene/models/model/gltf_model.dart';
 import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 
+/// represents base object of the 3d model to be rendered.
+///
+/// see also :
+///
+/// [GlbModel] :
+/// [GltfModel] :
 abstract class Model {
-  /// glb or gltf model asset path to be loaded from assets.
+  /// Model asset path to load the model from assets.
   String? assetPath;
 
-  /// glb or gltf model url to be loaded from url.
+  /// Model url to load the model from url.
   String? url;
 
-  /// glb or gltf model to be shown when error happened.
+  /// Model to be shown when error happened.
+  ///
+  /// can be whether [GlbModel] or [GltfModel]
   Model? fallback;
 
-  /// scale of the model
-  /// should be greater than 0
-  // default is 1f;
+  /// Scale Factor of the model.
+  /// Should be greater than 0.
+  /// Defaults to 1.
   double? scale;
 
-  ///centerPoint Coordinate of center point of unit cube,
-  /// must provide x, y, and z coordinates.
-  /// as an array of 3 elements.
-  /// default is [ 0, 0, -4 ]
+  ///Coordinate of center point position of the rendered model.
+  ///
+  /// Defaults to ( x:0,y: 0,z: -4)
   PlayxPosition? centerPosition;
 
-  ///control what animation should be played by glb or gltf model animation.
+  ///Controls what animation should be played by the rendered model.
   PlayxAnimation? animation;
 
   Model(

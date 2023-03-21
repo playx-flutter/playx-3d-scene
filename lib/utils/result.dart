@@ -1,3 +1,4 @@
+///Wrapper class to hold data on success or message on failure
 class Result<T> {
   T? data;
   String? message;

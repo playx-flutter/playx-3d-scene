@@ -1,3 +1,5 @@
+///Camera Modes that operates on.
+///Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
 enum Mode {
   orbit,
   map,

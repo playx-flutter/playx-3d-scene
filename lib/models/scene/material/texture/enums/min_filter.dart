@@ -1,3 +1,7 @@
+///Minification filter to be used.
+///
+// ///See Also:
+// ///[PlayxTextureSampler]
 enum MinFilter {
   /// No filtering. Nearest neighbor is used.
   nearest,

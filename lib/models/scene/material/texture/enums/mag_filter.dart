@@ -1,3 +1,9 @@
+import 'package:playx_3d_scene/models/scene/material/texture/texture_sampler.dart';
+
+///Magnification filter to be used.
+///
+///See Also:
+///[PlayxTextureSampler]
 enum MagFilter {
   /// No filtering. Nearest neighbor is used.
   nearest,

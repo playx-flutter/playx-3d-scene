@@ -873,7 +873,10 @@ class PlayxMethodHandler(
 
         coroutineScope.launch {
             when (val resource = modelViewer?.raycast(x,y)) {
-                is Resource.Success -> result.success(resource.data)
+                is Resource.Success -> {
+                    val data = resource.data?.toList()?.map { it.toDouble() }
+                    result.success(data)
+                }
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
                     "Model viewer isn't initialized.",
