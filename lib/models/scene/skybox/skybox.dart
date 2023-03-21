@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:playx_3d_scene/utils/utils.dart';
+
 abstract class Skybox {
   /// environment asset path used to load KTX FILE from assets.
   /// changes scene skybox from images converted to KTX FILE.
@@ -26,12 +28,6 @@ abstract class Skybox {
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'color': color?.toHex(),
+        'color': color?.toHex,
       };
-}
-
-extension ColorsExt on Color {
-  String toHex() {
-    return "#${value.toRadixString(16)}";
-  }
 }

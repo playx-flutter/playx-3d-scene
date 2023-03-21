@@ -1,4 +1,5 @@
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class ColoredSkybox extends Skybox {
   ColoredSkybox({required super.color});

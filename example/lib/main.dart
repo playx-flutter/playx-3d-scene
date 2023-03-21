@@ -22,6 +22,7 @@ import 'package:playx_3d_scene/models/shapes/sphere.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
 import 'package:playx_3d_scene/models/state/scene_state.dart';
 import 'package:playx_3d_scene/models/state/shape_state.dart';
+import 'package:playx_3d_scene/utils/result.dart';
 import 'package:playx_3d_scene/view/playx_3d_scene.dart';
 
 void main() {
@@ -189,8 +190,32 @@ class _MyAppState extends State<MyApp> {
                 )
               ],
               onCreated: (Playx3dSceneController controller) async {
-                Future.delayed(const Duration(seconds: 5), () {
-                  controller.changeAnimationByIndex(1);
+                Future.delayed(const Duration(seconds: 5), () async {
+                  Result<int?> result =
+                      await controller.changeAnimationByIndex(1);
+                  final result2 = await controller.getAnimationNames();
+                  final result3 = await controller
+                      .changeSkyboxByHdrAsset("assets/envs/field.hdr");
+
+                  if (result.isSuccess()) {
+                    final data = result.data;
+                    print("success :$data");
+                  } else {
+                    print(result.message);
+                  }
+
+                  if (result2.isSuccess()) {
+                    final data = result2.data;
+                    print("success :$data");
+                  } else {
+                    print(result2.message);
+                  }
+                  if (result3.isSuccess()) {
+                    final data = result3.data;
+                    print("success :$data");
+                  } else {
+                    print(result3.message);
+                  }
                 });
               },
               onModelStateChanged: (state) {

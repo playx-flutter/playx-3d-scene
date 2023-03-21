@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
 import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/light/light_type.dart';
-import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class Light {
   ///Denotes the type of the light being created.

@@ -1,4 +1,5 @@
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class HdrSkybox extends Skybox {
   ///Indicates whether the sun should be rendered. The sun can only be rendered

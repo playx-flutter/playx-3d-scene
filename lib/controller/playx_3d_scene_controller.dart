@@ -8,9 +8,10 @@ import 'package:playx_3d_scene/models/scene/ground.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/light/light.dart';
 import 'package:playx_3d_scene/models/scene/material/material.dart';
-import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
 import 'package:playx_3d_scene/models/shapes/shape.dart';
 import 'package:playx_3d_scene/models/state/model_state.dart';
+import 'package:playx_3d_scene/utils/result.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class Playx3dSceneController {
   int id;
@@ -29,59 +30,74 @@ class Playx3dSceneController {
   /// and returns the new animation index.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<int?> changeAnimationByIndex(int? index) => _channel.invokeMethod<int>(
-        _changeAnimationByIndex,
-        {_changeAnimationByIndexKey: index},
-      );
+  Future<Result<int>> changeAnimationByIndex(int? index) {
+    final data = _channel.invokeMethod<int>(
+      _changeAnimationByIndex,
+      {_changeAnimationByIndexKey: index},
+    );
+    return handleError(data);
+  }
 
   /// Changes the current animation by animation name.
   /// it takes an String? animation name as an argument.
   /// and returns the new animation index.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<int?> changeAnimationByName(String? animationName) =>
-      _channel.invokeMethod<int>(
-        _changeAnimationByName,
-        {_changeAnimationByNameKey: animationName},
-      );
+  Future<Result<int>> changeAnimationByName(String? animationName) {
+    final data = _channel.invokeMethod<int>(
+      _changeAnimationByName,
+      {_changeAnimationByNameKey: animationName},
+    );
+    return handleError(data);
+  }
 
   /// Get current model animation names.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<List<String?>?> getAnimationNames() =>
-      _channel.invokeMethod<List<Object?>>(
-        _getAnimationNames,
-        {},
-      ).then((value) {
-        return value?.map((e) => e as String?).toList();
-      });
+  Future<Result<List<String>>> getAnimationNames() {
+    final data = _channel.invokeMethod<List<Object?>>(
+      _getAnimationNames,
+      {},
+    ).then((value) {
+      return value?.map((e) => e as String).toList();
+    });
+    return handleError(data);
+  }
 
   /// Get current model animation count.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<int?> getAnimationCount() => _channel.invokeMethod<int>(
-        _getAnimationCount,
-        {},
-      );
+  Future<Result<int>> getAnimationCount() {
+    final data = _channel.invokeMethod<int>(
+      _getAnimationCount,
+      {},
+    );
+    return handleError(data);
+  }
 
   /// Get current animation index.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<int?> getCurrentAnimationIndex() => _channel.invokeMethod<int>(
-        _getCurrentAnimationIndex,
-        {},
-      );
+  Future<Result<int>> getCurrentAnimationIndex() {
+    final data = _channel.invokeMethod<int>(
+      _getCurrentAnimationIndex,
+      {},
+    );
+    return handleError(data);
+  }
 
   /// Get Animation name by given index.
   /// it takes an Int? index as an argument.
   /// and returns the animation name.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> getAnimationNameByIndex(int? index) =>
-      _channel.invokeMethod<String>(
-        _getAnimationNameByIndex,
-        {_getAnimationNameByIndexKey: index},
-      );
+  Future<Result<String>> getAnimationNameByIndex(int? index) {
+    final data = _channel.invokeMethod<String>(
+      _getAnimationNameByIndex,
+      {_getAnimationNameByIndexKey: index},
+    );
+    return handleError(data);
+  }
 
   //skybox
 
@@ -92,11 +108,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByKtxAsset(String? path) =>
-      _channel.invokeMethod<String>(
-        _changeSkyboxByAsset,
-        {_changeSkyboxByAssetKey: path},
-      );
+  Future<Result<String>> changeSkyboxByKtxAsset(String? path) {
+    final data = _channel.invokeMethod<String>(
+      _changeSkyboxByAsset,
+      {_changeSkyboxByAssetKey: path},
+    );
+    return handleError(data);
+  }
 
   /// change environment by given asset path.
   /// it takes an String? asset path as an argument.
@@ -105,11 +123,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByKtxUrl(String? url) =>
-      _channel.invokeMethod<String>(
-        _changeSkyboxByUrl,
-        {_changeSkyboxByUrlKey: url},
-      );
+  Future<Result<String>> changeSkyboxByKtxUrl(String? url) {
+    final data = _channel.invokeMethod<String>(
+      _changeSkyboxByUrl,
+      {_changeSkyboxByUrlKey: url},
+    );
+    return handleError(data);
+  }
 
   /// change skybox by given asset path.
   /// it takes an String? asset path as an argument.
@@ -118,11 +138,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByHdrAsset(String? path) =>
-      _channel.invokeMethod<String>(
-        _changeSkyboxByHdrAsset,
-        {_changeSkyboxByHdrAssetKey: path},
-      );
+  Future<Result<String>> changeSkyboxByHdrAsset(String? path) {
+    final data = _channel.invokeMethod<String>(
+      _changeSkyboxByHdrAsset,
+      {_changeSkyboxByHdrAssetKey: path},
+    );
+    return handleError(data);
+  }
 
   /// change skybox by given asset path.
   /// it takes an String? asset path as an argument.
@@ -131,11 +153,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxByHdrUrl(String? url) =>
-      _channel.invokeMethod<String>(
-        _changeSkyboxByHdrUrl,
-        {_changeSkyboxByHdrUrlKey: url},
-      );
+  Future<Result<String>> changeSkyboxByHdrUrl(String? url) {
+    final data = _channel.invokeMethod<String>(
+      _changeSkyboxByHdrUrl,
+      {_changeSkyboxByHdrUrlKey: url},
+    );
+    return handleError(data);
+  }
 
   /// change environment by given color.
   /// it takes an Color?  as an argument.
@@ -143,22 +167,26 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSkyboxColor(Color? color) {
+  Future<Result<String>> changeSkyboxColor(Color? color) {
     final environmentColor = color?.toHex;
-    return _channel.invokeMethod<String>(
+    final data = _channel.invokeMethod<String>(
       _changeSkyboxColor,
       {_changeSkyboxColorKey: environmentColor},
     );
+    return handleError(data);
   }
 
   /// change environment to be transparent.
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeToTransparentSkybox() => _channel.invokeMethod<String>(
-        _changeToTransparentSkybox,
-        {},
-      );
+  Future<Result<String>> changeToTransparentSkybox() {
+    final data = _channel.invokeMethod<String>(
+      _changeToTransparentSkybox,
+      {},
+    );
+    return handleError(data);
+  }
 
   //light
 
@@ -171,15 +199,17 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeIndirectLightByKtxAsset(
-          {required String? path, double? intensity}) =>
-      _channel.invokeMethod<String>(
-        _changeLightByKtxAsset,
-        {
-          _changeLightByKtxAssetKey: path,
-          _changeLightByKtxAssetIntensityKey: intensity
-        },
-      );
+  Future<Result<String>> changeIndirectLightByKtxAsset(
+      {required String? path, double? intensity}) {
+    final data = _channel.invokeMethod<String>(
+      _changeLightByKtxAsset,
+      {
+        _changeLightByKtxAssetKey: path,
+        _changeLightByKtxAssetIntensityKey: intensity
+      },
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light by given ktx file url .
   /// it takes an String? asset path as an argument.
@@ -190,15 +220,17 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeIndirectLightByKtxUrl(
-          {required String? url, double? intensity}) =>
-      _channel.invokeMethod<String>(
-        _changeLightByKtxUrl,
-        {
-          _changeLightByKtxUrlKey: url,
-          _changeLightByKtxUrlIntensityKey: intensity
-        },
-      );
+  Future<Result<String>> changeIndirectLightByKtxUrl(
+      {required String? url, double? intensity}) {
+    final data = _channel.invokeMethod<String>(
+      _changeLightByKtxUrl,
+      {
+        _changeLightByKtxUrlKey: url,
+        _changeLightByKtxUrlIntensityKey: intensity
+      },
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light by given HDR asset path.
   /// it takes an String? asset path as an argument.
@@ -209,15 +241,17 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeIndirectLightByHdrAsset(
-          {required String? path, double? intensity}) =>
-      _channel.invokeMethod<String>(
-        _changeLightByHdrAsset,
-        {
-          _changeLightByHdrAssetKey: path,
-          _changeLightByHdrAssetIntensityKey: intensity
-        },
-      );
+  Future<Result<String>> changeIndirectLightByHdrAsset(
+      {required String? path, double? intensity}) {
+    final data = _channel.invokeMethod<String>(
+      _changeLightByHdrAsset,
+      {
+        _changeLightByHdrAssetKey: path,
+        _changeLightByHdrAssetIntensityKey: intensity
+      },
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light by given Hdr file url .
   /// it takes an String? asset path as an argument.
@@ -228,15 +262,17 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeIndirectLightByHdrUrl(
-          {required String? url, double? intensity}) =>
-      _channel.invokeMethod<String>(
-        _changeLightByHdrUrl,
-        {
-          _changeLightByHdrUrlKey: url,
-          _changeLightByHdrUrlIntensityKey: intensity
-        },
-      );
+  Future<Result<String>> changeIndirectLightByHdrUrl(
+      {required String? url, double? intensity}) {
+    final data = _channel.invokeMethod<String>(
+      _changeLightByHdrUrl,
+      {
+        _changeLightByHdrUrlKey: url,
+        _changeLightByHdrUrlIntensityKey: intensity
+      },
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light by given intensity.
   /// it takes light intensity as an argument.
@@ -244,12 +280,14 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeIndirectLightByDefaultIndirectLight(
-          IndirectLight indirectLight) =>
-      _channel.invokeMethod<String>(
-        _changeLightByIndirectLight,
-        {_changeLightByIndirectLightKey: indirectLight.toJson()},
-      );
+  Future<Result<String>> changeIndirectLightByDefaultIndirectLight(
+      IndirectLight indirectLight) {
+    final data = _channel.invokeMethod<String>(
+      _changeLightByIndirectLight,
+      {_changeLightByIndirectLightKey: indirectLight.toJson()},
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light to the default intensity which is 40_000.0.
   /// with radiance bands of 1.0, radiance sh of [1,1,1]
@@ -257,11 +295,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeToDefaultIndirectLight() =>
-      _channel.invokeMethod<String>(
-        _changeToDefaultIndirectLight,
-        {},
-      );
+  Future<Result<String>> changeToDefaultIndirectLight() {
+    final data = _channel.invokeMethod<String>(
+      _changeToDefaultIndirectLight,
+      {},
+    );
+    return handleError(data);
+  }
 
   /// change scene light by given intensity.
   /// it takes light light as an argument.
@@ -269,11 +309,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeSceneLight(Light light) =>
-      _channel.invokeMethod<String>(
-        _changeLight,
-        {_changeLightKey: light.toJson()},
-      );
+  Future<Result<String>> changeSceneLight(Light light) {
+    final data = _channel.invokeMethod<String>(
+      _changeLight,
+      {_changeLightKey: light.toJson()},
+    );
+    return handleError(data);
+  }
 
   /// change scene indirect light to the default intensity which is 100_000.0.
   /// with color temperature bands of 6_500.0,
@@ -282,10 +324,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeToDefaultLight() => _channel.invokeMethod<String>(
-        _changeToDefaultLight,
-        {},
-      );
+  Future<Result<String>> changeToDefaultLight() {
+    final data = _channel.invokeMethod<String>(
+      _changeToDefaultLight,
+      {},
+    );
+    return handleError(data);
+  }
 
   //load model
 
@@ -295,11 +340,13 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> loadGlbModelFromAssets(String? path) =>
-      _channel.invokeMethod<String>(
-        _loadGlbModelFromAssets,
-        {_loadGlbModelFromAssetsPathKey: path},
-      );
+  Future<Result<String>> loadGlbModelFromAssets(String? path) {
+    final data = _channel.invokeMethod<String>(
+      _loadGlbModelFromAssets,
+      {_loadGlbModelFromAssetsPathKey: path},
+    );
+    return handleError(data);
+  }
 
   /// Load glb model from url.
   /// it takes url as an argument.
@@ -307,11 +354,13 @@ class Playx3dSceneController {
   /// and returns a message whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> loadGlbModelFromUrl(String? url) =>
-      _channel.invokeMethod<String>(
-        _loadGlbModelFromUrl,
-        {_loadGlbModelFromUrlKey: url},
-      );
+  Future<Result> loadGlbModelFromUrl(String? url) {
+    final data = _channel.invokeMethod<String>(
+      _loadGlbModelFromUrl,
+      {_loadGlbModelFromUrlKey: url},
+    );
+    return handleError(data);
+  }
 
   /// Load gltf  model from assets.
   /// it takes asset path as an argument.
@@ -331,16 +380,18 @@ class Playx3dSceneController {
   /// and returns whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> loadGltfModelFromAssets(String? path,
-          {String? imagePathPrefix, String? imagePathPostfix}) =>
-      _channel.invokeMethod<String>(
-        _loadGltfModelFromAssets,
-        {
-          _loadGltfModelFromAssetsPathKey: path,
-          _loadGltfModelFromAssetsPrefixPathKey: imagePathPrefix,
-          _loadGltfModelFromAssetsPostfixPathKey: imagePathPostfix
-        },
-      );
+  Future<Result<String>> loadGltfModelFromAssets(String? path,
+      {String? imagePathPrefix, String? imagePathPostfix}) {
+    final data = _channel.invokeMethod<String>(
+      _loadGltfModelFromAssets,
+      {
+        _loadGltfModelFromAssetsPathKey: path,
+        _loadGltfModelFromAssetsPrefixPathKey: imagePathPrefix,
+        _loadGltfModelFromAssetsPostfixPathKey: imagePathPostfix
+      },
+    );
+    return handleError(data);
+  }
 
   /// change model scale.
   /// it takes scale as an argument.
@@ -348,11 +399,13 @@ class Playx3dSceneController {
   /// and returns a message whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeModelScale(double? scale) =>
-      _channel.invokeMethod<String>(
-        _changeModelScale,
-        {_changeModelScaleKey: scale},
-      );
+  Future<Result<String>> changeModelScale(double? scale) {
+    final data = _channel.invokeMethod<String>(
+      _changeModelScale,
+      {_changeModelScaleKey: scale},
+    );
+    return handleError(data);
+  }
 
   /// change model center position.
   /// it takes list of double of [x,y,z] coordinates as an argument.
@@ -360,193 +413,260 @@ class Playx3dSceneController {
   /// and returns a message whether it succeeded or not.
   /// it can throw an exception if something went wrong.
   /// you can catch the platform exception to get the error message.
-  Future<String?> changeModelCenterPosition(PlayxPosition centerPosition) =>
-      _channel.invokeMethod<String>(
-        _changeModelPosition,
-        {_changeModelPositionKey: centerPosition.toJson()},
-      );
+  Future<Result<String>> changeModelCenterPosition(
+      PlayxPosition centerPosition) {
+    final data = _channel.invokeMethod<String>(
+      _changeModelPosition,
+      {_changeModelPositionKey: centerPosition.toJson()},
+    );
+    return handleError(data);
+  }
 
   /// Get current model state.
-  /// it can throw an exception if something went wrong.
-  /// you can catch the platform exception to get the error message.
-  Future<ModelState> getCurrentModelState() async {
+  Future<Result<ModelState>> getCurrentModelState() async {
     try {
       final state = await _channel.invokeMethod<String>(
         _getCurrentModelState,
         {},
       );
-      return ModelState.from(state);
-    } catch (error) {
-      return ModelState.none;
+      return Result.success(ModelState.from(state));
+    } on PlatformException catch (err) {
+      return Result.error(err.message);
+    } catch (err) {
+      return Result.error("Something went wrong");
     }
   }
 
-  Future<String?> updateCamera(Camera? camera) => _channel.invokeMethod<String>(
-        _updateCamera,
-        {_updateCameraKey: camera?.toJson()},
-      );
-
-  Future<String?> updateExposure(Exposure? exposure) =>
-      _channel.invokeMethod<String>(
-        _updateExposure,
-        {_updateExposureKey: exposure?.toJson()},
-      );
-
-  Future<String?> updateProjection(Projection? projection) =>
-      _channel.invokeMethod<String>(
-        _updateProjection,
-        {_updateProjectionKey: projection?.toJson()},
-      );
-
-  Future<String?> updateLensProjection(LensProjection? lensProjection) =>
-      _channel.invokeMethod<String>(
-        _updateLensProjection,
-        {_updateLensProjectionKey: lensProjection?.toJson()},
-      );
-
-  Future<String?> updateCameraShift(List<double>? shift) =>
-      _channel.invokeMethod<String>(
-        _updateCameraShift,
-        {_updateCameraShiftKey: shift},
-      );
-
-  Future<String?> updateCameraScaling(List<double>? scaling) =>
-      _channel.invokeMethod<String>(
-        _updateCameraScaling,
-        {_updateCameraScalingKey: scaling},
-      );
-
-  Future<String?> setDefaultCamera() => _channel.invokeMethod<String>(
-        _setDefaultCamera,
-        {},
-      );
-
-  Future<String?> lookAtDefaultCameraPosition() =>
-      _channel.invokeMethod<String>(
-        _lookAtDefaultPosition,
-        {},
-      );
-
-  Future<List<double>?> getCameraLookAtPositions() async {
-    final positions = await _channel.invokeMethod<List<Object?>?>(
-      _getLookAt,
-      {},
+  Future<Result<String>> updateCamera(Camera? camera) {
+    final data = _channel.invokeMethod<String>(
+      _updateCamera,
+      {_updateCameraKey: camera?.toJson()},
     );
-    return positions?.map((e) => (e as double)).toList();
+    return handleError(data);
   }
 
-  Future<String?> lookAtCameraPosition({
+  Future<Result<String>> updateExposure(Exposure? exposure) {
+    final data = _channel.invokeMethod<String>(
+      _updateExposure,
+      {_updateExposureKey: exposure?.toJson()},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> updateProjection(Projection? projection) {
+    final data = _channel.invokeMethod<String>(
+      _updateProjection,
+      {_updateProjectionKey: projection?.toJson()},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> updateLensProjection(LensProjection? lensProjection) {
+    final data = _channel.invokeMethod<String>(
+      _updateLensProjection,
+      {_updateLensProjectionKey: lensProjection?.toJson()},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> updateCameraShift(List<double>? shift) {
+    final data = _channel.invokeMethod<String>(
+      _updateCameraShift,
+      {_updateCameraShiftKey: shift},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> updateCameraScaling(List<double>? scaling) {
+    final data = _channel.invokeMethod<String>(
+      _updateCameraScaling,
+      {_updateCameraScalingKey: scaling},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> setDefaultCamera() {
+    final data = _channel.invokeMethod<String>(
+      _setDefaultCamera,
+      {},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<String>> lookAtDefaultCameraPosition() {
+    final data = _channel.invokeMethod<String>(
+      _lookAtDefaultPosition,
+      {},
+    );
+    return handleError(data);
+  }
+
+  Future<Result<List<double>>> getCameraLookAtPositions() async {
+    try {
+      final positions = await _channel.invokeMethod<List<Object?>?>(
+        _getLookAt,
+        {},
+      );
+      final result = positions?.map((e) => (e as double)).toList();
+      return Result.success(result);
+    } on PlatformException catch (err) {
+      return Result.error(err.message);
+    } catch (err) {
+      return Result.error("Something went wrong");
+    }
+  }
+
+  Future<Result> lookAtCameraPosition({
     List<double>? eyePos,
     List<double>? targetPos,
     List<double>? upwardPos,
-  }) =>
-      _channel.invokeMethod<String>(
-        _lookAtPosition,
-        {
-          _eyeArrayKey: eyePos,
-          _targetArrayKey: targetPos,
-          _upwardArrayKey: upwardPos
-        },
-      );
+  }) {
+    final data = _channel.invokeMethod<String>(
+      _lookAtPosition,
+      {
+        _eyeArrayKey: eyePos,
+        _targetArrayKey: targetPos,
+        _upwardArrayKey: upwardPos
+      },
+    );
+    return handleError(data);
+  }
 
-  Future<String?> scrollCameraTo({
+  Future<Result<String>> scrollCameraTo({
     num? x,
     num? y,
     double? scrollDelta,
-  }) =>
-      _channel.invokeMethod<String>(
-        _cameraScroll,
-        {
-          _cameraScrollXKey: x,
-          _cameraScrollYKey: y,
-          _cameraScrollDeltaKey: scrollDelta
-        },
-      );
+  }) {
+    final data = _channel.invokeMethod<String>(
+      _cameraScroll,
+      {
+        _cameraScrollXKey: x,
+        _cameraScrollYKey: y,
+        _cameraScrollDeltaKey: scrollDelta
+      },
+    );
+    return handleError(data);
+  }
 
-  Future<String?> beginCameraGrab({
+  Future<Result<String>> beginCameraGrab({
     num? x,
     num? y,
     bool? strafe,
-  }) =>
-      _channel.invokeMethod<String>(
-        _cameraGrabBegin,
-        {
-          _cameraGrabBeginXKey: x,
-          _cameraGrabBeginYKey: y,
-          _cameraGrabBeginStrafeKey: strafe
-        },
-      );
+  }) {
+    final data = _channel.invokeMethod<String>(
+      _cameraGrabBegin,
+      {
+        _cameraGrabBeginXKey: x,
+        _cameraGrabBeginYKey: y,
+        _cameraGrabBeginStrafeKey: strafe
+      },
+    );
+    return handleError(data);
+  }
 
-  Future<String?> updateCameraGrab({
+  Future<Result<String>> updateCameraGrab({
     num? x,
     num? y,
-  }) =>
-      _channel.invokeMethod<String>(
-        _cameraGrabUpdate,
-        {
-          _cameraGrabUpdateXKey: x,
-          _cameraGrabUpdateYKey: y,
-        },
-      );
+  }) {
+    final data = _channel.invokeMethod<String>(
+      _cameraGrabUpdate,
+      {
+        _cameraGrabUpdateXKey: x,
+        _cameraGrabUpdateYKey: y,
+      },
+    );
+    return handleError(data);
+  }
 
-  Future<String?> endCameraGrab() => _channel.invokeMethod<String>(
-        _cameraGrabEnd,
-        {},
-      );
+  Future<Result<String>> endCameraGrab() {
+    final data = _channel.invokeMethod<String>(
+      _cameraGrabEnd,
+      {},
+    );
+    return handleError(data);
+  }
 
-  Future<String?> getCameraRayCast({
+  Future<Result<String>> getCameraRayCast({
     num? x,
     num? y,
-  }) =>
-      _channel.invokeMethod<String>(
-        _cameraRayCast,
-        {
-          _cameraRayCastXKey: x,
-          _cameraRayCastYKey: y,
-        },
-      );
+  }) {
+    final data = _channel.invokeMethod<String>(
+      _cameraRayCast,
+      {
+        _cameraRayCastXKey: x,
+        _cameraRayCastYKey: y,
+      },
+    );
+    return handleError(data);
+  }
 
-  Future<String?> updateGround(Ground? ground) => _channel.invokeMethod<String>(
-        _updateGround,
-        {_updateGroundKey: ground?.toJson()},
-      );
+  Future<Result<String>> updateGround(Ground? ground) {
+    final data = _channel.invokeMethod<String>(
+      _updateGround,
+      {_updateGroundKey: ground?.toJson()},
+    );
+    return handleError(data);
+  }
 
-  Future<String?> updateGroundMaterial(PlayxMaterial material) =>
-      _channel.invokeMethod<String>(
-        _updateGroundMaterial,
-        {_updateGroundMaterialKey: material.toJson()},
-      );
+  Future<Result<String>> updateGroundMaterial(PlayxMaterial material) {
+    final data = _channel.invokeMethod<String>(
+      _updateGroundMaterial,
+      {_updateGroundMaterialKey: material.toJson()},
+    );
+    return handleError(data);
+  }
 
-  Future<String?> addShape(Shape shape) => _channel.invokeMethod<String>(
-        _addShape,
-        {_addShapeKey: shape.toJson()},
-      );
+  Future<Result<String>> addShape(Shape shape) {
+    final data = _channel.invokeMethod<String>(
+      _addShape,
+      {_addShapeKey: shape.toJson()},
+    );
+    return handleError(data);
+  }
 
-  Future<String?> removeShape(int id) => _channel.invokeMethod<String>(
-        _removeShape,
-        {_removeShapeKey: id},
-      );
+  Future<Result<String>> removeShape(int id) {
+    final data = _channel.invokeMethod<String>(
+      _removeShape,
+      {_removeShapeKey: id},
+    );
+    return handleError(data);
+  }
 
-  Future<String?> updateShape(int id, Shape shape) =>
-      _channel.invokeMethod<String>(
-        _updateShape,
-        {_updateShapeKey: shape.toJson(), _updateShapeIdKey: id},
-      );
+  Future<Result<String>> updateShape(int id, Shape shape) {
+    final data = _channel.invokeMethod<String>(
+      _updateShape,
+      {_updateShapeKey: shape.toJson(), _updateShapeIdKey: id},
+    );
+    return handleError(data);
+  }
 
-  Future<List<int>> getCurrentShapesIds() =>
-      _channel.invokeMethod<List<Object?>?>(
-        _getCurrentCreatedShapesIds,
-        {},
-      ).then((value) {
-        final List<int> ids = [];
-        value?.forEach((element) {
-          final id = element as int?;
-          if (id != null) {
-            ids.add(id);
-          }
-        });
-        return ids;
+  Future<Result<List<int>>> getCurrentShapesIds() {
+    final data = _channel.invokeMethod<List<Object?>?>(
+      _getCurrentCreatedShapesIds,
+      {},
+    ).then((value) {
+      final List<int> ids = [];
+      value?.forEach((element) {
+        final id = element as int?;
+        if (id != null) {
+          ids.add(id);
+        }
       });
+      return ids;
+    });
+    return handleError(data);
+  }
+}
+
+Future<Result<T>> handleError<T>(Future<T?> data) async {
+  try {
+    final result = await data;
+    return Result.success(result);
+  } on PlatformException catch (err) {
+    return Result.error(err.message);
+  } catch (err) {
+    return Result.error("Something went wrong");
+  }
 }
 
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";

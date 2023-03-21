@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:playx_3d_scene/models/scene/material/material_type.dart';
 import 'package:playx_3d_scene/models/scene/material/texture/texture.dart';
-import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class MaterialParameter {
   String name;

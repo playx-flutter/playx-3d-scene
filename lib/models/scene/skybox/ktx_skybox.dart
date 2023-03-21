@@ -1,4 +1,5 @@
 import 'package:playx_3d_scene/models/scene/skybox/skybox.dart';
+import 'package:playx_3d_scene/utils/utils.dart';
 
 class KtxSkybox extends Skybox {
   KtxSkybox.asset(String path) : super(assetPath: path);
