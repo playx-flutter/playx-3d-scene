@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:playx_3d_scene/models/scene/skybox/colored_skybox.dart';
+import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
 import 'package:playx_3d_scene/models/scene/skybox/ktx_skybox.dart';
 import 'package:playx_3d_scene/utils/utils.dart';
 

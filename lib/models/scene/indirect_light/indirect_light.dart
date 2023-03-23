@@ -1,3 +1,5 @@
+import 'package:playx_3d_scene/models/scene/indirect_light/default_indirect_light.dart';
+import 'package:playx_3d_scene/models/scene/indirect_light/hdr_indirect_light.dart';
 import 'package:playx_3d_scene/models/scene/indirect_light/ktx_indirect_light.dart';
 
 /// An object that represents Indirect Light which is used to simulate environment lighting, a form of global illumination.

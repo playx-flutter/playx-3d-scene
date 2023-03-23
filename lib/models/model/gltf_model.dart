@@ -24,7 +24,7 @@ class GltfModel extends Model {
   /// you will need to add prefix to be '.png'.
   String postfix = "";
 
-  /// creates gltf model based on glb file asset path.
+  /// creates gltf model based on the  file asset path.
   GltfModel.asset(
     String path, {
     this.prefix = "",
@@ -35,7 +35,8 @@ class GltfModel extends Model {
     super.animation,
   }) : super(assetPath: path);
 
-  /// creates gltf model based on glb file url.
+  /// creates gltf model based on glb file url .
+  /// currently supporting only .zip file format.
   GltfModel.url(
     String url, {
     this.prefix = "",

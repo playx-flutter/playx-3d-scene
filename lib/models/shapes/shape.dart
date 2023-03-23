@@ -1,6 +1,9 @@
 import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
 import 'package:playx_3d_scene/models/scene/geometry/position.dart';
 import 'package:playx_3d_scene/models/scene/material/material.dart';
+import 'package:playx_3d_scene/models/shapes/cube.dart';
+import 'package:playx_3d_scene/models/shapes/plane.dart';
+import 'package:playx_3d_scene/models/shapes/sphere.dart';
 
 /// An object that represents shapes to be rendered on the scene.
 ///
