@@ -470,14 +470,18 @@ For more information about material and how to create the material file look at 
 
 
 ### Compiling materials
-To use material in our widget to customize the appearance of shapes and ground.
-You will be required to create a material file (.mat file)  then we will need to convert it to (.filamt) file to be able to use it with the widget using the material compiler  `matc` .
+To use material in our widget to customize the appearance of shapes and ground.  
+You will be required to create a material file (.mat file) then we will need to convert it to (.filamt) file to be able to use it with the widget using the material compiler  `matc` .
 
-Material packages can be compiled from material definitions using the command line tool called  `matc`. The simplest way to use  `matc`  is to specify an input material definition (`lit.mat`  in the example below) and an output material package (`lit.filamat`  in the example below):
+Material packages can be compiled from material definitions using the command line tool called  `matc`.
+You can get it by downloading the binary package for your host platform of choice from Filament’s  [releases page](https://github.com/google/filament/releases)  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.
 
-```
-matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat
-```
+The simplest way to use  `matc` is to specify an input material definition (`lit.mat` in the example below) and an output material package (`lit.filamat` in the example below):
+
+
+```  
+matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat  
+```  
 
 
 ### How to use materials:
@@ -552,6 +556,26 @@ Here is an example of giving a sphere a wood texture :
               ],
 			  
 ```
+
+<br>
+
+
+## Addendum: Creating the KTX Files
+
+To make your own KTX file , you can obtain  `cmgen`  by downloading the binary package for your host platform of choice from Filament’s  [releases page](https://github.com/google/filament/releases)  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.
+
+To generate both a Skybox and an IBL, invoke  `cmgen`  using a command line like this:
+```
+cmgen                   \  
+    --deploy ./myOutDir \  
+    --format=ktx        \  
+    --size=256          \  
+    --extract-blur=0.1  \  
+    mySrcEnv.hdr
+   ```
+
+
+The  `extract-blur`  option tells  `cmgen`  to make a skybox in addition to the IBL. To see the complete list of options, try  `cmgen -h`.
 
 <br>
 
