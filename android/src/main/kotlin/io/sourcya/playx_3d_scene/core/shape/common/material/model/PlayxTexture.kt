@@ -3,11 +3,11 @@ package io.sourcya.playx_3d_scene.core.shape.common.material.model
 import com.google.android.filament.TextureSampler
 import com.google.android.filament.TextureSampler.MagFilter
 import com.google.android.filament.TextureSampler.MinFilter
-import com.google.android.filament.textured.TextureType
+import com.google.android.filament.utils.TextureType
 
 data class PlayxTexture(val assetPath:String?,
                         val url:String?,
-                        val type: TextureType ?,
+                        val type: TextureType?,
                         val sampler: PlayxTextureSampler?
 )
 

@@ -76,7 +76,7 @@ class PlayxMethodHandler(
             cameraScroll -> scrollCameraTo(call,result)
             cameraGrabBegin-> beginCameraGrab(call,result)
             cameraGrabUpdate -> updateCameraGrab(call,result)
-            cameraGrabEnd-> endCameraGrab(call,result)
+            cameraGrabEnd-> endCameraGrab(result)
             cameraRayCast-> getCameraRayCast(call,result)
             updateGround -> updateGround(call,result)
             updateGroundMaterial -> updateGroundMaterial(call,result)
@@ -852,7 +852,7 @@ class PlayxMethodHandler(
         }
     }
 
-    private fun endCameraGrab(call: MethodCall, result: MethodChannel.Result) {
+    private fun endCameraGrab(result: MethodChannel.Result) {
         coroutineScope.launch {
             when (val resource = modelViewer?.grabEnd()) {
                 is Resource.Success -> result.success(resource.data)

@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.google.android.filament.Texture
 import com.google.android.filament.android.TextureHelper
-import com.google.android.filament.textured.TextureType
+import com.google.android.filament.utils.TextureType
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.sourcya.playx_3d_scene.core.network.ImageClient
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.PlayxTexture
@@ -39,7 +39,7 @@ class TextureLoader(
     private suspend fun loadTextureFromAsset(path: String?, type: TextureType): Resource<Texture?> {
         return withContext(Dispatchers.IO) {
             when (val bitmapResult =
-                ImageClient.loadImageFromAsset(path, flutterAssets, context, type)) {
+                ImageClient.loadImageFromAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
                     val bitmap = bitmapResult.data
                     if (bitmap != null) {
@@ -67,7 +67,7 @@ class TextureLoader(
         } else {
             withContext(Dispatchers.IO) {
                 try {
-                    val bitmapResult = ImageClient.loadImageFromUrl(url, context, type)
+                    val bitmapResult = ImageClient.loadImageFromUrl(url, context)
                     if (bitmapResult is Resource.Success && bitmapResult.data != null) {
                         return@withContext loadTexture(bitmapResult.data, type)
                     } else {

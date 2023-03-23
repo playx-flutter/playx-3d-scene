@@ -4,10 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.transition.Transition
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.filament.textured.TextureType
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.getAssetPathForFlutter
@@ -19,7 +19,11 @@ object ImageClient {
 
 
 
-    suspend fun loadImageFromAsset(pathKey:String?, flutterAssets: FlutterPlugin.FlutterAssets, context : Context, type: TextureType): Resource<Bitmap> {
+    suspend fun loadImageFromAsset(
+        pathKey: String?,
+        flutterAssets: FlutterPlugin.FlutterAssets,
+        context: Context
+    ): Resource<Bitmap> {
         val assetResource = getAssetPathForFlutter(pathKey, flutterAssets)
         return if (assetResource is Resource.Success) {
             val assetName = assetResource.data ?: ""
@@ -39,7 +43,7 @@ object ImageClient {
     }
 
 
-    suspend fun loadImageFromUrl(url:String?,  context : Context, type: TextureType): Resource<Bitmap> {
+    suspend fun loadImageFromUrl(url: String?, context: Context): Resource<Bitmap> {
         return if (!url.isNullOrEmpty()) {
             try {
                 val bitmap = loadImage(context,url) ?: return Resource.Error("couldn't load image : $url")
