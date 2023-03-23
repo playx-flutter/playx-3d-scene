@@ -44,7 +44,6 @@ internal class SkyboxManger constructor(
     suspend fun setSkyboxFromKTXAsset(path: String?): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
-        modelViewer.destroyModel()
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
@@ -100,9 +99,7 @@ internal class SkyboxManger constructor(
 
 
     suspend fun setSkyboxFromHdrAsset(path: String?,showSun:Boolean=false,shouldUpdateLight:Boolean =false, intensity:Double?= null): Resource<String> {
-
         modelViewer.setSkyboxState(SceneState.LOADING)
-        Timber.d("loading hdr skybox  loading :$path")
 
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
@@ -122,13 +119,9 @@ internal class SkyboxManger constructor(
         }
 
     }
-
-
-    @SuppressLint("LogNotTimber")
     suspend fun setSkyboxFromHdrUrl(url: String?,showSun:Boolean=false,shouldUpdateLight:Boolean =false, intensity:Double?= null): Resource<String> {
 
         modelViewer.setSkyboxState(SceneState.LOADING)
-        Timber.d("loading hdr skybox buffer loading :$url")
 
         if(url.isNullOrEmpty()) {
             modelViewer.setSkyboxState(SceneState.ERROR)
@@ -138,7 +131,6 @@ internal class SkyboxManger constructor(
             val buffer = NetworkClient.downloadFile(url)
 
             if(buffer != null) {
-                Timber.d("loading hdr skybox buffer downloaded")
                 return@withContext loadSkyboxFromHdrBuffer(buffer,showSun,shouldUpdateLight,intensity)
             }else{
                  modelViewer.setSkyboxState(SceneState.ERROR)
@@ -186,7 +178,6 @@ internal class SkyboxManger constructor(
                     modelViewer.scene.skybox = sky
 
                 }
-
 
                 modelViewer.setSkyboxState(SceneState.LOADED)
 

@@ -193,28 +193,12 @@ class _MyAppState extends State<MyApp> {
                 Future.delayed(const Duration(seconds: 5), () async {
                   Result<int?> result =
                       await controller.changeAnimationByIndex(1);
-                  final result2 = await controller.getAnimationNames();
-                  final result3 = await controller
-                      .changeSkyboxByHdrAsset("assets/envs/field.hdr");
 
                   if (result.isSuccess()) {
                     final data = result.data;
                     print("success :$data");
                   } else {
                     print(result.message);
-                  }
-
-                  if (result2.isSuccess()) {
-                    final data = result2.data;
-                    print("success :$data");
-                  } else {
-                    print(result2.message);
-                  }
-                  if (result3.isSuccess()) {
-                    final data = result3.data;
-                    print("success :$data");
-                  } else {
-                    print(result3.message);
                   }
                 });
               },

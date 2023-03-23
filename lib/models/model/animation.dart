@@ -1,16 +1,19 @@
+/// An object representing what animation to be played for current model.
 class PlayxAnimation {
-  /// Animation Index of the Animation to be used.
+  /// The Index of the Animation to be used.
   int? index;
 
-  /// Animation Name of the Animation to be used.
+  /// The Name of the Animation to be used.
   String? name;
 
-  /// auto play : decides whether to play the animation automatically or not
-  /// default is true.
+  /// Decides whether to play the animation automatically or not.
+  /// Default is true.
   bool autoPlay;
 
+  /// creates animation object by index to be played.
   PlayxAnimation.byIndex(this.index, {this.autoPlay = true});
 
+  /// creates animation object by name to be played.
   PlayxAnimation.byName(this.name, {this.autoPlay = true});
 
   Map<String, dynamic> toJson() => {

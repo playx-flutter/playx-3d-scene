@@ -238,8 +238,11 @@ class Playx3dSceneController constructor(
                             }
                         }
                     }
-                    else -> {
+                    is DefaultIndirectLight ->{
                         indirectLightManger.setIndirectLight(light)
+                    }
+                    else -> {
+                        indirectLightManger.setDefaultIndirectLight()
                     }
 
                 }

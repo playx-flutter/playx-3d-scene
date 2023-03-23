@@ -1,3 +1,7 @@
+/// An object that represents position information as coordinates in the 3d world space.
+/// By providing x, y and z coordinates.
+///
+/// Defaults to (x:0, y:0, z:0).
 class PlayxPosition {
   double x = 0.0;
   double y = 0.0;

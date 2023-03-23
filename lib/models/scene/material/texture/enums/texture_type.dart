@@ -1,3 +1,6 @@
+///Type of the texture to be used
+/// Color is the only type of texture we want to pre-multiply with the alpha channel
+/// Pre-multiplication is the default behavior, so we need to turn it off  based on the type.
 enum TextureType {
   color,
   normal,

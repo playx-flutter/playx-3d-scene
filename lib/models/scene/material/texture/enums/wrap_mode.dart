@@ -1,3 +1,7 @@
+///Wrap Mode to be used.
+///
+///See Also:
+///[PlayxTextureSampler]
 enum WrapMode {
   /// The edge of the texture extends to infinity.
   clampToEdge,

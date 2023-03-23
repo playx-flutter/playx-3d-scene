@@ -8,7 +8,6 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.sourcya.playx_3d_scene.core.network.NetworkClient
 import io.sourcya.playx_3d_scene.core.scene.common.model.SceneState
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.DefaultIndirectLight
-import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.IndirectLight
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
@@ -28,7 +27,8 @@ internal class IndirectLightManger constructor(
 
     init {
         setIndirectLight(
-            DefaultIndirectLight(intensity = DEFAULT_LIGHT_INTENSITY,
+            DefaultIndirectLight(
+                intensity = DEFAULT_LIGHT_INTENSITY,
                 radianceBands = 1, radianceSh = floatArrayOf(1f,1f,1f),
                 irradianceBands = 1, irradianceSh = floatArrayOf(1f,1f,1f))
         )
@@ -155,7 +155,7 @@ internal class IndirectLightManger constructor(
     }
 
 
-    fun setIndirectLight(indirectLight: IndirectLight? ) :Resource<String>{
+    fun setIndirectLight(indirectLight: DefaultIndirectLight? ) :Resource<String>{
         modelViewer.setLightState(SceneState.LOADING)
 
         if(indirectLight == null) {

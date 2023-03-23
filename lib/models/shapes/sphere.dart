@@ -1,8 +1,14 @@
 import 'package:playx_3d_scene/models/shapes/shape.dart';
 
+/// An object that represents a cube shape to be rendered.
 class Sphere extends Shape {
+  /// The radius of the constructed sphere.
   double radius;
+
+  ///The number of stacks for the sphere.
   int? stacks;
+
+  ///The number of slices for the sphere.
   int? slices;
 
   Sphere(
