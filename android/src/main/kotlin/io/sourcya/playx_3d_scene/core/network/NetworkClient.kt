@@ -4,9 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import timber.log.Timber
 import java.io.*
-import java.net.URL
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -29,25 +27,23 @@ object NetworkClient {
 
 
     suspend fun downloadFile(url: String): Buffer? {
-        Timber.d("downloadFile : Got bytes: downloadFile")
-
-        val responseBody = client.downloadFile(url).body() ?: return null
-        val input: InputStream?
         try {
-            input = responseBody.byteStream()
+        val responseBody = client.downloadFile(url).body() ?: return null
+
+            val input: InputStream? = responseBody.byteStream()
             val stream = BufferedInputStream(input)
-            Timber.d("downloadFile : Got bytes: stream")
             ByteArrayOutputStream().use { output ->
                 stream.copyTo(output)
                 val byteArr = output.toByteArray()
                 val byteBuffer = ByteBuffer.wrap(byteArr)
-                Timber.d("downloadFile : Got bytes:")
                 return byteBuffer.rewind()
             }
         } catch (_: Throwable) {
             return null
         }
     }
+
+
 
 
 
@@ -65,12 +61,10 @@ object NetworkClient {
                 try {
                     input = responseBody.byteStream()
                     val stream = BufferedInputStream(input)
-                    Timber.d("downloadFile : Got bytes: stream")
                     ByteArrayOutputStream().use { output ->
                         stream.copyTo(output)
                         val byteArr = output.toByteArray()
                         val byteBuffer = ByteBuffer.wrap(byteArr)
-                        Timber.d("downloadFile : Got bytes:")
                         raf.channel.write(byteBuffer)
                         raf.seek(0)
                          file

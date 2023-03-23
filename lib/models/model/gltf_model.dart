@@ -1,74 +1,61 @@
-import 'package:playx_3d_scene/models/model/animation.dart';
 import 'package:playx_3d_scene/models/model/model.dart';
 
+/// represents object of model that will be loaded from gltf file.
+///
+///glTF is a 3D file format maintained by the Khronos Group.
 class GltfModel extends Model {
-  /// prefix for gltf image assets.
+  /// Prefix path for gltf image assets to be added before image path.
+  ///
   /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add prefix to the images path to be before the image.
-  /// LIKE if in the gltf file, the image path is textures/texture.png
+  /// consider adding prefix to the images path to be before the image.
+  ///
+  /// For example, if the image path in the gltf file is textures/texture.png
   /// and in assets the image path is assets/models/textures/texture.png
   /// you will need to add prefix to be 'assets/models/'.
-  String? prefix;
+  String prefix = "";
 
-  /// postfix path for gltf image assets.
+  /// postfix path for gltf image assets to be added after image path.
+  ///
   /// if the images path that in the gltf file different from the flutter asset path,
-  /// you can add postfix to the images path to be after the image.
-  /// LIKE if in the gltf file, the image path is assets/textures/texture
+  /// consider adding to the images path to be after the image.
+  ///
+  /// For example, if the image path in the gltf file is assets/textures/texture
   /// and in assets the image path is assets/textures/texture.png
   /// you will need to add prefix to be '.png'.
+  String postfix = "";
 
-  String? postfix;
-  GltfModel._(
-      {super.assetPath,
-      this.prefix,
-      this.postfix,
-      super.url,
-      super.fallback,
-      super.scale,
-      super.animation});
-
-  factory GltfModel.asset(
+  /// creates gltf model based on the  file asset path.
+  GltfModel.asset(
     String path, {
-    String? prefix,
-    String? postfix,
-    Model? fallback,
-    double? scale,
-    PlayxAnimation? animation,
-  }) {
-    return GltfModel._(
-        assetPath: path,
-        prefix: prefix,
-        postfix: postfix,
-        fallback: fallback,
-        scale: scale,
-        animation: animation);
-  }
+    this.prefix = "",
+    this.postfix = "",
+    super.fallback,
+    super.scale,
+    super.centerPosition,
+    super.animation,
+  }) : super(assetPath: path);
 
-  factory GltfModel.url(
+  /// creates gltf model based on glb file url .
+  /// currently supporting only .zip file format.
+  GltfModel.url(
     String url, {
-    String? prefix,
-    String? postfix,
-    Model? fallback,
-    double? scale,
-    PlayxAnimation? animation,
-  }) {
-    return GltfModel._(
-        url: url,
-        prefix: prefix,
-        postfix: postfix,
-        fallback: fallback,
-        scale: scale,
-        animation: animation);
-  }
+    this.prefix = "",
+    this.postfix = "",
+    super.fallback,
+    super.scale,
+    super.centerPosition,
+    super.animation,
+  }) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() => {
         'assetPath': assetPath,
         'url': url,
-        'prefix': prefix,
-        'postfix': postfix,
+        'pathPrefix': prefix,
+        'pathPostfix': postfix,
         'fallback': fallback?.toJson(),
         'scale': scale,
+        'centerPosition': centerPosition?.toJson(),
         'animation': animation?.toJson(),
         'isGlb': false,
       };

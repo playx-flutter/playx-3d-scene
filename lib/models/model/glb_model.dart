@@ -1,37 +1,18 @@
-import 'package:playx_3d_scene/models/model/animation.dart';
-
 import 'model.dart';
 
+/// represents object of model that will be loaded from glb file.
+///
+/// GLB is a binary container format of glTF. It bundles all the textures and mesh data into a single file.
 class GlbModel extends Model {
-  GlbModel._(
-      {super.assetPath,
-      super.url,
-      super.fallback,
-      super.scale,
-      super.animation});
+  /// creates glb model based on glb file asset path.
+  GlbModel.asset(String path,
+      {super.fallback, super.scale, super.centerPosition, super.animation})
+      : super(assetPath: path);
 
-  factory GlbModel.asset(
-    String path, {
-    Model? fallback,
-    double? scale,
-    PlayxAnimation? animation,
-  }) {
-    return GlbModel._(
-        assetPath: path,
-        fallback: fallback,
-        scale: scale,
-        animation: animation);
-  }
-
-  factory GlbModel.url(
-    String url, {
-    Model? fallback,
-    double? scale,
-    PlayxAnimation? animation,
-  }) {
-    return GlbModel._(
-        url: url, fallback: fallback, scale: scale, animation: animation);
-  }
+  /// creates glb model based on glb file url.
+  GlbModel.url(String url,
+      {super.fallback, super.scale, super.centerPosition, super.animation})
+      : super(url: url);
 
   @override
   Map<String, dynamic> toJson() => {
@@ -39,6 +20,7 @@ class GlbModel extends Model {
         'url': url,
         'fallback': fallback?.toJson(),
         'scale': scale,
+        'centerPosition': centerPosition?.toJson(),
         'animation': animation?.toJson(),
         'isGlb': true,
       };

@@ -8,15 +8,15 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
-import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
-import io.sourcya.playx_3d_scene.core.controller.ModelViewerController
-import io.sourcya.playx_3d_scene.core.models.model.Model
-import io.sourcya.playx_3d_scene.core.models.scene.Scene
+import io.sourcya.playx_3d_scene.core.Playx3dSceneController
+import io.sourcya.playx_3d_scene.core.model.common.model.Model
+import io.sourcya.playx_3d_scene.core.scene.common.model.Scene
+import io.sourcya.playx_3d_scene.core.shape.common.model.Shape
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
+import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
-import timber.log.Timber
 
 
 class Playx3dScene(
@@ -28,13 +28,11 @@ class Playx3dScene(
     private val iblProfiler: IBLProfiler,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
-    private var modelViewer: ModelViewerController? = null
+    private var modelViewer: Playx3dSceneController? = null
     private var playXMethodHandler: PlayxMethodHandler? = null
     private var playxEventHandler: PlayxEventHandler? = null
 
     init {
-        Timber.d("My Playx3dScenePlugin : setUpModelViewer")
-
         setUpModelViewer()
         listenToChannel()
 
@@ -45,18 +43,20 @@ class Playx3dScene(
 
         val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
         val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)
+        val shapeList = getMapValue<List<Any>>("shapes",creationParams)
 
         val model = Model.fromMap(modelMap)
         val scene = Scene.fromMap(sceneMap)
+        val shapes = Shape.fromJson(shapeList)
 
-        Timber.d("My Playx3dScenePlugin : model :$model scene $scene")
-        modelViewer = ModelViewerController(
+        modelViewer = Playx3dSceneController(
             context,
             engine,
             iblProfiler,
             binding.flutterAssets,
             model = model,
-            scene = scene
+            scene = scene,
+            shapes = shapes
         )
 
 
@@ -94,14 +94,10 @@ class Playx3dScene(
     }
 
     override fun getView(): View? {
-        Timber.d("My Playx3dScenePlugin : getView")
-
         return modelViewer?.getView()
     }
 
     override fun dispose() {
-        Timber.d("My Playx3dScenePlugin : dispose view")
-
         modelViewer?.destroy()
         stopListeningToChannel()
     }
@@ -109,13 +105,10 @@ class Playx3dScene(
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
-            Timber.d("My Playx3dScenePlugin : ON_RESUME")
-
             modelViewer?.handleOnResume()
             playxEventHandler?.handleOnResume()
 
         } else if (event == Lifecycle.Event.ON_PAUSE) {
-            Timber.d("My Playx3dScenePlugin : ON_PAUSE")
             playxEventHandler?.handleOnPause()
             modelViewer?.handleOnPause()
 

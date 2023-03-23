@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.viewer
 
-import android.hardware.lights.LightState
 import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceView
@@ -8,12 +7,14 @@ import android.view.TextureView
 import com.google.android.filament.*
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
-import com.google.android.filament.gltfio.*
-import com.google.android.filament.utils.*
-import io.sourcya.playx_3d_scene.core.loader.ModelLoader
-import io.sourcya.playx_3d_scene.core.models.states.ModelState
-import io.sourcya.playx_3d_scene.core.models.states.SceneState
-import kotlinx.coroutines.*
+import com.google.android.filament.gltfio.Animator
+import com.google.android.filament.utils.Float3
+import io.sourcya.playx_3d_scene.core.model.common.loader.ModelLoader
+import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
+import io.sourcya.playx_3d_scene.core.scene.camera.CameraManger
+import io.sourcya.playx_3d_scene.core.scene.common.model.SceneState
+import io.sourcya.playx_3d_scene.core.shape.common.model.Position
+import io.sourcya.playx_3d_scene.core.shape.common.model.ShapeState
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.Buffer
 
@@ -51,16 +52,11 @@ class CustomModelViewer(
 
     var animator: Animator? = null
 
-    var cameraFocalLength = 28f
-        set(value) {
-            field = value
-            updateCameraProjection()
-        }
 
     val scene: Scene = engine.createScene()
     val view: View = engine.createView()
-    private val camera: Camera = engine.createCamera(engine.entityManager.create())
-        .apply { setExposure(kAperture, kShutterSpeed, kSensitivity) }
+
+
     val renderer: Renderer = engine.createRenderer()
     val modelLoader: ModelLoader = ModelLoader(this)
 
@@ -68,65 +64,45 @@ class CustomModelViewer(
     val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
     val currentSkyboxState = MutableStateFlow(SceneState.NONE)
     val currentLightState = MutableStateFlow(SceneState.NONE)
+    val currentGroundState = MutableStateFlow(SceneState.NONE)
+
+    val currentShapesState = MutableStateFlow(ShapeState.NONE)
+
+    lateinit var  cameraManger : CameraManger
 
 
-    @Entity
-    val light: Int
 
     private lateinit var displayHelper: DisplayHelper
-    private lateinit var cameraManipulator: Manipulator
-    private lateinit var gestureDetector: GestureDetector
     private var surfaceView: SurfaceView? = null
     private var textureView: TextureView? = null
 
 
     private var swapChain: SwapChain? = null
 
-    private val eyePos = DoubleArray(3)
-    private val target = DoubleArray(3)
-    private val upward = DoubleArray(3)
 
     init {
         view.scene = scene
-        view.camera = camera
 
 
-        // Always add a direct light source since it is required for shadowing.
-        // We highly recommend adding an indirect light as well.
-
-        light = EntityManager.get().create()
-
-        val (r, g, b) = Colors.cct(6_500.0f)
-        LightManager.Builder(LightManager.Type.DIRECTIONAL)
-            .color(r, g, b)
-            .intensity(100_000.0f)
-            .direction(0.0f, -1.0f, 0.0f)
-            .castShadows(true)
-            .build(engine, light)
-
-        scene.addEntity(light)
     }
 
     constructor(
         surfaceView: SurfaceView,
         engine: Engine = Engine.create(),
-        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
-        manipulator: Manipulator? = null
+        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
     ) : this(engine, uiHelper) {
-        cameraManipulator = manipulator ?: Manipulator.Builder()
-            .targetPosition(
-                kDefaultObjectPosition.x,
-                kDefaultObjectPosition.y,
-                kDefaultObjectPosition.z
-            )
-            .viewport(surfaceView.width, surfaceView.height)
-            .build(Manipulator.Mode.ORBIT)
 
         this.surfaceView = surfaceView
-        gestureDetector = GestureDetector(surfaceView, cameraManipulator)
+        cameraManger = CameraManger(this,view,surfaceView)
+        view.camera = cameraManger.camera
+
+
         displayHelper = DisplayHelper(surfaceView.context)
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(surfaceView)
+
+        setupView()
+
     }
 
     @Suppress("unused")
@@ -134,23 +110,20 @@ class CustomModelViewer(
         textureView: TextureView,
         engine: Engine = Engine.create(),
         uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
-        manipulator: Manipulator? = null
     ) : this(engine, uiHelper) {
-        cameraManipulator = manipulator ?: Manipulator.Builder()
-            .targetPosition(
-                kDefaultObjectPosition.x,
-                kDefaultObjectPosition.y,
-                kDefaultObjectPosition.z
-            )
-            .viewport(textureView.width, textureView.height)
-            .build(Manipulator.Mode.ORBIT)
+
 
         this.textureView = textureView
-        gestureDetector = GestureDetector(textureView, cameraManipulator)
+        cameraManger = CameraManger(this,view,textureView)
+        view.camera = cameraManger.camera
         displayHelper = DisplayHelper(textureView.context)
         uiHelper.renderCallback = SurfaceCallback()
 
         uiHelper.attachTo(textureView)
+
+        setupView()
+
+
     }
 
 
@@ -159,7 +132,7 @@ class CustomModelViewer(
      *
      * @param centerPoint Coordinate of center point of unit cube, defaults to < 0, 0, -4 >
      */
-    fun transformToUnitCube(centerPoint: Float3 = kDefaultObjectPosition, scale: Float = 1.0f) {
+    fun transformToUnitCube(centerPoint: Position?, scale: Float? ) {
         modelLoader.transformToUnitCube(centerPoint,scale)
     }
 
@@ -170,6 +143,42 @@ class CustomModelViewer(
         modelLoader.clearRootTransform()
     }
 
+
+    private fun setupView(){
+        view.let {
+            //on mobile, better use lower quality color buffer
+            view.renderQuality = view.renderQuality.apply {
+                hdrColorBuffer = View.QualityLevel.MEDIUM
+            }
+
+            // dynamic resolution often helps a lot
+            view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
+                enabled = true
+                quality = View.QualityLevel.MEDIUM
+            }
+
+            // MSAA is needed with dynamic resolution MEDIUM
+            view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
+                enabled = true
+            }
+
+            // FXAA is pretty cheap and helps a lot
+            view.antiAliasing = View.AntiAliasing.FXAA
+
+            // ambient occlusion is the cheapest effect that adds a lot of quality
+            view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
+                enabled = true
+            }
+
+//        // bloom is pretty expensive but adds a fair amount of realism
+//        view.bloomOptions = view.bloomOptions.apply {
+//            enabled = true
+//        }
+
+        }
+    }
+
+    fun getModelTransform()= modelLoader.getModelTransform()
 
     /**
      * Renders the model and updates the Filament camera.
@@ -185,13 +194,7 @@ class CustomModelViewer(
 
         modelLoader.updateScene()
 
-        // Extract the camera basis from the helper and push it to the Filament camera.
-        cameraManipulator.getLookAt(eyePos, target, upward)
-        camera.lookAt(
-            eyePos[0], eyePos[1], eyePos[2],
-            target[0], target[1], target[2],
-            upward[0], upward[1], upward[2]
-        )
+        cameraManger.lookAtDefaultPosition()
 
         // Render the scene, unless the renderer wants to skip the frame.
         if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
@@ -217,20 +220,17 @@ class CustomModelViewer(
         uiHelper.detach()
         modelLoader.destroyModel()
         modelLoader.destroy()
-        engine.destroyEntity(light)
         engine.destroyRenderer(renderer)
         engine.destroyView(this@CustomModelViewer.view)
         engine.destroyScene(scene)
-        engine.destroyCameraComponent(camera.entity)
-        EntityManager.get().destroy(camera.entity)
-        EntityManager.get().destroy(light)
+        cameraManger.destroyCamera()
     }
 
     /**
      * Handles a [MotionEvent] to enable one-finger orbit, two-finger pan, and pinch-to-zoom.
      */
-    fun onTouchEvent(event: MotionEvent) {
-        gestureDetector.onTouchEvent(event)
+    private fun onTouchEvent(event: MotionEvent) {
+        cameraManger.onTouchEvent(event)
     }
 
     @SuppressWarnings("ClickableViewAccessibility")
@@ -239,13 +239,6 @@ class CustomModelViewer(
         return true
     }
 
-
-    private fun updateCameraProjection() {
-        val width = view.viewport.width
-        val height = view.viewport.height
-        val aspect = width.toDouble() / height.toDouble()
-        camera.setLensProjection(cameraFocalLength.toDouble(), aspect, kNearPlane, kFarPlane)
-    }
 
     inner class SurfaceCallback : UiHelper.RendererCallback {
         override fun onNativeWindowChanged(surface: Surface) {
@@ -268,8 +261,7 @@ class CustomModelViewer(
 
         override fun onResized(width: Int, height: Int) {
             view.viewport = Viewport(0, 0, width, height)
-            cameraManipulator.setViewport(width, height)
-            updateCameraProjection()
+            cameraManger.updateCameraOnResize(width,height)
         }
     }
 
@@ -285,12 +277,10 @@ class CustomModelViewer(
     fun setSkyboxState(state : SceneState){
         currentSkyboxState.value = state
     }
+    fun setGroundState(state : SceneState){
+        currentGroundState.value = state
+    }
     companion object {
         val kDefaultObjectPosition = Float3(0.0f, 0.0f, -4.0f)
-        private const val kNearPlane = 0.05     // 5 cm
-        private const val kFarPlane = 1000.0    // 1 km
-        private const val kAperture = 16f
-        private const val kShutterSpeed = 1f / 125f
-        private const val kSensitivity = 100f
     }
 }

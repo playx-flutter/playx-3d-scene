@@ -22,7 +22,6 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     //register the android native view
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Timber.plant(Timber.DebugTree())
-        Timber.d("My Playx3dScenePlugin : onAttachedToEngine")
        engine= Engine.create()
         iblProfiler = IBLProfiler(engine)
         binding
@@ -39,7 +38,6 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
                 )
     }
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        Timber.d("My Playx3dScenePlugin : onDetachedFromEngine")
         iblProfiler.destroy()
         engine.destroy()
     }
@@ -52,16 +50,15 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         // get the activity lifecycle to handle lifecycle events
         lifecycle = (binding.lifecycle as HiddenLifecycleReference).lifecycle
-        Timber.d("My Playx3dScenePlugin : onAttachedToActivity")
 
     }
     override fun onDetachedFromActivityForConfigChanges() {
-        lifecycle = null
-        Timber.d("My Playx3dScenePlugin : onDetachedFromActivityForConfigChanges")
 
     }
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
-    override fun onDetachedFromActivity() {}
+    override fun onDetachedFromActivity() {
+        lifecycle = null
+    }
 
 }
