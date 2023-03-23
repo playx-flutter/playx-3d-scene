@@ -1,10 +1,13 @@
-
 # Playx 3d Scene
 
 Plugin for rendering interactive 3D models based on [Google filament](https://github.com/google/filament) natively on Android.
 With the ability of controlling environment skybox, light, camera, ground and more.
 
-<video src="https://dl.dropboxusercontent.com/s/5svbefu8fgpz9gf/video.mp4"></video>
+
+
+https://user-images.githubusercontent.com/19964129/227077898-ac46c4b9-3668-4c2d-bbea-933b1ce272fb.mp4
+
+
 
 ## Features
 
@@ -66,12 +69,12 @@ GLB is a binary container format of glTF. It bundles all the textures and mesh d
 To load GLB model file from assets we can use :
 ```dart
 Playx3dScene(
-model: GlbModel.asset(  
- "assets/models/Fox.glb",  // load glb from assets path
-  animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
-  fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened
-  centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model 
-  scale: 1.0,  // scale of model defaults to 1
+	model: GlbModel.asset(  
+ 		"assets/models/Fox.glb",  // load glb from assets path
+ 		 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
+		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened
+ 		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model 
+  		 scale: 1.0,  // scale of model defaults to 1
 ),
 ),
 ```
@@ -95,13 +98,13 @@ Playx3dScene(
 - To load Gltf model file from assets we can use :
 ```dart
 Playx3dScene(  
-  model: GltfModel.asset(  
-	 "assets/models/BusterDrone.gltf",  /// path of the gltf file in assets
-	  prefix: "assets/models/",  ///prefix for gltf images
-	  animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
-	  fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened 
-	  centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model  
-	  scale: 1.0,   // scale of model defaults to 1
+	  model: GltfModel.asset(  
+	 	"assets/models/BusterDrone.gltf",  /// path of the gltf file in assets
+	 	 prefix: "assets/models/",  ///prefix for gltf images
+	 	 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
+		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened 
+		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model  
+	 	 scale: 1.0,   // scale of model defaults to 1
   ),
 ),
 ```
@@ -149,12 +152,13 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
 
 - Loading skybox from Ktx file:
   - From assets:
-   ```dart
-   scene: Scene(  
+    ```dart
+	scene: Scene(  
         skybox:KtxSkybox.asset(
             "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx" // asset pasth for skybox ktx file
-    ),
+    ), 
     ```
+    
   - From url:
      ```dart
     scene: Scene(  
@@ -162,6 +166,8 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
             "url for skybox ktx file" // url for skybox ktx file
     ),  
     ```
+    
+ <br>
 
 - Loading skybox Form HDR file:
   - From assets:
@@ -171,7 +177,8 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
            "assets/envs/courtyard.hdr" // asset pasth for skybox hdr file
    ),
    ```
-  - From url:
+    
+   - From url:
     ```dart
     scene: Scene(  
        skybox:HdrSkybox.url(
@@ -182,6 +189,7 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
      ```dart
   scene: Scene(  
         skybox: ColoredSkybox(color: Colors.green), // color of skybox
+      
    ```
 
 <br>
@@ -194,12 +202,13 @@ This uses an environment map to approximate the lighting all directions.
 We can load indirect light from KTX file or HDR file or from certain parameters.
 - Loading indirect light from KTX file:
   - From assets:
-   ```dart
-   scene: Scene(  
-        indirectLight:KtxIndirectLight.asset(
-            "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx" // asset pasth for indirect light ktx file
+	```dart
+	   scene: Scene(  
+			        indirectLight:KtxIndirectLight.asset(
+		            "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx" // asset pasth for indirect light ktx file
     ),
     ```
+       
   - From url:
      ```dart
     scene: Scene(  
@@ -210,20 +219,23 @@ We can load indirect light from KTX file or HDR file or from certain parameters.
 
 - Loading indirect light form HDR file:
   - From assets:
-  ```dart
-  scene: Scene(  
-       indirectLight:HdrIndirectLight.asset(
-           "assets/envs/courtyard.hdr" // asset pasth for indirect light hdr file
-   ),
-   ```
+     ```dart
+		scene: Scene(  
+			indirectLight:HdrIndirectLight.asset(
+				"assets/envs/courtyard.hdr" // asset pasth for indirect light hdr file
+	),
+	```
+
   - From url:
-    ```dart
-    scene: Scene(  
+     ```dart
+		 scene: Scene(  
        indirectLight:HdrIndirectLight.url(
            "url for skybox hdr file" // url for indirect light hdr file
-   ),  
-   ```    
-- load indirect light from default parameters like intensity, irradiance, etc:
+        ),  
+	```
+
+  
+- Load indirect light from default parameters like intensity, irradiance, etc:
      ```dart
   scene: Scene(  
          indirectLight: DefaultIndirectLight(
@@ -235,6 +247,8 @@ We can load indirect light from KTX file or HDR file or from certain parameters.
             ),
      ),
    ```
+
+<br>
 
 **3. Light:**
 Light allows us to create a light source in the scene, such as a sun or street lights.
