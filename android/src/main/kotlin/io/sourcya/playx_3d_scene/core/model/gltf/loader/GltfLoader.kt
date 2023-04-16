@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.model.gltf.loader
 
-import android.annotation.SuppressLint
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
@@ -10,7 +9,6 @@ import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
-import java.io.*
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.util.zip.ZipInputStream
@@ -179,22 +177,6 @@ internal class GltfLoader constructor(
     }
 
 
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var INSTANCE: GltfLoader? = null
 
-        fun getInstance(
-            modelViewer: CustomModelViewer,
-            context: Context,
-            flutterAssets: FlutterAssets
-        ): GltfLoader =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: GltfLoader(modelViewer, context, flutterAssets).also {
-                    INSTANCE = it
-                }
-            }
-
-    }
 }
 

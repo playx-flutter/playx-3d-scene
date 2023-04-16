@@ -94,6 +94,36 @@ class Playx3dScene extends StatefulWidget {
   /// it also provides last frame render time in nanoseconds.
   final Playx3dOnEachRenderCallback? onEachRender;
 
+  /// Which gestures should be consumed by the view.
+  ///
+  /// When the view is put inside other view like [ListView],
+  /// it might claim gestures that are recognized by any of the recognizers on this list.
+  /// as the [ListView] will handle vertical drags gestures.
+  ///
+  /// To get the [Playx3dScene] to claim the vertical drag gestures we can pass a vertical drag
+  /// gesture recognizer factory in [gestureRecognizers] e.g:
+  ///
+  /// ```dart
+  /// GestureDetector(
+  ///   onVerticalDragStart: (DragStartDetails details) {},
+  ///   child: SizedBox(
+  ///     width: 200.0,
+  ///     height: 100.0,
+  ///     child: Playx3dScene(
+  ///       gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+  ///         Factory<OneSequenceGestureRecognizer>(
+  ///           () => EagerGestureRecognizer(),
+  ///         ),
+  ///       },
+  ///     ),
+  ///   ),
+  /// )
+  /// ```
+  ///
+  /// When this set is empty, the view will only handle pointer events for gestures that
+  /// were not claimed by any other gesture recognizer.
+  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+
   const Playx3dScene(
       {super.key,
       this.model,
@@ -103,7 +133,9 @@ class Playx3dScene extends StatefulWidget {
       this.onModelStateChanged,
       this.onEachRender,
       this.onSceneStateChanged,
-      this.onShapeStateChanged});
+      this.onShapeStateChanged,
+      this.gestureRecognizers =
+          const <Factory<OneSequenceGestureRecognizer>>{}});
 
   @override
   State<StatefulWidget> createState() {
@@ -140,11 +172,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
         creationParams: _creationParams,
         creationParamsCodec: const StandardMessageCodec(),
         onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-          Factory<OneSequenceGestureRecognizer>(
-            () => EagerGestureRecognizer(),
-          ),
-        },
+        gestureRecognizers: widget.gestureRecognizers,
       );
     }
     return Text('$defaultTargetPlatform is not yet supported by the plugin');
