@@ -11,6 +11,8 @@ dependencies:
 
   playx_3d_scene:
     path: ../
+  show_fps: ^1.0.5
+
 
 dev_dependencies:
   flutter_test:

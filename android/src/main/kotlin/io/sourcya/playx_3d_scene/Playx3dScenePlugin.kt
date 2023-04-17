@@ -15,6 +15,13 @@ import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 import io.sourcya.playx_3d_scene.core.utils.IBLProfiler
 import io.sourcya.playx_3d_scene.factory.Playx3dSceneFactory
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
@@ -29,14 +36,7 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     //register the android native view
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Timber.plant(Timber.DebugTree())
-       engine= Engine.create()
-         materialProvider = UbershaderProvider(engine)
-
-         assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
-         resourceLoader = ResourceLoader(engine, true)
-
-        iblProfiler = IBLProfiler(engine)
-
+        setupFilament()
         binding
             .platformViewRegistry
             .registerViewFactory(
@@ -54,20 +54,29 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
                 )
     }
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        destroyFilament()
+    }
+
+    private fun setupFilament(){
+                engine= Engine.create()
+                materialProvider = UbershaderProvider(engine)
+                assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
+                resourceLoader = ResourceLoader(engine, true)
+                iblProfiler = IBLProfiler(engine)
+
+    }
+
+    private fun destroyFilament(){
         iblProfiler.destroy()
         materialProvider.destroyMaterials()
         materialProvider.destroy()
         assetLoader.destroy()
         resourceLoader.destroy()
         engine.destroy()
+    }
 
-    }
-    companion object {
-        var viewType = "io.sourcya.playx.3d.scene.channel_3d_scene"
-        init {
-            Utils.init()
-        }
-    }
+
+
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         // get the activity lifecycle to handle lifecycle events
         lifecycle = (binding.lifecycle as HiddenLifecycleReference).lifecycle
@@ -78,8 +87,15 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     }
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
+
     override fun onDetachedFromActivity() {
         lifecycle = null
     }
 
+    companion object {
+        var viewType = "io.sourcya.playx.3d.scene.channel_3d_scene"
+        init {
+            Utils.init()
+        }
+    }
 }

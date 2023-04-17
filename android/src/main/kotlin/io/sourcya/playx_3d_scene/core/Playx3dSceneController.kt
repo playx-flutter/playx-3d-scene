@@ -125,12 +125,13 @@ class Playx3dSceneController constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
-        Timber.d("Playx3dScenePlugin : setUpViewer ")
+        surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
 
         modelViewer = CustomModelViewer(surfaceView, engine, assetLoader, resourceLoader)
-
         surfaceView.setOnTouchListener(modelViewer)
         surfaceView.setZOrderOnTop(true) // necessary
+
+        makeSurfaceViewTransparent()
 
         glbLoader = GlbLoader(modelViewer, context, flutterAssets)
 
@@ -152,6 +153,8 @@ class Playx3dSceneController constructor(
     }
 
     private fun setUpLoadingModel() {
+        Timber.d("Playx3dScene :  setUpLoadingModel : $id")
+
         modelJob = coroutineScope.launch {
             val result = loadModel(model)
             if (result != null && model?.fallback != null) {
@@ -259,6 +262,7 @@ class Playx3dSceneController constructor(
     }
 
     private fun setUpSkybox() {
+
         coroutineScope.launch {
             val skybox = scene?.skybox
             if (skybox == null) {
@@ -268,8 +272,10 @@ class Playx3dSceneController constructor(
                 when (skybox) {
                     is KtxSkybox -> {
                         if (!skybox.assetPath.isNullOrEmpty()) {
+                            makeSurfaceViewNotTransparent()
                             skyboxManger.setSkyboxFromKTXAsset(skybox.assetPath)
                         } else if (!skybox.url.isNullOrEmpty()) {
+                            makeSurfaceViewNotTransparent()
                             skyboxManger.setSkyboxFromKTXUrl(skybox.url)
                         }
                     }
@@ -277,6 +283,7 @@ class Playx3dSceneController constructor(
 
                         if (!skybox.assetPath.isNullOrEmpty()) {
                             val shouldUpdateLight = skybox.assetPath == scene?.indirectLight?.assetPath
+                            makeSurfaceViewNotTransparent()
                             skyboxManger.setSkyboxFromHdrAsset(
                                 skybox.assetPath,
                                 skybox.showSun ?: false,
@@ -285,6 +292,7 @@ class Playx3dSceneController constructor(
                             )
                         } else if (!skybox.url.isNullOrEmpty()) {
                             val shouldUpdateLight = skybox.url == scene?.indirectLight?.url
+                            makeSurfaceViewNotTransparent()
                             skyboxManger.setSkyboxFromHdrUrl(
                                 skybox.url,
                                 skybox.showSun ?: false,
@@ -295,6 +303,7 @@ class Playx3dSceneController constructor(
                     }
                     is ColoredSkybox -> {
                         if (skybox.color != null) {
+                            makeSurfaceViewNotTransparent()
                             skyboxManger.setSkyboxFromColor(skybox.color)
                         }
                     }

@@ -130,6 +130,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  show_fps:
+    dependency: "direct main"
+    description:
+      name: show_fps
+      sha256: b57cfbb285d3f0945696f467cf0ac516ebec8fe75c8e6feeb1ec0694ba1be39a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   sky_engine:
     dependency: transitive
     description: flutter

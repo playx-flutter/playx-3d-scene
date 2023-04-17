@@ -45,6 +45,8 @@ class Playx3dScene(
 
 
     private fun setUpModelViewer() {
+        Timber.d("Playx3dScene :  setup viewer : $id")
+
         val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
         val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)
         val shapeList = getMapValue<List<Any>>("shapes",creationParams)
@@ -105,6 +107,7 @@ class Playx3dScene(
     }
 
     override fun dispose() {
+        Timber.d("Playx3dScene :  dispose viewer : $id")
         modelViewer?.destroy()
         stopListeningToChannel()
     }

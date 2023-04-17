@@ -18,6 +18,7 @@ import io.sourcya.playx_3d_scene.core.scene.common.model.SceneState
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.core.shape.common.model.ShapeState
 import kotlinx.coroutines.flow.MutableStateFlow
+import timber.log.Timber
 import java.nio.Buffer
 
 
@@ -57,7 +58,10 @@ class CustomModelViewer(
 
     val scene: Scene = engine.createScene()
     val view: View = engine.createView()
-    val renderer: Renderer = engine.createRenderer()
+    val renderer: Renderer = engine.createRenderer().apply {
+        clearOptions.clearColor = floatArrayOf(1f,1f,1f,1f)
+
+    }
 
     val currentModelState = MutableStateFlow(ModelState.NONE)
     val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
@@ -157,7 +161,9 @@ class CustomModelViewer(
 
 
     private fun setupView(){
-        view.let {
+
+            view.let {
+
             //on mobile, better use lower quality color buffer
             view.renderQuality = view.renderQuality.apply {
                 hdrColorBuffer = View.QualityLevel.MEDIUM
@@ -198,6 +204,7 @@ class CustomModelViewer(
      * @param frameTimeNanos time in nanoseconds when the frame started being rendered,
      *                       typically comes from {@link android.view.Choreographer.FrameCallback}
      */
+
     fun render(frameTimeNanos: Long) {
         if (!uiHelper.isReadyToRender) {
             return
@@ -208,13 +215,12 @@ class CustomModelViewer(
 
         cameraManger.lookAtDefaultPosition()
 
-
+        val beginFrame = renderer.beginFrame(swapChain!!, frameTimeNanos)
         // Render the scene, unless the renderer wants to skip the frame.
-        if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
+        if (beginFrame) {
             renderer.render(view)
             renderer.endFrame()
             rendererStateFlow.value=frameTimeNanos
-
         }
     }
 

@@ -1,0 +1,30 @@
+name: playx_3d_products_grid_example
+description: Example for how to show 3d products in grid view.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  playx_3d_scene:
+    path: ../
+  show_fps: ^1.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/envs/
+    - assets/envs/venetian_crossroads_2k/
+    - assets/models/
+    - assets/models/textures/
+    - assets/materials/
+    - assets/materials/texture/
