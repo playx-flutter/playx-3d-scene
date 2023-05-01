@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 6.1.5">
+  <meta name="description" content="playx_3d_scene API docs, for the Dart programming language.">
+  <title>playx_3d_scene - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">playx_3d_scene package</li>
+  </ol>
+  <div class="self-name">playx_3d_scene</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span class="material-symbols-outlined">
+        brightness_4
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="playx-3d-scene">Playx 3d Scene</h1>
+<p>Plugin for rendering interactive 3D models based on <a href="https://github.com/google/filament">Google filament</a> natively on Android.
+With the ability of controlling environment skybox, light, camera, ground and more.</p>
+<p><a href="https://user-images.githubusercontent.com/19964129/227077898-ac46c4b9-3668-4c2d-bbea-933b1ce272fb.mp4">https://user-images.githubusercontent.com/19964129/227077898-ac46c4b9-3668-4c2d-bbea-933b1ce272fb.mp4</a></p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Render 3d model from GLB of GLTF file from url or assets.</li>
+<li>change model animation by index or by name.</li>
+<li>Control model scale and position.</li>
+<li>Render environment skybox from HDR image file or from filament ktx file or from color
+or it can be transparent.</li>
+<li>Render indirect light  which is used to simulate environment lighting. it can be loaded from from HDR image file or from filament ktx file.</li>
+<li>Creates  a light source in the scene, such as a sun or street lights</li>
+<li>Have control over the camera with different modes like orbit and free flight mode with a lot of options.</li>
+<li>Create ground plane below the model with custom materials and textures.</li>
+<li>Create different shapes like cube, plane and sphere with custom materials and textures.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>In the <code>dependencies:</code> section of your <code>pubspec.yaml</code>, add the following line:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  playx_3d_scene: &lt;latest_version&gt;
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>Basic usage to create 3d model from glb file with skybox and indirect lighting from hdr image file.</p>
+<pre class="language-dart"><code class="language-dart">      Playx3dScene(  
+          model: GlbModel.asset( "assets/models/Fox.glb",  
+            animation: PlayxAnimation.byIndex(0, autoPlay: true),
+              ),  
+           scene: Scene(  
+                 skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),  
+                 indirectLight: HdrIndirectLight.asset("assets/envs/courtyard.hdr"),  
+                  ),  
+           onCreated: (Playx3dSceneController controller) async {    
+                           await controller.changeAnimationByIndex(1);  
+                       },  
+            onModelStateChanged: (state) {  
+                                  setState(() { 
+                                    isModelLoading = state == ModelState.loading;  
+                            });  
+                          },  
+               ),
+</code></pre>
+<p>See the example app for more complex example.</p>
+<h2 id="how-to-use">How To use</h2>
+<p>The widget conisists of 3 main components :</p>
+<h3 id="model-">Model :</h3>
+<p>There is 2 types of models that can be rendered :</p>
+<h4 id="glb-">Glb :</h4>
+<p>GLB is a binary container format of glTF. It bundles all the textures and mesh data into a single file.</p>
+<p>To load GLB model file from assets we can use :</p>
+<pre class="language-dart"><code class="language-dart">Playx3dScene(
+	model: GlbModel.asset(  
+ 		"assets/models/Fox.glb",  // load glb from assets path
+ 		 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
+		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened
+ 		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model 
+  		 scale: 1.0,  // scale of model defaults to 1
+),
+),
+</code></pre>
+<p>To load GLB model file from url we can use :</p>
+<pre class="language-dart"><code class="language-dart">Playx3dScene(
+	model: GlbModel.url(  
+	 "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Fox/glTF-Binary/Fox.glb",   // load glb from direct url of glb file.
+	  animation: PlayxAnimation.byName("walk", autoPlay: true),   //controls animation 
+	  fallback: GlbModel.asset("assets/models/Fox.glb"), // fallback model if error happened 
+	  centerPosition: PlayxPosition(x: 0, y: 0, z: -4), //center position of model  
+	  scale: 1.0,   // scale of model defaults to 1
+	),
+),
+</code></pre><br>
+<h4 id="gltf">GLTF:</h4>
+<p><a href="https://en.wikipedia.org/wiki/GlTF">glTF</a> is a 3D file format maintained by the Khronos Group. It is an all-purpose transmission format.</p>
+<ul>
+<li>To load Gltf model file from assets we can use :</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">Playx3dScene(  
+	  model: GltfModel.asset(  
+	 	"assets/models/BusterDrone.gltf",  /// path of the gltf file in assets
+	 	 prefix: "assets/models/",  ///prefix for gltf images
+	 	 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
+		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened 
+		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model  
+	 	 scale: 1.0,   // scale of model defaults to 1
+  ),
+),
+</code></pre>
+<p>NOTE :
+If the images path that in the gltf file different from the flutter asset path,<br>
+consider adding <code>prefix</code> to the images path to be before the image.<br>
+Or <code>postfix</code> to the images path to be after the image.<br>
+For example if in the gltf file, the image path is textures/texture<br>
+and in assets the image path is assets/models/textures/texture.png<br>
+<code>prefix</code> must be 'assets/models/' and <code>postfix</code> should be '.png'.
+<br></p>
+<ul>
+<li>To load Gltf model file from url we can use :
+Currently we are supporting loading Gltf file as zip from url only.</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">Playx3dScene(  //same like loading from asssets
+  model: GltfModel.url(  
+	 " gltf url",  /// url of the gltf .zip file 
+	  prefix: "assets/models/",  ///prefix for gltf images 
+  ),
+),
+</code></pre>
+<p>Now we can show our model with a transparent scene with default light.
+Next we will know how we can customize our scene.</p>
+<h3 id="scene">Scene:</h3>
+<p>Our scene consists of some components that allow us to customize how our 3d scene looks.</p>
+<h3 id="image-based-light-and-skybox">Image-Based Light and Skybox</h3>
+<p>Filament supports rendering with  <em>image-based lighting</em>, or IBL. This uses an environment map to approximate the lighting all directions.</p>
+<p>At run time, we need to create an  <code>IndirectLight</code>  object  that contains a set of floating-point images. Together these images comprise all the mipmap levels and cubemap faces that make up the environment. In a sense these are not visible images; it is more accurate to them of them as data that can be used to approximate the indirect lighting in the scene.</p>
+<p>On the other hand, the  <code>Skybox</code>  that  <em>does</em>  contain visible images.
+Filament provides an offline tool called  <code>cmgen</code>  that can consume an equirectangular image and produce indirect light and skybox files in one fell swoop,  as depicted below.</p>
+<p>We support loading skybox and indirect light from both HDR Image or KTX file.
+<img src="https://miro.medium.com/v2/resize:fit:700/1*3A4eB8hGKhABSi7_k50Nug.png" alt=""></p>
+<p><strong>1. Skybox:</strong>
+We can load skybox from ktx file or hdr file or from color and defaults to transparent color.</p>
+<ul>
+<li>Loading skybox from Ktx file:
+<ul>
+<li>
+<p>From assets:</p>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+    skybox:KtxSkybox.asset(
+        "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx" // asset pasth for skybox ktx file
+), 
+</code></pre>
+</li>
+<li>
+<p>From url:</p>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+   skybox:KtxSkybox.url(
+       "url for skybox ktx file" // url for skybox ktx file
+),  
+</code></pre>
+</li>
+</ul>
+</li>
+</ul> <br>
+<ul>
+<li>
+<p>Loading skybox Form HDR file:</p>
+<ul>
+<li>From assets:</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+     skybox:HdrSkybox.asset(
+         "assets/envs/courtyard.hdr" // asset pasth for skybox hdr file
+ ),
+</code></pre>
+<ul>
+<li>From url:</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+   skybox:HdrSkybox.url(
+       "url for skybox hdr file" // url for skybox hdr file
+),  
+</code></pre>
+</li>
+<li>
+<p>Loading Skybox Form Color:</p>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+   skybox: ColoredSkybox(color: Colors.green), // color of skybox
+
+</code></pre>
+</li>
+</ul><br>
+<p><strong>2. Indirect Light:</strong>
+Indirect Light is used to simulate environment lighting, a form of global illumination.
+Filament supports rendering with image-based lighting, or IBL.<br>
+This uses an environment map to approximate the lighting all directions.</p>
+<p>We can load indirect light from KTX file or HDR file or from certain parameters.</p>
+<ul>
+<li>
+<p>Loading indirect light from KTX file:</p>
+<ul>
+<li>
+<p>From assets:</p>
+<pre class="language-dart"><code class="language-dart">   scene: Scene(  
+                indirectLight:KtxIndirectLight.asset(
+                "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx" // asset pasth for indirect light ktx file
+),
+</code></pre>
+</li>
+<li>
+<p>From url:</p>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+   indirectLight:KtxIndirectLight.url(
+       "url for indirect light ktx file" // url for indirect light ktx file
+),  
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Loading indirect light form HDR file:</p>
+<ul>
+<li>
+<p>From assets:</p>
+<pre class="language-dart"><code class="language-dart">   scene: Scene(  
+       indirectLight:HdrIndirectLight.asset(
+           "assets/envs/courtyard.hdr" // asset pasth for indirect light hdr file
+),
+</code></pre>
+</li>
+<li>
+<p>From url:</p>
+<pre class="language-dart"><code class="language-dart">    scene: Scene(  
+  indirectLight:HdrIndirectLight.url(
+      "url for skybox hdr file" // url for indirect light hdr file
+   ),  
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Load indirect light from default parameters like intensity, irradiance, etc:
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+    indirectLight: DefaultIndirectLight(
+           intensity : 30000, // indirect light intensity.
+           radianceBands: 1, // Number of spherical harmonics bands.
+           radianceSh: [1,1,1], // Array containing the spherical harmonics coefficients.
+           irradianceBands: 1, // Number of spherical harmonics bands.
+           irradianceSh: [1,1,1] // Array containing the spherical harmonics coefficients.
+       ),
+),
+</code></pre>
+</li>
+</ul><br>
+<p><strong>3. Light:</strong>
+Light allows us to create a light source in the scene, such as a sun or street lights.
+Lights come in three flavors:<br>
+directional lights   -  point lights   - spot lights</p>
+<ul>
+<li>
+<p>Directional lights :
+Directional lights have a direction, but don't have a position.<br>
+All light rays are parallel and come from infinitely far away and from everywhere.
+Typically a directional light is used to simulate the sun.<br>
+Directional lights and spot lights are able to cast shadows.<br>
+To create a directional light use LightType.DIRECTIONAL or LightType.SUN, both are similar,<br>
+but the later also draws a sun's disk in the sky and its reflection on glossy objects.</p>
+</li>
+<li>
+<p>Point lights<br>
+Unlike directional lights, point lights have a position but emit light in all directions.<br>
+The intensity of the light diminishes with the inverse square of the distance to the light.</p>
+</li>
+<li>
+<p>Spot lights<br>
+Spot lights are similar to point lights but the light they emit is limited to a cone defined by spotLightCone and the light's direction.<br>
+A spot light is therefore defined by a position, a direction and inner and outer cones.<br>
+The spot light's influence is limited to inside the outer cone. The inner cone defines the light's falloff attenuation.<br>
+A physically correct spot light is a little difficult to use because changing the outer angle of the cone changes the illumination levels,<br>
+as the same amount of light is spread over a changing volume.<br>
+The coupling of illumination and the outer cone means that an artist cannot tweak the influence cone of a spot light without also changing the perceived illumination.<br>
+It therefore makes sense to provide artists with a parameter to disable this coupling.</p>
+</li>
+</ul>
+<p>Here is an exmaple how to add light to the scene:</p>
+<pre class="language-dart"><code class="language-dart">scene: Scene(  
+  light: Light(  
+	  type: LightType.directional,  
+	  colorTemperature: 6500.0,  
+	  intensity: 100000.0,  
+	  direction: PlayxDirection(x: 0, y: -1, z: 0),  
+	  castShadows: true,  
+	  ),  
+  ),
+</code></pre>
+<p><strong>4. Camera:</strong>
+It help us have better control over the camera like what mode it operates on, target position, exposure and more.</p>
+<p>There is 3 modes for the camera :
+Orbit mode - Free flight mode  - Map mode</p>
+<p>Here is an example of how we can customize our camera:</p>
+<pre class="language-dart"><code class="language-dart">scene:  Scene(
+	  camera: Camera.orbit(  //make camera operates on orbit mode 
+		  exposure: Exposure.formAperture( 
+		   //Sets this camera's exposure (default is f/16, 1/125s, 100 ISO)
+			  aperture: 16.0,  
+			  shutterSpeed: 1 / 125,  
+			  sensitivity: 150,  
+			  ),  
+		//Sets the world-space position of interest, which defaults to (x:0,y:0,z:-4).
+		  targetPosition: PlayxPosition(x: 0.0, y: 0.0, z: -4.0), 
+		  // Sets The initial eye position in world space for ORBIT mode.  
+		  //This defaults to (x:0,y:0,z:1).
+		  orbitHomePosition: PlayxPosition(x: 0.0, y: 1.0, z: 1.0), 
+		 //The orientation for the home position, which defaults to (x:0,y:1,z:0).
+		  upVector: PlayxPosition(x: 0.0, y: 1.0, z: 0.0),  
+	  ),  
+),
+</code></pre><br>
+<p><strong>5. Ground:</strong>
+The widget also support creating  ground plane to be drawn on the scene.
+With support for customizing ground plane material and textures.</p>
+<p>We will talk in detail more about materials below.</p>
+<p>Here is an example of how to create a ground :</p>
+<pre class="language-dart"><code class="language-dart">scene:Scene(
+	ground: Ground(  
+		  width: 4.0,  //width of the ground
+		  height: 4.0,  //length of the ground
+		   // determine whether the ground plane should be drawn below the model or not. 
+		   //if not provided we must provide center position of the ground.
+		  isBelowModel: true, 
+		  normal: PlayxDirection.y(1.0),  //direction of the shape rotation in the world space
+		  material: PlayxMaterial.asset(  // material of the ground
+			  "assets/materials/textured_pbr.filamat",  
+			  parameters: [  
+				  MaterialParameter.texture(  
+					  value: PlayxTexture.asset(  
+						  "assets/materials/texture/floor_basecolor.png",  
+							 type: TextureType.color,  
+							  sampler: PlayxTextureSampler(anisotropy: 8),  
+						  ),  
+					  name: "baseColor",  
+				 ),  
+				 MaterialParameter.texture(  
+				  value: PlayxTexture.asset(  
+					  "assets/materials/texture/floor_normal.png",  
+						  type: TextureType.normal,  
+						  sampler: PlayxTextureSampler(anisotropy: 8),  
+						  ),  
+					  name: "normal",  
+				  ),  
+				  MaterialParameter.texture(  
+					  value: PlayxTexture.asset(  
+						  "assets/materials/texture/floor_ao_roughness_metallic.png",  
+						  type: TextureType.data,  
+						  sampler: PlayxTextureSampler(anisotropy: 8),  
+						  ),  
+					  name: "aoRoughnessMetallic",  
+				),  
+			  ],  
+		  ),  
+		),
+),
+</code></pre>
+<h3 id="shapes">Shapes:</h3>
+<p>The widget also supports rendering different shapes like cube, plane and sphere.
+with support for customizing it's material and textures.
+<img src="https://dl.dropbox.com/s/il6ia7901clzom8/2.jpg" alt="enter image description here">
+Here is an example of how to create sphere and cube:</p>
+<pre class="language-dart"><code class="language-dart">       shapes: [
+	           Cube(
+                  id: 1, // id of the shape used to update the shapes
+                  length: .5, // length of the cube
+                  centerPosition: PlayxPosition(
+                      x: -1, y: 0, z: -4), // center position of the cube
+                  material: PlayxMaterial.asset("assets/materials/lit.filamat",  //material of the cube
+                      parameters: [
+                        MaterialParameter.color(color: Colors.green, name: "baseColor"),
+                        MaterialParameter.float(value: .8, name: "roughness"),
+                        MaterialParameter.float(value: .8, name: "metallic"),
+                      ],
+                  ),
+                ),
+                Sphere(      //creates a sphere
+                  id: 2,   // id of the shape used to update the shapes
+                  centerPosition: PlayxPosition(x: 1, y: 0, z: -4),   //center position of the sphere
+                  radius: .5,      //radius of the sphere 
+                  material: PlayxMaterial.asset(  // material of the sphere
+                    "assets/materials/textured_pbr.filamat",
+                    parameters: [
+                      MaterialParameter.texture(
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_basecolor.png",
+                          type: TextureType.color,
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        name: "baseColor",
+                      ),
+                      MaterialParameter.texture(
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_normal.png",
+                          type: TextureType.normal,
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        name: "normal",
+                      ),
+                      MaterialParameter.texture(
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_ao_roughness_metallic.png",
+                          type: TextureType.data,
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        name: "aoRoughnessMetallic",
+                      ),
+                    ],
+                  ),
+                )
+              ],               
+</code></pre><br>
+<h2 id="materials">Materials:</h2>
+<p>Filament is a physically based rendering (PBR) engine for Android. Filament offers a customizable material system that you can use to create both simple and complex materials.</p>
+<p>A material defines the visual appearance of a surface. To completely describe and render a surface, a material provides the following information:</p>
+<ul>
+<li>Material model</li>
+<li>Set of use-controllable named parameters</li>
+<li>Raster state (blending mode, backface culling, etc.)</li>
+<li>Vertex shader code</li>
+<li>Fragment shader code
+<br></li>
+</ul>
+<h3 id="material-model">Material model</h3>
+<p>Also called  <em>shading model</em>  or  <em>lighting model</em>, the material model defines the intrinsic properties of a surface. These properties have a direct influence on the way lighting is computed and therefore on the appearance of a surface.</p>
+<p>Filament materials can use one of the following material models:</p>
+<ul>
+<li>Lit (or standard)</li>
+<li>Subsurface</li>
+<li>Cloth</li>
+<li>Unlit</li>
+<li>Specular glossiness (legacy)</li>
+</ul>
+<p>For example for Lit (or standard) model :</p>
+<p>This material model can be used to describe many non-metallic surfaces (<em>dielectrics</em>) or metallic surfaces (<em>conductors</em>).
+The appearance of a material using the standard model is controlled using properties for example:</p>
+<p><strong>baseColor</strong> : Diffuse albedo for non-metallic surfaces, and specular color for metallic surfaces</p>
+<p><strong>metallic</strong> :Whether a surface appears to be dielectric (0.0) or conductor (1.0). Often used as a binary value (0 or 1)</p>
+<p><strong>roughness</strong> Perceived smoothness (1.0) or roughness (0.0) of a surface. Smooth surfaces exhibit sharp reflections</p>
+<p><strong>reflectance</strong> Fresnel reflectance at normal incidence for dielectric surfaces. This directly controls the strength of the reflections</p>
+<p><strong>sheenColor</strong> Strength of the sheen layer</p>
+<p>Each property can be different  from each other.</p>
+<p>For more information about material and how to create the material file look at the material <a href="https://google.github.io/filament/Materials.html">documentation</a> and <a href="https://github.com/google/filament/tree/main/samples/materials">samples</a>.</p>
+<h3 id="compiling-materials">Compiling materials</h3>
+<p>To use material in our widget to customize the appearance of shapes and ground.<br>
+You will be required to create a material file (.mat file) then we will need to convert it to (.filamt) file to be able to use it with the widget using the material compiler  <code>matc</code> .</p>
+<p>Material packages can be compiled from material definitions using the command line tool called  <code>matc</code>.
+You can get it by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a>  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
+<p>The simplest way to use  <code>matc</code> is to specify an input material definition (<code>lit.mat</code> in the example below) and an output material package (<code>lit.filamat</code> in the example below):</p>
+<pre class="language-dart"><code>matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat  
+</code></pre>
+<h3 id="how-to-use-materials">How to use materials:</h3>
+<p>After we have created our material files and compiled it using  material compiler  <code>matc</code>.
+We can use it to customize the visual appearance of shapes and ground like giving ground wood texture.</p>
+<p>Here is an example of how to give cube lit material and customize it's color, metallic and roughnesss.</p>
+<pre class="language-dart"><code class="language-dart">              Cube(
+//materials can be created from assets or url file
+//by providing path of the compiled material file 
+material: PlayxMaterial.asset("assets/materials/lit.filamat",
+//usually the material file contains values for these properties, but if we want to customize it we can like that.
+parameters: [
+//update base color property with color
+MaterialParameter.color(color: Colors.green, name: "baseColor"),
+//update roughness property with it's value
+MaterialParameter.float(value: .8, name: "roughness"),
+//update metallicproperty with it's value
+MaterialParameter.float(value: .8, name: "metallic"),
+],
+),
+),
+</code></pre>
+<p>And just like that we have given our cube shape a material with color and customizing it's metallic and roughness properties.</p>
+<p>The widget also supports customizing our shapes material by textures.
+It can load textures from assets or url and apply it to any shape.</p>
+<p>Here is an example of giving a sphere a wood texture :</p>
+<pre class="language-dart"><code class="language-dart">                Sphere(       
+              //Asset path of the compiled material file 
+                  material: PlayxMaterial.asset(
+                    "assets/materials/textured_pbr.filamat",
+                    parameters: [
+                      MaterialParameter.texture(
+                      //creates texture from asset for texture the material type must be sampler2d 
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_basecolor.png",
+                          //type of texture
+                          type: TextureType.color,
+                          //sampler defines how a texture is accessed.
+                          //can be left to default
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        //baseColor property name in the material file
+                        name: "baseColor",
+                      ),
+                      //creates texture from asset and apply it to normal property 
+                      MaterialParameter.texture(
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_normal.png",
+                          type: TextureType.normal,
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        name: "normal",
+                      ),
+                      //creates texture from asset and apply it to aoRoughnessMetallic property 
+                      MaterialParameter.texture(
+                        value: PlayxTexture.asset(
+                          "assets/materials/texture/floor_ao_roughness_metallic.png",
+                          type: TextureType.data,
+                          sampler: PlayxTextureSampler(anisotropy: 8),
+                        ),
+                        name: "aoRoughnessMetallic",
+                      ),
+                    ],
+                  ),
+                )
+              ],
+			  
+</code></pre><br>
+<h2 id="addendum-creating-the-ktx-files">Addendum: Creating the KTX Files</h2>
+<p>To make your own KTX file , you can obtain  <code>cmgen</code>  by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a>  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
+<p>To generate both a Skybox and an IBL, invoke  <code>cmgen</code>  using a command line like this:</p>
+<pre class="language-dart"><code>cmgen                   \  
+    --deploy ./myOutDir \  
+    --format=ktx        \  
+    --size=256          \  
+    --extract-blur=0.1  \  
+    mySrcEnv.hdr
+</code></pre>
+<p>The  <code>extract-blur</code>  option tells  <code>cmgen</code>  to make a skybox in addition to the IBL. To see the complete list of options, try  <code>cmgen -h</code>.</p><br>
+<h2 id="documentation--references">Documentation &amp;&amp; References</h2>
+<ul>
+<li><a href="https://google.github.io/filament/Filament.html">Filament</a>, an in-depth explanation of real-time physically based rendering, the graphics capabilities and implementation of Filament. This document explains the math and reasoning behind most of our decisions. This document is a good introduction to PBR for graphics programmers.</li>
+<li><a href="https://google.github.io/filament/Materials.html">Materials</a>, the full reference documentation for our material system. This document explains our different material models, how to use the material compiler  <code>matc</code>  and how to write custom materials.</li>
+<li><a href="https://google.github.io/filament/Material%20Properties.pdf">Material Properties</a>, a reference sheet for the standard material model..</li>
+<li><a href="https://github.com/google/filament/tree/main/android/samples">Filament sample Android apps</a>,This directory contains several sample Android applications that demonstrate how to use the Filament APIs:</li>
+<li><a href="https://medium.com/@philiprideout/getting-started-with-filament-on-android-d10b16f0ec67">Getting Started with Filament on Android</a> : by   Philip Rideout</li>
+</ul>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="animation">
+  <span class="name"><a href="models_model_animation/models_model_animation-library.html">animation</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="camera">
+  <span class="name"><a href="models_scene_camera_camera/models_scene_camera_camera-library.html">camera</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="camera_mode">
+  <span class="name"><a href="models_scene_camera_enums_camera_mode/models_scene_camera_enums_camera_mode-library.html">camera_mode</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="colored_skybox">
+  <span class="name"><a href="models_scene_skybox_colored_skybox/models_scene_skybox_colored_skybox-library.html">colored_skybox</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="cube">
+  <span class="name"><a href="models_shapes_cube/models_shapes_cube-library.html">cube</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="default_indirect_light">
+  <span class="name"><a href="models_scene_indirect_light_default_indirect_light/models_scene_indirect_light_default_indirect_light-library.html">default_indirect_light</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="direction">
+  <span class="name"><a href="models_scene_geometry_direction/models_scene_geometry_direction-library.html">direction</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="exposure">
+  <span class="name"><a href="models_scene_camera_exposure/models_scene_camera_exposure-library.html">exposure</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="fov">
+  <span class="name"><a href="models_scene_camera_enums_fov/models_scene_camera_enums_fov-library.html">fov</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="glb_model">
+  <span class="name"><a href="models_model_glb_model/models_model_glb_model-library.html">glb_model</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="gltf_model">
+  <span class="name"><a href="models_model_gltf_model/models_model_gltf_model-library.html">gltf_model</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="ground">
+  <span class="name"><a href="models_scene_ground/models_scene_ground-library.html">ground</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="hdr_indirect_light">
+  <span class="name"><a href="models_scene_indirect_light_hdr_indirect_light/models_scene_indirect_light_hdr_indirect_light-library.html">hdr_indirect_light</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="hdr_skybox">
+  <span class="name"><a href="models_scene_skybox_hdr_skybox/models_scene_skybox_hdr_skybox-library.html">hdr_skybox</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="indirect_light">
+  <span class="name"><a href="models_scene_indirect_light_indirect_light/models_scene_indirect_light_indirect_light-library.html">indirect_light</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="ktx_indirect_light">
+  <span class="name"><a href="models_scene_indirect_light_ktx_indirect_light/models_scene_indirect_light_ktx_indirect_light-library.html">ktx_indirect_light</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="ktx_skybox">
+  <span class="name"><a href="models_scene_skybox_ktx_skybox/models_scene_skybox_ktx_skybox-library.html">ktx_skybox</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="lens_projection">
+  <span class="name"><a href="models_scene_camera_lens_projection/models_scene_camera_lens_projection-library.html">lens_projection</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="light">
+  <span class="name"><a href="models_scene_light_light/models_scene_light_light-library.html">light</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="light_type">
+  <span class="name"><a href="models_scene_light_light_type/models_scene_light_light_type-library.html">light_type</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="mag_filter">
+  <span class="name"><a href="models_scene_material_texture_enums_mag_filter/models_scene_material_texture_enums_mag_filter-library.html">mag_filter</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="material">
+  <span class="name"><a href="models_scene_material_material/models_scene_material_material-library.html">material</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="material_paramater">
+  <span class="name"><a href="models_scene_material_material_paramater/models_scene_material_material_paramater-library.html">material_paramater</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="material_type">
+  <span class="name"><a href="models_scene_material_material_type/models_scene_material_material_type-library.html">material_type</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="min_filter">
+  <span class="name"><a href="models_scene_material_texture_enums_min_filter/models_scene_material_texture_enums_min_filter-library.html">min_filter</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="model">
+  <span class="name"><a href="models_model_model/models_model_model-library.html">model</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="model_state">
+  <span class="name"><a href="models_state_model_state/models_state_model_state-library.html">model_state</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="plane">
+  <span class="name"><a href="models_shapes_plane/models_shapes_plane-library.html">plane</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="playx_3d_scene">
+  <span class="name"><a href="view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="playx_3d_scene_controller">
+  <span class="name"><a href="controller_playx_3d_scene_controller/controller_playx_3d_scene_controller-library.html">playx_3d_scene_controller</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="position">
+  <span class="name"><a href="models_scene_geometry_position/models_scene_geometry_position-library.html">position</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="projection">
+  <span class="name"><a href="models_scene_camera_projection/models_scene_camera_projection-library.html">projection</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="projection_type">
+  <span class="name"><a href="models_scene_camera_enums_projection_type/models_scene_camera_enums_projection_type-library.html">projection_type</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="result">
+  <span class="name"><a href="utils_result/utils_result-library.html">result</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="scene">
+  <span class="name"><a href="models_scene_scene/models_scene_scene-library.html">scene</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="scene_state">
+  <span class="name"><a href="models_state_scene_state/models_state_scene_state-library.html">scene_state</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="shape">
+  <span class="name"><a href="models_shapes_shape/models_shapes_shape-library.html">shape</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="shape_state">
+  <span class="name"><a href="models_state_shape_state/models_state_shape_state-library.html">shape_state</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="size">
+  <span class="name"><a href="models_scene_geometry_size/models_scene_geometry_size-library.html">size</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="skybox">
+  <span class="name"><a href="models_scene_skybox_skybox/models_scene_skybox_skybox-library.html">skybox</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="sphere">
+  <span class="name"><a href="models_shapes_sphere/models_shapes_sphere-library.html">sphere</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="texture">
+  <span class="name"><a href="models_scene_material_texture_texture/models_scene_material_texture_texture-library.html">texture</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="texture_sampler">
+  <span class="name"><a href="models_scene_material_texture_texture_sampler/models_scene_material_texture_texture_sampler-library.html">texture_sampler</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="texture_type">
+  <span class="name"><a href="models_scene_material_texture_enums_texture_type/models_scene_material_texture_enums_texture_type-library.html">texture_type</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="utils">
+  <span class="name"><a href="utils_utils/utils_utils-library.html">utils</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="wrap_mode">
+  <span class="name"><a href="models_scene_material_texture_enums_wrap_mode/models_scene_material_texture_enums_wrap_mode-library.html">wrap_mode</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li class="self-crumb">playx_3d_scene package</li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">playx_3d_scene</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="models_model_animation/models_model_animation-library.html">animation</a></li>
+      <li><a href="models_scene_camera_camera/models_scene_camera_camera-library.html">camera</a></li>
+      <li><a href="models_scene_camera_enums_camera_mode/models_scene_camera_enums_camera_mode-library.html">camera_mode</a></li>
+      <li><a href="models_scene_skybox_colored_skybox/models_scene_skybox_colored_skybox-library.html">colored_skybox</a></li>
+      <li><a href="models_shapes_cube/models_shapes_cube-library.html">cube</a></li>
+      <li><a href="models_scene_indirect_light_default_indirect_light/models_scene_indirect_light_default_indirect_light-library.html">default_indirect_light</a></li>
+      <li><a href="models_scene_geometry_direction/models_scene_geometry_direction-library.html">direction</a></li>
+      <li><a href="models_scene_camera_exposure/models_scene_camera_exposure-library.html">exposure</a></li>
+      <li><a href="models_scene_camera_enums_fov/models_scene_camera_enums_fov-library.html">fov</a></li>
+      <li><a href="models_model_glb_model/models_model_glb_model-library.html">glb_model</a></li>
+      <li><a href="models_model_gltf_model/models_model_gltf_model-library.html">gltf_model</a></li>
+      <li><a href="models_scene_ground/models_scene_ground-library.html">ground</a></li>
+      <li><a href="models_scene_indirect_light_hdr_indirect_light/models_scene_indirect_light_hdr_indirect_light-library.html">hdr_indirect_light</a></li>
+      <li><a href="models_scene_skybox_hdr_skybox/models_scene_skybox_hdr_skybox-library.html">hdr_skybox</a></li>
+      <li><a href="models_scene_indirect_light_indirect_light/models_scene_indirect_light_indirect_light-library.html">indirect_light</a></li>
+      <li><a href="models_scene_indirect_light_ktx_indirect_light/models_scene_indirect_light_ktx_indirect_light-library.html">ktx_indirect_light</a></li>
+      <li><a href="models_scene_skybox_ktx_skybox/models_scene_skybox_ktx_skybox-library.html">ktx_skybox</a></li>
+      <li><a href="models_scene_camera_lens_projection/models_scene_camera_lens_projection-library.html">lens_projection</a></li>
+      <li><a href="models_scene_light_light/models_scene_light_light-library.html">light</a></li>
+      <li><a href="models_scene_light_light_type/models_scene_light_light_type-library.html">light_type</a></li>
+      <li><a href="models_scene_material_texture_enums_mag_filter/models_scene_material_texture_enums_mag_filter-library.html">mag_filter</a></li>
+      <li><a href="models_scene_material_material/models_scene_material_material-library.html">material</a></li>
+      <li><a href="models_scene_material_material_paramater/models_scene_material_material_paramater-library.html">material_paramater</a></li>
+      <li><a href="models_scene_material_material_type/models_scene_material_material_type-library.html">material_type</a></li>
+      <li><a href="models_scene_material_texture_enums_min_filter/models_scene_material_texture_enums_min_filter-library.html">min_filter</a></li>
+      <li><a href="models_model_model/models_model_model-library.html">model</a></li>
+      <li><a href="models_state_model_state/models_state_model_state-library.html">model_state</a></li>
+      <li><a href="models_shapes_plane/models_shapes_plane-library.html">plane</a></li>
+      <li><a href="view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></li>
+      <li><a href="controller_playx_3d_scene_controller/controller_playx_3d_scene_controller-library.html">playx_3d_scene_controller</a></li>
+      <li><a href="models_scene_geometry_position/models_scene_geometry_position-library.html">position</a></li>
+      <li><a href="models_scene_camera_projection/models_scene_camera_projection-library.html">projection</a></li>
+      <li><a href="models_scene_camera_enums_projection_type/models_scene_camera_enums_projection_type-library.html">projection_type</a></li>
+      <li><a href="utils_result/utils_result-library.html">result</a></li>
+      <li><a href="models_scene_scene/models_scene_scene-library.html">scene</a></li>
+      <li><a href="models_state_scene_state/models_state_scene_state-library.html">scene_state</a></li>
+      <li><a href="models_shapes_shape/models_shapes_shape-library.html">shape</a></li>
+      <li><a href="models_state_shape_state/models_state_shape_state-library.html">shape_state</a></li>
+      <li><a href="models_scene_geometry_size/models_scene_geometry_size-library.html">size</a></li>
+      <li><a href="models_scene_skybox_skybox/models_scene_skybox_skybox-library.html">skybox</a></li>
+      <li><a href="models_shapes_sphere/models_shapes_sphere-library.html">sphere</a></li>
+      <li><a href="models_scene_material_texture_texture/models_scene_material_texture_texture-library.html">texture</a></li>
+      <li><a href="models_scene_material_texture_texture_sampler/models_scene_material_texture_texture_sampler-library.html">texture_sampler</a></li>
+      <li><a href="models_scene_material_texture_enums_texture_type/models_scene_material_texture_enums_texture_type-library.html">texture_type</a></li>
+      <li><a href="utils_utils/utils_utils-library.html">utils</a></li>
+      <li><a href="models_scene_material_texture_enums_wrap_mode/models_scene_material_texture_enums_wrap_mode-library.html">wrap_mode</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    playx_3d_scene
+      0.0.4
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
