@@ -1,6 +1,6 @@
 name: playx_3d_scene
 description: Plugin for showing 3d models in flutter.
-version: 0.0.2
+version: 0.0.3
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
