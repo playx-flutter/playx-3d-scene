@@ -1,6 +1,6 @@
-name: playx_model_viewer
-description: A new Flutter project.
-version: 0.0.1
+name: playx_3d_scene
+description: Plugin for showing 3d models in flutter.
+version: 0.0.3
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -16,26 +16,12 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.1
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
-  # This section identifies this Flutter project as a plugin project.
-  # The 'pluginClass' specifies the class (in Java, Kotlin, Swift, Objective-C, etc.)
-  # which should be registered in the plugin registry. This is required for
-  # using method channels.
-  # The Android 'package' specifies package in which the registered class is.
-  # This is required for using method channels on Android.
-  # The 'ffiPlugin' specifies that native code should be built and bundled.
-  # This is required for using `dart:ffi`.
-  # All these are used by the tooling to maintain consistency when
-  # adding or updating assets for this project.
   plugin:
     platforms:
       android:
-        package: io.sourcya.playx_model_viewer
-        pluginClass: PlayxModelViewerPlugin
+        package: io.sourcya.playx_3d_scene
+        pluginClass: Playx3dScenePlugin
 
 
 

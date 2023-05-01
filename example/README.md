@@ -1,16 +1,5 @@
-# playx_model_viewer_example
+# My fox example
 
-Demonstrates how to use the playx_model_viewer plugin.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Demonstrates how to use the playx_3d_scene plugin for rendering 3d model
+with controlling how skybox environment look and indirect lightening 
+and how to create shapes and ground with textured materials.

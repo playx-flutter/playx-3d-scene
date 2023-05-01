@@ -1,5 +1,5 @@
-group 'io.sourcya.playx_model_viewer'
-version '1.0-SNAPSHOT'
+group 'io.sourcya.playx_3d_scene'
+version '0.0.2'
 
 buildscript {
     ext.kotlin_version = '1.8.0'
@@ -46,10 +46,15 @@ android {
 
     dependencies {
         implementation 'com.jakewharton.timber:timber:5.0.1'
+        implementation 'com.google.code.gson:gson:2.10.1'
+        //retrofit
+        implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+        implementation 'com.github.bumptech.glide:glide:4.15.0'
+        annotationProcessor 'com.github.bumptech.glide:compiler:4.15.0'
 
-        implementation 'com.google.android.filament:filament-android:1.31.5'
-        implementation 'com.google.android.filament:filament-utils-android:1.31.5'
-        implementation 'com.google.android.filament:gltfio-android:1.31.5'
+        implementation 'com.google.android.filament:filament-android:1.32.1'
+        implementation 'com.google.android.filament:filament-utils-android:1.32.1'
+        implementation 'com.google.android.filament:gltfio-android:1.32.1'
 
     }
 }
