@@ -1,3 +1,4 @@
+name: Publish Docs to ghpages
 on:
   push:
     branches: [ "main" ]
@@ -10,7 +11,6 @@ jobs:
       with:
         channel: 'stable'
     - run: flutter pub get
-    - run: flutter test
     - run: dart doc
     - uses: peaceiris/actions-gh-pages@v3
       with:
