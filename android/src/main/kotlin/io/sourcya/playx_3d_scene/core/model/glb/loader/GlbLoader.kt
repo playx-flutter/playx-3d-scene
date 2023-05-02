@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.model.glb.loader
 
-import android.annotation.SuppressLint
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
@@ -16,7 +15,7 @@ import kotlinx.coroutines.withContext
 internal class GlbLoader constructor(
     private val modelViewer: CustomModelViewer,
     private val context: Context,
-    private val flutterAssets: FlutterAssets
+    private val flutterAssets: FlutterAssets,
 ) {
 
     suspend fun loadGlbFromAsset(path: String?,
@@ -26,6 +25,7 @@ internal class GlbLoader constructor(
 
                                  ): Resource<String> {
         modelViewer.setModelState( ModelState.LOADING)
+
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
                 is Resource.Success -> {
@@ -76,22 +76,5 @@ internal class GlbLoader constructor(
         }
     }
 
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var INSTANCE: GlbLoader? = null
-
-        fun getInstance(
-            modelViewer: CustomModelViewer,
-            context: Context,
-            flutterAssets: FlutterAssets
-        ): GlbLoader =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: GlbLoader(modelViewer, context, flutterAssets).also {
-                    INSTANCE = it
-                }
-            }
-
-    }
 }
 

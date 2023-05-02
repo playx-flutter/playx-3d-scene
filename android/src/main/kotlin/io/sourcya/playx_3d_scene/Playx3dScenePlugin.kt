@@ -2,6 +2,11 @@ package io.sourcya.playx_3d_scene
 
 import androidx.lifecycle.Lifecycle
 import com.google.android.filament.Engine
+import com.google.android.filament.EntityManager
+import com.google.android.filament.gltfio.AssetLoader
+import com.google.android.filament.gltfio.MaterialProvider
+import com.google.android.filament.gltfio.ResourceLoader
+import com.google.android.filament.gltfio.UbershaderProvider
 import com.google.android.filament.utils.Utils
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -18,18 +23,29 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     private var lifecycle: Lifecycle? = null
     private lateinit var engine :Engine
     private lateinit var iblProfiler: IBLProfiler
-
+    private lateinit var  materialProvider : MaterialProvider
+    private lateinit var assetLoader :AssetLoader
+    private lateinit var resourceLoader :ResourceLoader
     //register the android native view
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Timber.plant(Timber.DebugTree())
        engine= Engine.create()
+         materialProvider = UbershaderProvider(engine)
+
+         assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
+         resourceLoader = ResourceLoader(engine, true)
+
         iblProfiler = IBLProfiler(engine)
+
         binding
             .platformViewRegistry
             .registerViewFactory(
                 viewType,
-                Playx3dSceneFactory(binding, engine,
+                Playx3dSceneFactory(binding,
+                    engine,
                     iblProfiler,
+                    assetLoader,
+                    resourceLoader,
                     object : LifecycleProvider {
                         override fun getLifecycle(): Lifecycle? {
                             return lifecycle
@@ -39,7 +55,12 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
     }
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         iblProfiler.destroy()
+        materialProvider.destroyMaterials()
+        materialProvider.destroy()
+        assetLoader.destroy()
+        resourceLoader.destroy()
         engine.destroy()
+
     }
     companion object {
         var viewType = "io.sourcya.playx.3d.scene.channel_3d_scene"

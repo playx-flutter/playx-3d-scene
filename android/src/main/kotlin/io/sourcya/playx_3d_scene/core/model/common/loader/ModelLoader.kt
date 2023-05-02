@@ -1,6 +1,5 @@
 package io.sourcya.playx_3d_scene.core.model.common.loader
 
-import com.google.android.filament.EntityManager
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
@@ -9,7 +8,11 @@ import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
 import java.nio.Buffer
 
-class ModelLoader(private val modelViewer: CustomModelViewer) {
+class ModelLoader(
+    private val modelViewer: CustomModelViewer,
+    private val assetLoader: AssetLoader,
+    private val resourceLoader: ResourceLoader,
+) {
     private val engine = modelViewer.engine
 
     var asset: FilamentAsset? = null
@@ -17,21 +20,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
 
     private val readyRenderables = IntArray(128) // add up to 128 entities at a time
 
-
-    private var assetLoader: AssetLoader
-    private var materialProvider: MaterialProvider = UbershaderProvider(engine)
-    private var resourceLoader: ResourceLoader
-
     private var fetchResourcesJob: Job? = null
-
-
-    var normalizeSkinningWeights = true
-
-    init {
-        assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
-        resourceLoader = ResourceLoader(engine, normalizeSkinningWeights)
-
-    }
 
 
     /**
@@ -39,15 +28,15 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
      */
     suspend fun loadModelGlb(buffer: Buffer, transformToUnitCube: Boolean = false,
                              centerPosition: Position?, scale: Float?) {
+
         withContext(Dispatchers.Main) {
+
             destroyModel()
             asset = assetLoader.createAsset(buffer)
-
             asset?.let { asset ->
                 resourceLoader.asyncBeginLoad(asset)
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
-
                 if (transformToUnitCube) {
                     transformToUnitCube(centerPoint = centerPosition, scale=scale)
                 }
@@ -120,6 +109,7 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
         fetchResourcesJob?.cancel()
         resourceLoader.asyncCancelLoad()
         resourceLoader.evictResourceData()
+
         asset?.let { asset ->
             modelViewer.scene.removeEntities(asset.entities)
             assetLoader.destroyAsset(asset)
@@ -219,13 +209,6 @@ class ModelLoader(private val modelViewer: CustomModelViewer) {
     }
 
 
-    fun destroy() {
-        assetLoader.destroy()
-        materialProvider.destroyMaterials()
-        materialProvider.destroy()
-        resourceLoader.destroy()
-
-    }
 
 
     @Suppress("unused")

@@ -8,6 +8,8 @@ import com.google.android.filament.*
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.Animator
+import com.google.android.filament.gltfio.AssetLoader
+import com.google.android.filament.gltfio.ResourceLoader
 import com.google.android.filament.utils.Float3
 import io.sourcya.playx_3d_scene.core.model.common.loader.ModelLoader
 import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
@@ -55,10 +57,7 @@ class CustomModelViewer(
 
     val scene: Scene = engine.createScene()
     val view: View = engine.createView()
-
-
     val renderer: Renderer = engine.createRenderer()
-    val modelLoader: ModelLoader = ModelLoader(this)
 
     val currentModelState = MutableStateFlow(ModelState.NONE)
     val rendererStateFlow:MutableStateFlow<Long?> = MutableStateFlow(null)
@@ -75,7 +74,9 @@ class CustomModelViewer(
     private lateinit var displayHelper: DisplayHelper
     private var surfaceView: SurfaceView? = null
     private var textureView: TextureView? = null
-
+    private lateinit var assetLoader: AssetLoader
+    private lateinit var resourceLoader: ResourceLoader
+    lateinit var modelLoader: ModelLoader;
 
     private var swapChain: SwapChain? = null
 
@@ -89,7 +90,9 @@ class CustomModelViewer(
     constructor(
         surfaceView: SurfaceView,
         engine: Engine = Engine.create(),
-        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
+        assetLoader: AssetLoader,
+        resourceLoader: ResourceLoader,
+        uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
     ) : this(engine, uiHelper) {
 
         this.surfaceView = surfaceView
@@ -101,7 +104,11 @@ class CustomModelViewer(
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(surfaceView)
 
+        this.assetLoader = assetLoader;
+        this.resourceLoader  = resourceLoader
+
         setupView()
+        modelLoader = ModelLoader(this, assetLoader, resourceLoader)
 
     }
 
@@ -109,6 +116,8 @@ class CustomModelViewer(
     constructor(
         textureView: TextureView,
         engine: Engine = Engine.create(),
+        assetLoader: AssetLoader,
+        resourceLoader: ResourceLoader,
         uiHelper: UiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK),
     ) : this(engine, uiHelper) {
 
@@ -120,9 +129,12 @@ class CustomModelViewer(
         uiHelper.renderCallback = SurfaceCallback()
 
         uiHelper.attachTo(textureView)
+        this.assetLoader = assetLoader;
+        this.resourceLoader  = resourceLoader
 
         setupView()
 
+        modelLoader = ModelLoader(this, assetLoader, resourceLoader)
 
     }
 
@@ -196,6 +208,7 @@ class CustomModelViewer(
 
         cameraManger.lookAtDefaultPosition()
 
+
         // Render the scene, unless the renderer wants to skip the frame.
         if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
             renderer.render(view)
@@ -219,7 +232,6 @@ class CustomModelViewer(
     fun destroy() {
         uiHelper.detach()
         modelLoader.destroyModel()
-        modelLoader.destroy()
         engine.destroyRenderer(renderer)
         engine.destroyView(this@CustomModelViewer.view)
         engine.destroyScene(scene)
