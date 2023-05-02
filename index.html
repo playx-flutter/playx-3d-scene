@@ -29,7 +29,7 @@
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
-    <li class="self-crumb">playx_3d_scene package</li>
+    <li><a href="https://sourcya.com/">playx_3d_scene package</a></li>
   </ol>
   <div class="self-name">playx_3d_scene</div>
   <form class="search navbar-right" role="search">
@@ -50,7 +50,7 @@
       
 <section class="desc markdown">
   <h1 id="playx-3d-scene">Playx 3d Scene</h1>
-<p>Plugin for rendering interactive 3D models based on <a href="https://github.com/google/filament">Google filament</a> natively on Android.
+<p>Plugin for rendering interactive 3D models based on <a href="https://github.com/google/filament">Google filament</a> natively on Android.<br>
 With the ability of controlling environment skybox, light, camera, ground and more.</p>
 <p><a href="https://user-images.githubusercontent.com/19964129/227077898-ac46c4b9-3668-4c2d-bbea-933b1ce272fb.mp4">https://user-images.githubusercontent.com/19964129/227077898-ac46c4b9-3668-4c2d-bbea-933b1ce272fb.mp4</a></p>
 <h2 id="features">Features</h2>
@@ -58,7 +58,7 @@ With the ability of controlling environment skybox, light, camera, ground and mo
 <li>Render 3d model from GLB of GLTF file from url or assets.</li>
 <li>change model animation by index or by name.</li>
 <li>Control model scale and position.</li>
-<li>Render environment skybox from HDR image file or from filament ktx file or from color
+<li>Render environment skybox from HDR image file or from filament ktx file or from color<br>
 or it can be transparent.</li>
 <li>Render indirect light  which is used to simulate environment lighting. it can be loaded from from HDR image file or from filament ktx file.</li>
 <li>Creates  a light source in the scene, such as a sun or street lights</li>
@@ -68,28 +68,28 @@ or it can be transparent.</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>In the <code>dependencies:</code> section of your <code>pubspec.yaml</code>, add the following line:</p>
-<pre class="language-yaml"><code class="language-yaml">dependencies:
-  playx_3d_scene: &lt;latest_version&gt;
+<pre class="language-yaml"><code class="language-yaml">dependencies:  
+  playx_3d_scene: ^0.0.1  
 </code></pre>
 <h2 id="usage">Usage</h2>
 <p>Basic usage to create 3d model from glb file with skybox and indirect lighting from hdr image file.</p>
-<pre class="language-dart"><code class="language-dart">      Playx3dScene(  
-          model: GlbModel.asset( "assets/models/Fox.glb",  
-            animation: PlayxAnimation.byIndex(0, autoPlay: true),
-              ),  
-           scene: Scene(  
-                 skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),  
-                 indirectLight: HdrIndirectLight.asset("assets/envs/courtyard.hdr"),  
-                  ),  
-           onCreated: (Playx3dSceneController controller) async {    
-                           await controller.changeAnimationByIndex(1);  
-                       },  
-            onModelStateChanged: (state) {  
-                                  setState(() { 
-                                    isModelLoading = state == ModelState.loading;  
-                            });  
-                          },  
-               ),
+<pre class="language-dart"><code class="language-dart"> Playx3dScene(
+    model: GlbModel.asset("assets/models/Fox.glb",
+      animation: PlayxAnimation.byIndex(0, autoPlay: true),
+    ),
+    scene: Scene(
+      skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),
+      indirectLight: HdrIndirectLight.asset("assets/envs/courtyard.hdr"),
+    ),
+    onCreated: (Playx3dSceneController controller) async {
+      await controller.changeAnimationByIndex(1);
+    },
+    onModelStateChanged: (state) {
+      setState(() {
+        isModelLoading = state == ModelState.loading;
+      });
+    },
+  );
 </code></pre>
 <p>See the example app for more complex example.</p>
 <h2 id="how-to-use">How To use</h2>
@@ -99,95 +99,98 @@ or it can be transparent.</li>
 <h4 id="glb-">Glb :</h4>
 <p>GLB is a binary container format of glTF. It bundles all the textures and mesh data into a single file.</p>
 <p>To load GLB model file from assets we can use :</p>
-<pre class="language-dart"><code class="language-dart">Playx3dScene(
-	model: GlbModel.asset(  
- 		"assets/models/Fox.glb",  // load glb from assets path
- 		 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
-		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened
- 		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model 
-  		 scale: 1.0,  // scale of model defaults to 1
-),
-),
+<pre class="language-dart"><code class="language-dart">Playx3dScene(  
+   model: GlbModel.asset(    
+      "assets/models/Fox.glb",  // load glb from assets path  
+       animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation   
+       fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened  
+       centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model   
+       scale: 1.0,  // scale of model defaults to 1  
+  ),  
+),  
 </code></pre>
 <p>To load GLB model file from url we can use :</p>
-<pre class="language-dart"><code class="language-dart">Playx3dScene(
-	model: GlbModel.url(  
-	 "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Fox/glTF-Binary/Fox.glb",   // load glb from direct url of glb file.
-	  animation: PlayxAnimation.byName("walk", autoPlay: true),   //controls animation 
-	  fallback: GlbModel.asset("assets/models/Fox.glb"), // fallback model if error happened 
-	  centerPosition: PlayxPosition(x: 0, y: 0, z: -4), //center position of model  
-	  scale: 1.0,   // scale of model defaults to 1
-	),
-),
+<pre class="language-dart"><code class="language-dart">Playx3dScene(  
+   model: GlbModel.url(    
+    // load glb from direct url of glb file.  
+    "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Fox/glTF-Binary/Fox.glb",   
+     animation: PlayxAnimation.byName("walk", autoPlay: true),   //controls animation   
+     fallback: GlbModel.asset("assets/models/Fox.glb"), // fallback model if error happened   
+     centerPosition: PlayxPosition(x: 0, y: 0, z: -4), //center position of model    
+     scale: 1.0,   // scale of model defaults to 1  
+   ),  
+),  
 </code></pre><br>
 <h4 id="gltf">GLTF:</h4>
 <p><a href="https://en.wikipedia.org/wiki/GlTF">glTF</a> is a 3D file format maintained by the Khronos Group. It is an all-purpose transmission format.</p>
 <ul>
-<li>To load Gltf model file from assets we can use :</li>
-</ul>
-<pre class="language-dart"><code class="language-dart">Playx3dScene(  
-	  model: GltfModel.asset(  
-	 	"assets/models/BusterDrone.gltf",  /// path of the gltf file in assets
-	 	 prefix: "assets/models/",  ///prefix for gltf images
-	 	 animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation 
-		 fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened 
-		 centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model  
-	 	 scale: 1.0,   // scale of model defaults to 1
-  ),
-),
+<li>To load Gltf model file from assets we can use :
+<pre class="language-dart"><code class="language-dart"> Playx3dScene(    
+      model: GltfModel.asset(    
+          "assets/models/BusterDrone.gltf",  /// path of the gltf file in assets  
+          prefix: "assets/models/",  ///prefix for gltf images  
+          animation: PlayxAnimation.byIndex(0, autoPlay: true),  //controls animation   
+          fallback: GlbModel.asset("assets/models/Fox.glb"),  // fallback model if error happened   
+          centerPosition: PlayxPosition(x: 0, y: 0, z: -4),  //center position of model    
+          scale: 1.0,   // scale of model defaults to 1  
+      ),  
+  ),  
 </code></pre>
-<p>NOTE :
-If the images path that in the gltf file different from the flutter asset path,<br>
+</li>
+</ul>
+<p><em>NOTE</em> :</p>
+<p>If the images path that in the gltf file different from the flutter asset path,<br>
 consider adding <code>prefix</code> to the images path to be before the image.<br>
 Or <code>postfix</code> to the images path to be after the image.<br>
 For example if in the gltf file, the image path is textures/texture<br>
 and in assets the image path is assets/models/textures/texture.png<br>
-<code>prefix</code> must be 'assets/models/' and <code>postfix</code> should be '.png'.
+<code>prefix</code> must be 'assets/models/' and <code>postfix</code> should be '.png'.<br>
 <br></p>
 <ul>
-<li>To load Gltf model file from url we can use :
-Currently we are supporting loading Gltf file as zip from url only.</li>
-</ul>
-<pre class="language-dart"><code class="language-dart">Playx3dScene(  //same like loading from asssets
-  model: GltfModel.url(  
-	 " gltf url",  /// url of the gltf .zip file 
-	  prefix: "assets/models/",  ///prefix for gltf images 
-  ),
-),
+<li>To load Gltf model file from url we can use :<br>
+Currently we are supporting loading Gltf file as zip from url only.
+<pre class="language-dart"><code class="language-dart">  Playx3dScene(  //same like loading from asssets  
+     model: GltfModel.url(    
+          " gltf url",  /// url of the gltf .zip file   
+         prefix: "assets/models/",  ///prefix for gltf images   
+     ),  
+  ),  
 </code></pre>
-<p>Now we can show our model with a transparent scene with default light.
+</li>
+</ul>
+<p>Now we can show our model with a transparent scene with default light.<br>
 Next we will know how we can customize our scene.</p>
 <h3 id="scene">Scene:</h3>
 <p>Our scene consists of some components that allow us to customize how our 3d scene looks.</p>
 <h3 id="image-based-light-and-skybox">Image-Based Light and Skybox</h3>
 <p>Filament supports rendering with  <em>image-based lighting</em>, or IBL. This uses an environment map to approximate the lighting all directions.</p>
-<p>At run time, we need to create an  <code>IndirectLight</code>  object  that contains a set of floating-point images. Together these images comprise all the mipmap levels and cubemap faces that make up the environment. In a sense these are not visible images; it is more accurate to them of them as data that can be used to approximate the indirect lighting in the scene.</p>
-<p>On the other hand, the  <code>Skybox</code>  that  <em>does</em>  contain visible images.
-Filament provides an offline tool called  <code>cmgen</code>  that can consume an equirectangular image and produce indirect light and skybox files in one fell swoop,  as depicted below.</p>
-<p>We support loading skybox and indirect light from both HDR Image or KTX file.
+<p>At run time, we need to create an  <code>IndirectLight</code> object  that contains a set of floating-point images. Together these images comprise all the mipmap levels and cubemap faces that make up the environment. In a sense these are not visible images; it is more accurate to them of them as data that can be used to approximate the indirect lighting in the scene.</p>
+<p>On the other hand, the  <code>Skybox</code> that  <em>does</em> contain visible images.<br>
+Filament provides an offline tool called  <code>cmgen</code> that can consume an equirectangular image and produce indirect light and skybox files in one fell swoop,  as depicted below.</p>
+<p>We support loading skybox and indirect light from both HDR Image or KTX file.<br>
 <img src="https://miro.medium.com/v2/resize:fit:700/1*3A4eB8hGKhABSi7_k50Nug.png" alt=""></p>
-<p><strong>1. Skybox:</strong>
+<p><strong>1. Skybox:</strong><br>
 We can load skybox from ktx file or hdr file or from color and defaults to transparent color.</p>
 <ul>
-<li>Loading skybox from Ktx file:
+<li>
+<p>Loading skybox from Ktx file:</p>
 <ul>
-<li>
-<p>From assets:</p>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-    skybox:KtxSkybox.asset(
-        "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx" // asset pasth for skybox ktx file
-), 
-</code></pre>
-</li>
-<li>
-<p>From url:</p>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-   skybox:KtxSkybox.url(
-       "url for skybox ktx file" // url for skybox ktx file
-),  
-</code></pre>
-</li>
+<li>From assets:</li>
 </ul>
+<pre class="language-dart"><code class="language-dart"> scene: Scene(    
+      skybox:KtxSkybox.asset(  
+          // asset pasth for skybox ktx file  
+          "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_skybox.ktx"
+  ),   
+</code></pre>
+<ul>
+<li>From url:</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+      skybox:KtxSkybox.url(  
+          "url for skybox ktx file" // url for skybox ktx file  
+  ),    
+</code></pre>
 </li>
 </ul> <br>
 <ul>
@@ -196,100 +199,97 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
 <ul>
 <li>From assets:</li>
 </ul>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-     skybox:HdrSkybox.asset(
-         "assets/envs/courtyard.hdr" // asset pasth for skybox hdr file
- ),
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+     skybox:HdrSkybox.asset(  
+        "assets/envs/courtyard.hdr" // asset pasth for skybox hdr file  
+ ),  
 </code></pre>
 <ul>
 <li>From url:</li>
 </ul>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-   skybox:HdrSkybox.url(
-       "url for skybox hdr file" // url for skybox hdr file
-),  
+<pre class="language-dart"><code class="language-dart"> scene: Scene(    
+     skybox:HdrSkybox.url(  
+        "url for skybox hdr file" // url for skybox hdr file  
+ ),    
 </code></pre>
-</li>
-<li>
-<p>Loading Skybox Form Color:</p>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-   skybox: ColoredSkybox(color: Colors.green), // color of skybox
-
+<ul>
+<li>Loading Skybox Form Color:</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+      skybox: ColoredSkybox(color: Colors.green), // color of skybox   
+      ), 
 </code></pre>
 </li>
 </ul><br>
-<p><strong>2. Indirect Light:</strong>
-Indirect Light is used to simulate environment lighting, a form of global illumination.
+<p><strong>2. Indirect Light:</strong><br>
+Indirect Light is used to simulate environment lighting, a form of global illumination.<br>
 Filament supports rendering with image-based lighting, or IBL.<br>
 This uses an environment map to approximate the lighting all directions.</p>
 <p>We can load indirect light from KTX file or HDR file or from certain parameters.</p>
 <ul>
-<li>
-<p>Loading indirect light from KTX file:</p>
+<li>Loading indirect light from KTX file:
 <ul>
 <li>
 <p>From assets:</p>
-<pre class="language-dart"><code class="language-dart">   scene: Scene(  
-                indirectLight:KtxIndirectLight.asset(
-                "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx" // asset pasth for indirect light ktx file
-),
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+             indirectLight:KtxIndirectLight.asset(  
+             // asset pasth for  indirect light ktx file  
+              "assets/envs/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx" 
+    ),  
 </code></pre>
 </li>
 <li>
 <p>From url:</p>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-   indirectLight:KtxIndirectLight.url(
-       "url for indirect light ktx file" // url for indirect light ktx file
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+   indirectLight:KtxIndirectLight.url(  
+       "url for indirect light ktx file" // url for indirect light ktx file  
+ ),    
+</code></pre>
+</li>
+</ul>
+</li>
+<li>Loading indirect light form HDR file:
+<ul>
+<li>
+<p>From assets:</p>
+<pre class="language-dart"><code class="language-dart"> scene: Scene(    
+    indirectLight:HdrIndirectLight.asset(  
+       "assets/envs/courtyard.hdr" // asset pasth for indirect light hdr file  
+ ),  
+</code></pre>
+</li>
+<li>
+<p>From url:</p>
+<pre class="language-dart"><code class="language-dart">  scene: Scene(    
+  indirectLight:HdrIndirectLight.url(  
+      "url for skybox hdr file" // url for indirect light hdr file  
+   ),    
+</code></pre>
+</li>
+<li>
+<p>Load indirect light from default parameters like intensity, irradiance, etc:</p>
+<pre class="language-dart"><code class="language-dart"> scene: Scene(    
+      indirectLight: DefaultIndirectLight(  
+           intensity : 30000, // indirect light intensity.  
+           radianceBands: 1, // Number of spherical harmonics bands.  
+           radianceSh: [1,1,1], // Array containing the spherical harmonics coefficients.  
+           irradianceBands: 1, // Number of spherical harmonics bands.  
+           irradianceSh: [1,1,1] // Array containing the spherical harmonics coefficients.  
+       ),  
 ),  
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>Loading indirect light form HDR file:</p>
-<ul>
-<li>
-<p>From assets:</p>
-<pre class="language-dart"><code class="language-dart">   scene: Scene(  
-       indirectLight:HdrIndirectLight.asset(
-           "assets/envs/courtyard.hdr" // asset pasth for indirect light hdr file
-),
-</code></pre>
-</li>
-<li>
-<p>From url:</p>
-<pre class="language-dart"><code class="language-dart">    scene: Scene(  
-  indirectLight:HdrIndirectLight.url(
-      "url for skybox hdr file" // url for indirect light hdr file
-   ),  
-</code></pre>
-</li>
+</code></pre><br></li>
 </ul>
 </li>
 </ul>
-<ul>
-<li>Load indirect light from default parameters like intensity, irradiance, etc:
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-    indirectLight: DefaultIndirectLight(
-           intensity : 30000, // indirect light intensity.
-           radianceBands: 1, // Number of spherical harmonics bands.
-           radianceSh: [1,1,1], // Array containing the spherical harmonics coefficients.
-           irradianceBands: 1, // Number of spherical harmonics bands.
-           irradianceSh: [1,1,1] // Array containing the spherical harmonics coefficients.
-       ),
-),
-</code></pre>
-</li>
-</ul><br>
-<p><strong>3. Light:</strong>
-Light allows us to create a light source in the scene, such as a sun or street lights.
+<p><strong>3. Light:</strong><br>
+Light allows us to create a light source in the scene, such as a sun or street lights.<br>
 Lights come in three flavors:<br>
 directional lights   -  point lights   - spot lights</p>
 <ul>
 <li>
-<p>Directional lights :
+<p>Directional lights :<br>
 Directional lights have a direction, but don't have a position.<br>
-All light rays are parallel and come from infinitely far away and from everywhere.
+All light rays are parallel and come from infinitely far away and from everywhere.<br>
 Typically a directional light is used to simulate the sun.<br>
 Directional lights and spot lights are able to cast shadows.<br>
 To create a directional light use LightType.DIRECTIONAL or LightType.SUN, both are similar,<br>
@@ -312,138 +312,138 @@ It therefore makes sense to provide artists with a parameter to disable this cou
 </li>
 </ul>
 <p>Here is an exmaple how to add light to the scene:</p>
-<pre class="language-dart"><code class="language-dart">scene: Scene(  
-  light: Light(  
-	  type: LightType.directional,  
-	  colorTemperature: 6500.0,  
-	  intensity: 100000.0,  
-	  direction: PlayxDirection(x: 0, y: -1, z: 0),  
-	  castShadows: true,  
-	  ),  
-  ),
+<pre class="language-dart"><code class="language-dart">scene: Scene(    
+   light: Light(    
+      type: LightType.directional,    
+      colorTemperature: 6500.0,    
+      intensity: 100000.0,    
+      direction: PlayxDirection(x: 0, y: -1, z: 0),    
+      castShadows: true,    
+     ),    
+  ),  
 </code></pre>
-<p><strong>4. Camera:</strong>
+<p><strong>4. Camera:</strong><br>
 It help us have better control over the camera like what mode it operates on, target position, exposure and more.</p>
-<p>There is 3 modes for the camera :
+<p>There is 3 modes for the camera :<br>
 Orbit mode - Free flight mode  - Map mode</p>
 <p>Here is an example of how we can customize our camera:</p>
-<pre class="language-dart"><code class="language-dart">scene:  Scene(
-	  camera: Camera.orbit(  //make camera operates on orbit mode 
-		  exposure: Exposure.formAperture( 
-		   //Sets this camera's exposure (default is f/16, 1/125s, 100 ISO)
-			  aperture: 16.0,  
-			  shutterSpeed: 1 / 125,  
-			  sensitivity: 150,  
-			  ),  
-		//Sets the world-space position of interest, which defaults to (x:0,y:0,z:-4).
-		  targetPosition: PlayxPosition(x: 0.0, y: 0.0, z: -4.0), 
-		  // Sets The initial eye position in world space for ORBIT mode.  
-		  //This defaults to (x:0,y:0,z:1).
-		  orbitHomePosition: PlayxPosition(x: 0.0, y: 1.0, z: 1.0), 
-		 //The orientation for the home position, which defaults to (x:0,y:1,z:0).
-		  upVector: PlayxPosition(x: 0.0, y: 1.0, z: 0.0),  
-	  ),  
-),
+<pre class="language-dart"><code class="language-dart">scene:  Scene(  
+     camera: Camera.orbit(  //make camera operates on orbit mode   
+        exposure: Exposure.formAperture(   
+         //Sets this camera's exposure (default is f/16, 1/125s, 100 ISO)  
+           aperture: 16.0,    
+           shutterSpeed: 1 / 125,    
+           sensitivity: 150,    
+           ),    
+        //Sets the world-space position of interest, which defaults to (x:0,y:0,z:-4).  
+        targetPosition: PlayxPosition(x: 0.0, y: 0.0, z: -4.0),   
+        // Sets The initial eye position in world space for ORBIT mode.    
+        //This defaults to (x:0,y:0,z:1).  
+        orbitHomePosition: PlayxPosition(x: 0.0, y: 1.0, z: 1.0),   
+        //The orientation for the home position, which defaults to (x:0,y:1,z:0).  
+        upVector: PlayxPosition(x: 0.0, y: 1.0, z: 0.0),    
+     ),    
+),  
 </code></pre><br>
-<p><strong>5. Ground:</strong>
-The widget also support creating  ground plane to be drawn on the scene.
+<p><strong>5. Ground:</strong><br>
+The widget also support creating  ground plane to be drawn on the scene.<br>
 With support for customizing ground plane material and textures.</p>
 <p>We will talk in detail more about materials below.</p>
 <p>Here is an example of how to create a ground :</p>
-<pre class="language-dart"><code class="language-dart">scene:Scene(
-	ground: Ground(  
-		  width: 4.0,  //width of the ground
-		  height: 4.0,  //length of the ground
-		   // determine whether the ground plane should be drawn below the model or not. 
-		   //if not provided we must provide center position of the ground.
-		  isBelowModel: true, 
-		  normal: PlayxDirection.y(1.0),  //direction of the shape rotation in the world space
-		  material: PlayxMaterial.asset(  // material of the ground
-			  "assets/materials/textured_pbr.filamat",  
-			  parameters: [  
-				  MaterialParameter.texture(  
-					  value: PlayxTexture.asset(  
-						  "assets/materials/texture/floor_basecolor.png",  
-							 type: TextureType.color,  
-							  sampler: PlayxTextureSampler(anisotropy: 8),  
-						  ),  
-					  name: "baseColor",  
-				 ),  
-				 MaterialParameter.texture(  
-				  value: PlayxTexture.asset(  
-					  "assets/materials/texture/floor_normal.png",  
-						  type: TextureType.normal,  
-						  sampler: PlayxTextureSampler(anisotropy: 8),  
-						  ),  
-					  name: "normal",  
-				  ),  
-				  MaterialParameter.texture(  
-					  value: PlayxTexture.asset(  
-						  "assets/materials/texture/floor_ao_roughness_metallic.png",  
-						  type: TextureType.data,  
-						  sampler: PlayxTextureSampler(anisotropy: 8),  
-						  ),  
-					  name: "aoRoughnessMetallic",  
-				),  
-			  ],  
-		  ),  
-		),
-),
+<pre class="language-dart"><code class="language-dart">scene:Scene(  
+   ground: Ground(    
+        width: 4.0,  //width of the ground  
+        height: 4.0,  //length of the ground  
+         // determine whether the ground plane should be drawn below the model or not.   
+         //if not provided we must provide center position of the ground.  
+        isBelowModel: true,   
+        normal: PlayxDirection.y(1.0),  //direction of the shape rotation in the world space  
+        material: PlayxMaterial.asset(  // material of the ground  
+           "assets/materials/textured_pbr.filamat",    
+           parameters: [    
+              MaterialParameter.texture(    
+                 value: PlayxTexture.asset(    
+                    "assets/materials/texture/floor_basecolor.png",    
+                      type: TextureType.color,    
+                       sampler: PlayxTextureSampler(anisotropy: 8),    
+                    ),    
+                 name: "baseColor",    
+             ),    
+             MaterialParameter.texture(    
+              value: PlayxTexture.asset(    
+                 "assets/materials/texture/floor_normal.png",    
+                    type: TextureType.normal,    
+                    sampler: PlayxTextureSampler(anisotropy: 8),    
+                    ),    
+                 name: "normal",    
+              ),    
+              MaterialParameter.texture(    
+                 value: PlayxTexture.asset(    
+                    "assets/materials/texture/floor_ao_roughness_metallic.png",    
+                    type: TextureType.data,    
+                    sampler: PlayxTextureSampler(anisotropy: 8),    
+                    ),    
+                 name: "aoRoughnessMetallic",    
+            ),    
+           ],    
+        ),    
+      ),  
+),  
 </code></pre>
 <h3 id="shapes">Shapes:</h3>
-<p>The widget also supports rendering different shapes like cube, plane and sphere.
-with support for customizing it's material and textures.
-<img src="https://dl.dropbox.com/s/il6ia7901clzom8/2.jpg" alt="enter image description here">
+<p>The widget also supports rendering different shapes like cube, plane and sphere.<br>
+with support for customizing it's material and textures.<br>
+<img src="https://dl.dropbox.com/s/il6ia7901clzom8/2.jpg" alt="enter image description here"><br>
 Here is an example of how to create sphere and cube:</p>
-<pre class="language-dart"><code class="language-dart">       shapes: [
-	           Cube(
-                  id: 1, // id of the shape used to update the shapes
-                  length: .5, // length of the cube
-                  centerPosition: PlayxPosition(
-                      x: -1, y: 0, z: -4), // center position of the cube
-                  material: PlayxMaterial.asset("assets/materials/lit.filamat",  //material of the cube
-                      parameters: [
-                        MaterialParameter.color(color: Colors.green, name: "baseColor"),
-                        MaterialParameter.float(value: .8, name: "roughness"),
-                        MaterialParameter.float(value: .8, name: "metallic"),
-                      ],
-                  ),
-                ),
-                Sphere(      //creates a sphere
-                  id: 2,   // id of the shape used to update the shapes
-                  centerPosition: PlayxPosition(x: 1, y: 0, z: -4),   //center position of the sphere
-                  radius: .5,      //radius of the sphere 
-                  material: PlayxMaterial.asset(  // material of the sphere
-                    "assets/materials/textured_pbr.filamat",
-                    parameters: [
-                      MaterialParameter.texture(
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_basecolor.png",
-                          type: TextureType.color,
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        name: "baseColor",
-                      ),
-                      MaterialParameter.texture(
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_normal.png",
-                          type: TextureType.normal,
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        name: "normal",
-                      ),
-                      MaterialParameter.texture(
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_ao_roughness_metallic.png",
-                          type: TextureType.data,
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        name: "aoRoughnessMetallic",
-                      ),
-                    ],
-                  ),
-                )
-              ],               
+<pre class="language-dart"><code class="language-dart">       shapes: [  
+              Cube(  
+                  id: 1, // id of the shape used to update the shapes  
+                  length: .5, // length of the cube  
+                  centerPosition: PlayxPosition(  
+                      x: -1, y: 0, z: -4), // center position of the cube  
+                  material: PlayxMaterial.asset("assets/materials/lit.filamat",  //material of the cube  
+                      parameters: [  
+                        MaterialParameter.color(color: Colors.green, name: "baseColor"),  
+                        MaterialParameter.float(value: .8, name: "roughness"),  
+                        MaterialParameter.float(value: .8, name: "metallic"),  
+                      ],  
+                  ),  
+                ),  
+                Sphere(      //creates a sphere  
+                  id: 2,   // id of the shape used to update the shapes  
+                  centerPosition: PlayxPosition(x: 1, y: 0, z: -4),   //center position of the sphere  
+                  radius: .5,      //radius of the sphere   
+                  material: PlayxMaterial.asset(  // material of the sphere  
+                    "assets/materials/textured_pbr.filamat",  
+                    parameters: [  
+                      MaterialParameter.texture(  
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_basecolor.png",  
+                          type: TextureType.color,  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        name: "baseColor",  
+                      ),  
+                      MaterialParameter.texture(  
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_normal.png",  
+                          type: TextureType.normal,  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        name: "normal",  
+                      ),  
+                      MaterialParameter.texture(  
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_ao_roughness_metallic.png",  
+                          type: TextureType.data,  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        name: "aoRoughnessMetallic",  
+                      ),  
+                    ],  
+                  ),  
+                )  
+              ],                 
 </code></pre><br>
 <h2 id="materials">Materials:</h2>
 <p>Filament is a physically based rendering (PBR) engine for Android. Filament offers a customizable material system that you can use to create both simple and complex materials.</p>
@@ -453,11 +453,11 @@ Here is an example of how to create sphere and cube:</p>
 <li>Set of use-controllable named parameters</li>
 <li>Raster state (blending mode, backface culling, etc.)</li>
 <li>Vertex shader code</li>
-<li>Fragment shader code
+<li>Fragment shader code<br>
 <br></li>
 </ul>
 <h3 id="material-model">Material model</h3>
-<p>Also called  <em>shading model</em>  or  <em>lighting model</em>, the material model defines the intrinsic properties of a surface. These properties have a direct influence on the way lighting is computed and therefore on the appearance of a surface.</p>
+<p>Also called  <em>shading model</em> or  <em>lighting model</em>, the material model defines the intrinsic properties of a surface. These properties have a direct influence on the way lighting is computed and therefore on the appearance of a surface.</p>
 <p>Filament materials can use one of the following material models:</p>
 <ul>
 <li>Lit (or standard)</li>
@@ -467,7 +467,7 @@ Here is an example of how to create sphere and cube:</p>
 <li>Specular glossiness (legacy)</li>
 </ul>
 <p>For example for Lit (or standard) model :</p>
-<p>This material model can be used to describe many non-metallic surfaces (<em>dielectrics</em>) or metallic surfaces (<em>conductors</em>).
+<p>This material model can be used to describe many non-metallic surfaces (<em>dielectrics</em>) or metallic surfaces (<em>conductors</em>).<br>
 The appearance of a material using the standard model is controlled using properties for example:</p>
 <p><strong>baseColor</strong> : Diffuse albedo for non-metallic surfaces, and specular color for metallic surfaces</p>
 <p><strong>metallic</strong> :Whether a surface appears to be dielectric (0.0) or conductor (1.0). Often used as a binary value (0 or 1)</p>
@@ -479,92 +479,94 @@ The appearance of a material using the standard model is controlled using proper
 <h3 id="compiling-materials">Compiling materials</h3>
 <p>To use material in our widget to customize the appearance of shapes and ground.<br>
 You will be required to create a material file (.mat file) then we will need to convert it to (.filamt) file to be able to use it with the widget using the material compiler  <code>matc</code> .</p>
-<p>Material packages can be compiled from material definitions using the command line tool called  <code>matc</code>.
-You can get it by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a>  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
+<p>Material packages can be compiled from material definitions using the command line tool called  <code>matc</code>.<br>
+You can get it by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a> on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
 <p>The simplest way to use  <code>matc</code> is to specify an input material definition (<code>lit.mat</code> in the example below) and an output material package (<code>lit.filamat</code> in the example below):</p>
-<pre class="language-dart"><code>matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat  
+<pre class="language-dart"><code>  matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat    
 </code></pre>
 <h3 id="how-to-use-materials">How to use materials:</h3>
-<p>After we have created our material files and compiled it using  material compiler  <code>matc</code>.
+<p>After we have created our material files and compiled it using  material compiler  <code>matc</code>.<br>
 We can use it to customize the visual appearance of shapes and ground like giving ground wood texture.</p>
 <p>Here is an example of how to give cube lit material and customize it's color, metallic and roughnesss.</p>
-<pre class="language-dart"><code class="language-dart">              Cube(
-//materials can be created from assets or url file
-//by providing path of the compiled material file 
-material: PlayxMaterial.asset("assets/materials/lit.filamat",
-//usually the material file contains values for these properties, but if we want to customize it we can like that.
-parameters: [
-//update base color property with color
-MaterialParameter.color(color: Colors.green, name: "baseColor"),
-//update roughness property with it's value
-MaterialParameter.float(value: .8, name: "roughness"),
-//update metallicproperty with it's value
-MaterialParameter.float(value: .8, name: "metallic"),
-],
-),
-),
+<pre class="language-dart"><code class="language-dart">  Cube(
+    //materials can be created from assets or url file
+    //by providing path of the compiled material file
+    material: PlayxMaterial.asset(
+      "assets/materials/lit.filamat",
+     //usually the material file contains values for these properties, 
+	 //but if we want to customize it we can like that.
+      parameters: [
+        //update base color property with color
+        MaterialParameter.color(color: Colors.green, name: "baseColor"),
+        //update roughness property with it's value
+        MaterialParameter.float(value: .8, name: "roughness"),
+        //update metallicproperty with it's value
+        MaterialParameter.float(value: .8, name: "metallic"),
+      ],
+    ),
+  );
 </code></pre>
 <p>And just like that we have given our cube shape a material with color and customizing it's metallic and roughness properties.</p>
-<p>The widget also supports customizing our shapes material by textures.
+<p>The widget also supports customizing our shapes material by textures.<br>
 It can load textures from assets or url and apply it to any shape.</p>
 <p>Here is an example of giving a sphere a wood texture :</p>
-<pre class="language-dart"><code class="language-dart">                Sphere(       
-              //Asset path of the compiled material file 
-                  material: PlayxMaterial.asset(
-                    "assets/materials/textured_pbr.filamat",
-                    parameters: [
-                      MaterialParameter.texture(
-                      //creates texture from asset for texture the material type must be sampler2d 
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_basecolor.png",
-                          //type of texture
-                          type: TextureType.color,
-                          //sampler defines how a texture is accessed.
-                          //can be left to default
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        //baseColor property name in the material file
-                        name: "baseColor",
-                      ),
-                      //creates texture from asset and apply it to normal property 
-                      MaterialParameter.texture(
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_normal.png",
-                          type: TextureType.normal,
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        name: "normal",
-                      ),
-                      //creates texture from asset and apply it to aoRoughnessMetallic property 
-                      MaterialParameter.texture(
-                        value: PlayxTexture.asset(
-                          "assets/materials/texture/floor_ao_roughness_metallic.png",
-                          type: TextureType.data,
-                          sampler: PlayxTextureSampler(anisotropy: 8),
-                        ),
-                        name: "aoRoughnessMetallic",
-                      ),
-                    ],
-                  ),
-                )
-              ],
-			  
+<pre class="language-dart"><code class="language-dart">                Sphere(         
+              //Asset path of the compiled material file   
+                  material: PlayxMaterial.asset(  
+                    "assets/materials/textured_pbr.filamat",  
+                    parameters: [  
+                      MaterialParameter.texture(  
+                      //creates texture from asset for texture the material type must be sampler2d   
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_basecolor.png",  
+                          //type of texture  
+                          type: TextureType.color,  
+                          //sampler defines how a texture is accessed.  
+                          //can be left to default  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        //baseColor property name in the material file  
+                        name: "baseColor",  
+                      ),  
+                      //creates texture from asset and apply it to normal property   
+                      MaterialParameter.texture(  
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_normal.png",  
+                          type: TextureType.normal,  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        name: "normal",  
+                      ),  
+                      //creates texture from asset and apply it to aoRoughnessMetallic property   
+                      MaterialParameter.texture(  
+                        value: PlayxTexture.asset(  
+                          "assets/materials/texture/floor_ao_roughness_metallic.png",  
+                          type: TextureType.data,  
+                          sampler: PlayxTextureSampler(anisotropy: 8),  
+                        ),  
+                        name: "aoRoughnessMetallic",  
+                      ),  
+                    ],  
+                  ),  
+                )  
+              ],  
+             
 </code></pre><br>
 <h2 id="addendum-creating-the-ktx-files">Addendum: Creating the KTX Files</h2>
-<p>To make your own KTX file , you can obtain  <code>cmgen</code>  by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a>  on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
-<p>To generate both a Skybox and an IBL, invoke  <code>cmgen</code>  using a command line like this:</p>
-<pre class="language-dart"><code>cmgen                   \  
-    --deploy ./myOutDir \  
-    --format=ktx        \  
-    --size=256          \  
-    --extract-blur=0.1  \  
-    mySrcEnv.hdr
+<p>To make your own KTX file , you can obtain  <code>cmgen</code> by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a> on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
+<p>To generate both a Skybox and an IBL, invoke  <code>cmgen</code> using a command line like this:</p>
+<pre class="language-dart"><code>cmgen                   \    
+    --deploy ./myOutDir \    
+    --format=ktx        \    
+    --size=256          \    
+    --extract-blur=0.1  \    
+    mySrcEnv.hdr  
 </code></pre>
-<p>The  <code>extract-blur</code>  option tells  <code>cmgen</code>  to make a skybox in addition to the IBL. To see the complete list of options, try  <code>cmgen -h</code>.</p><br>
+<p>The  <code>extract-blur</code> option tells  <code>cmgen</code> to make a skybox in addition to the IBL. To see the complete list of options, try  <code>cmgen -h</code>.</p><br>
 <h2 id="documentation--references">Documentation &amp;&amp; References</h2>
 <ul>
 <li><a href="https://google.github.io/filament/Filament.html">Filament</a>, an in-depth explanation of real-time physically based rendering, the graphics capabilities and implementation of Filament. This document explains the math and reasoning behind most of our decisions. This document is a good introduction to PBR for graphics programmers.</li>
-<li><a href="https://google.github.io/filament/Materials.html">Materials</a>, the full reference documentation for our material system. This document explains our different material models, how to use the material compiler  <code>matc</code>  and how to write custom materials.</li>
+<li><a href="https://google.github.io/filament/Materials.html">Materials</a>, the full reference documentation for our material system. This document explains our different material models, how to use the material compiler  <code>matc</code> and how to write custom materials.</li>
 <li><a href="https://google.github.io/filament/Material%20Properties.pdf">Material Properties</a>, a reference sheet for the standard material model..</li>
 <li><a href="https://github.com/google/filament/tree/main/android/samples">Filament sample Android apps</a>,This directory contains several sample Android applications that demonstrate how to use the Filament APIs:</li>
 <li><a href="https://medium.com/@philiprideout/getting-started-with-filament-on-android-d10b16f0ec67">Getting Started with Filament on Android</a> : by   Philip Rideout</li>
@@ -910,7 +912,7 @@ It can load textures from assets or url and apply it to any shape.</p>
 </header>
 
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
-  <li class="self-crumb">playx_3d_scene package</li>
+  <li><a href="https://sourcya.com/">playx_3d_scene package</a></li>
 </ol>
 
 
@@ -975,7 +977,7 @@ It can load textures from assets or url and apply it to any shape.</p>
 <footer>
   <span class="no-break">
     playx_3d_scene
-      0.0.4
+      0.0.1
   </span>
 
   

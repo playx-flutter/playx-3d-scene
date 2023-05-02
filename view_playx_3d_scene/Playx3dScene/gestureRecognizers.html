@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the onCreated property from the Playx3dScene class, for the Dart programming language.">
-  <title>onCreated property - Playx3dScene class - playx_3d_scene library - Dart API</title>
+  <meta name="description" content="API docs for the gestureRecognizers property from the Playx3dScene class, for the Dart programming language.">
+  <title>gestureRecognizers property - Playx3dScene class - playx_3d_scene library - Dart API</title>
 
 
   
@@ -31,9 +31,9 @@
     <li><a href="../../index.html">playx_3d_scene</a></li>
     <li><a href="../../view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></li>
     <li><a href="../../view_playx_3d_scene/Playx3dScene-class.html">Playx3dScene</a></li>
-    <li class="self-crumb">onCreated property</li>
+    <li class="self-crumb">gestureRecognizers property</li>
   </ol>
-  <div class="self-name">onCreated</div>
+  <div class="self-name">gestureRecognizers</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -50,30 +50,48 @@
 
   <div id="dartdoc-main-content" class="main-content">
       <div>
-<h1><span class="kind-property">onCreated</span> property 
+<h1><span class="kind-property">gestureRecognizers</span> property 
     <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
 </h1></div>
 
         <section class="multi-line-signature">
           
-          <a href="../../view_playx_3d_scene/Playx3dSceneCreatedCallback.html">Playx3dSceneCreatedCallback</a>?
-          <span class="name ">onCreated</span>
+          <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/foundation/Factory-class.html">Factory</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/gestures/OneSequenceGestureRecognizer-class.html">OneSequenceGestureRecognizer</a></span>&gt;</span></span>&gt;</span>
+          <span class="name ">gestureRecognizers</span>
           <div class="features"><span class="feature">final</span></div>
 
         </section>
         
 <section class="desc markdown">
-  <p>onCreated callback provides an object of <a href="../../controller_playx_3d_scene_controller/Playx3dSceneController-class.html">Playx3dSceneController</a> when the native view is created.
-This controller provides utility methods to update the viewer, change the animation environment, lightening, etc.
-The onCreated callback is called once when the native view is created and provide unique controller to each widget.
-See also:
-<a href="../../controller_playx_3d_scene_controller/Playx3dSceneController-class.html">Playx3dSceneController</a></p>
+  <p>Which gestures should be consumed by the view.</p>
+<p>When the view is put inside other view like <a href="https://api.flutter.dev/flutter/widgets/ListView-class.html">ListView</a>,
+it might claim gestures that are recognized by any of the recognizers on this list.
+as the <a href="https://api.flutter.dev/flutter/widgets/ListView-class.html">ListView</a> will handle vertical drags gestures.</p>
+<p>To get the <a href="../../view_playx_3d_scene/Playx3dScene-class.html">Playx3dScene</a> to claim the vertical drag gestures we can pass a vertical drag
+gesture recognizer factory in <a href="../../view_playx_3d_scene/Playx3dScene/gestureRecognizers.html">gestureRecognizers</a> e.g:</p>
+<pre class="language-dart"><code class="language-dart">GestureDetector(
+  onVerticalDragStart: (DragStartDetails details) {},
+  child: SizedBox(
+    width: 200.0,
+    height: 100.0,
+    child: Playx3dScene(
+      gestureRecognizers: &lt;Factory&lt;OneSequenceGestureRecognizer&gt;&gt;{
+        Factory&lt;OneSequenceGestureRecognizer&gt;(
+          () =&gt; EagerGestureRecognizer(),
+        ),
+      },
+    ),
+  ),
+)
+</code></pre>
+<p>When this set is empty, the view will only handle pointer events for gestures that
+were not claimed by any other gesture recognizer.</p>
 </section>
 
         
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final Playx3dSceneCreatedCallback? onCreated;</code></pre>
+  <pre class="language-dart"><code class="language-dart">final Set&lt;Factory&lt;OneSequenceGestureRecognizer&gt;&gt; gestureRecognizers;</code></pre>
 </section>
 
 
@@ -90,7 +108,7 @@ See also:
   <li><a href="../../index.html">playx_3d_scene</a></li>
   <li><a href="../../view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></li>
   <li><a href="../../view_playx_3d_scene/Playx3dScene-class.html">Playx3dScene</a></li>
-  <li class="self-crumb">onCreated property</li>
+  <li class="self-crumb">gestureRecognizers property</li>
 </ol>
 
 
