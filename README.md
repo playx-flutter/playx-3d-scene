@@ -482,7 +482,8 @@ You can get it by downloading the binary package for your host platform of choic
 The simplest way to use  `matc` is to specify an input material definition (`lit.mat` in the example below) and an output material package (`lit.filamat` in the example below):
 
 
-``` matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat    
+```
+  matc -p mobile -a opengl -o app/src/main/assets/lit.filamat app/src/materials/lit.mat    
 ```   
 
 ### How to use materials:
