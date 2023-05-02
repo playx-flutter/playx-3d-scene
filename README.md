@@ -123,13 +123,13 @@ and in assets the image path is assets/models/textures/texture.png
 - To load Gltf model file from url we can use :  
   Currently we are supporting loading Gltf file as zip from url only.
   ```dart  
-   Playx3dScene(  //same like loading from asssets  
+    Playx3dScene(  //same like loading from asssets  
        model: GltfModel.url(    
             " gltf url",  /// url of the gltf .zip file   
            prefix: "assets/models/",  ///prefix for gltf images   
        ),  
     ),  
- ```  
+  ```  
 
 Now we can show our model with a transparent scene with default light.  
 Next we will know how we can customize our scene.
