@@ -8,6 +8,8 @@ import android.view.SurfaceView
 import androidx.annotation.Size
 import com.google.android.filament.Engine
 import com.google.android.filament.View
+import com.google.android.filament.gltfio.AssetLoader
+import com.google.android.filament.gltfio.ResourceLoader
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.model.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.model.animation.model.Animation
@@ -51,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 /**
@@ -61,10 +64,13 @@ class Playx3dSceneController constructor(
     private val context: Context,
     private var engine: Engine,
     private val iblProfiler: IBLProfiler,
+    private val assetLoader: AssetLoader,
+    private val resourceLoader: ResourceLoader,
     private val flutterAssets: FlutterAssets,
     private val scene: Scene?,
     private val model: Model?,
     private val shapes: List<Shape>?,
+    private val id :Int,
 
     ) {
     private lateinit var modelViewer: CustomModelViewer
@@ -104,7 +110,6 @@ class Playx3dSceneController constructor(
     val sceneState: MutableStateFlow<SceneState> = MutableStateFlow(SceneState.NONE)
     val shapeState: MutableStateFlow<ShapeState> = MutableStateFlow(ShapeState.NONE)
 
-
     init {
         setUpViewer()
         setUpGround()
@@ -120,15 +125,16 @@ class Playx3dSceneController constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
-        modelViewer = CustomModelViewer(surfaceView, engine)
+        Timber.d("Playx3dScenePlugin : setUpViewer ")
+
+        modelViewer = CustomModelViewer(surfaceView, engine, assetLoader, resourceLoader)
 
         surfaceView.setOnTouchListener(modelViewer)
         surfaceView.setZOrderOnTop(true) // necessary
 
+        glbLoader = GlbLoader(modelViewer, context, flutterAssets)
 
-        glbLoader = GlbLoader.getInstance(modelViewer, context, flutterAssets)
-
-        gltfLoader = GltfLoader.getInstance(modelViewer, context, flutterAssets)
+        gltfLoader = GltfLoader(modelViewer, context, flutterAssets)
 
         lightManger = LightManger(modelViewer)
         indirectLightManger = IndirectLightManger(modelViewer, iblProfiler, context, flutterAssets)
