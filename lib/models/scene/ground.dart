@@ -21,6 +21,7 @@ class Ground extends Plane {
       super.material})
       : super(size: PlayxSize(x: width, z: height), id: 0);
 
+  @override
   Map<String, dynamic> toJson() => {
         'centerPosition': centerPosition?.toJson(),
         'normal': normal?.toJson(),
