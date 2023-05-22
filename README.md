@@ -30,7 +30,7 @@ In the `dependencies:` section of your `pubspec.yaml`, add the following line:
 
 ```yaml  
 dependencies:  
-  playx_3d_scene: ^0.0.1  
+  playx_3d_scene: ^0.0.2  
 ```  
 
 ## Usage
