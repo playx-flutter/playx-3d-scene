@@ -15,8 +15,6 @@ class MaterialParameter {
   /// type of the material parameter.
   MaterialType type = MaterialType.float;
 
-  MaterialParameter._({required this.name, required this.value});
-
   /// create a material parameter of color type.
   MaterialParameter.color({required Color color, required this.name}) {
     value = color.toHex();
