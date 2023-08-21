@@ -162,7 +162,6 @@ class PlayxEventHandler (
                 rendererEventSink =null
             }
         })
-
     }
 
     private fun cancelRendererEventChannel(){
