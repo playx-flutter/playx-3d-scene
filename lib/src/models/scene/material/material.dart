@@ -1,4 +1,4 @@
-import 'package:playx_3d_scene/src/models/scene/material/material_paramater.dart';
+import 'package:playx_3d_scene/src/models/scene/material/material_parameter.dart';
 
 /// An object that defines the visual appearance of a surface.
 /// Filament offers a customizable material system

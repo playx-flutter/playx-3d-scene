@@ -22,7 +22,7 @@ export 'src/models/scene/indirect_light/ktx_indirect_light.dart';
 export 'src/models/scene/light/light.dart';
 export 'src/models/scene/light/light_type.dart';
 export 'src/models/scene/material/material.dart';
-export 'src/models/scene/material/material_paramater.dart';
+export 'src/models/scene/material/material_parameter.dart';
 export 'src/models/scene/material/material_type.dart';
 export 'src/models/scene/material/texture/texture.dart';
 export 'src/models/scene/material/texture/texture_sampler.dart';
