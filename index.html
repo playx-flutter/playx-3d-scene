@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="generator" content="made with love by dartdoc 6.1.5">
+  <meta name="generator" content="made with love by dartdoc 7.0.0-dev">
   <meta name="description" content="playx_3d_scene API docs, for the Dart programming language.">
   <title>playx_3d_scene - Dart API docs</title>
 
@@ -38,8 +38,11 @@
   <div class="toggle" id="theme-button">
     <label for="theme">
       <input type="checkbox" id="theme" value="light-theme">
-      <span class="material-symbols-outlined">
+      <span id="dark-theme-button" class="material-symbols-outlined">
         brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
       </span>
     </label>
   </div>
@@ -69,7 +72,7 @@ or it can be transparent.</li>
 <h2 id="installation">Installation</h2>
 <p>In the <code>dependencies:</code> section of your <code>pubspec.yaml</code>, add the following line:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:  
-  playx_3d_scene: ^0.0.1  
+  playx_3d_scene: ^0.0.3  
 </code></pre>
 <h2 id="usage">Usage</h2>
 <p>Basic usage to create 3d model from glb file with skybox and indirect lighting from hdr image file.</p>
@@ -120,7 +123,8 @@ or it can be transparent.</li>
      scale: 1.0,   // scale of model defaults to 1  
    ),  
 ),  
-</code></pre><br>
+</code></pre>
+<br>
 <h4 id="gltf">GLTF:</h4>
 <p><a href="https://en.wikipedia.org/wiki/GlTF">glTF</a> is a 3D file format maintained by the Khronos Group. It is an all-purpose transmission format.</p>
 <ul>
@@ -192,7 +196,8 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
   ),    
 </code></pre>
 </li>
-</ul> <br>
+</ul>
+ <br>
 <ul>
 <li>
 <p>Loading skybox Form HDR file:</p>
@@ -220,7 +225,8 @@ We can load skybox from ktx file or hdr file or from color and defaults to trans
       ), 
 </code></pre>
 </li>
-</ul><br>
+</ul>
+<br>
 <p><strong>2. Indirect Light:</strong><br>
 Indirect Light is used to simulate environment lighting, a form of global illumination.<br>
 Filament supports rendering with image-based lighting, or IBL.<br>
@@ -277,7 +283,9 @@ This uses an environment map to approximate the lighting all directions.</p>
            irradianceSh: [1,1,1] // Array containing the spherical harmonics coefficients.  
        ),  
 ),  
-</code></pre><br></li>
+</code></pre>
+<br>
+</li>
 </ul>
 </li>
 </ul>
@@ -344,7 +352,8 @@ Orbit mode - Free flight mode  - Map mode</p>
         upVector: PlayxPosition(x: 0.0, y: 1.0, z: 0.0),    
      ),    
 ),  
-</code></pre><br>
+</code></pre>
+<br>
 <p><strong>5. Ground:</strong><br>
 The widget also support creating  ground plane to be drawn on the scene.<br>
 With support for customizing ground plane material and textures.</p>
@@ -444,7 +453,8 @@ Here is an example of how to create sphere and cube:</p>
                   ),  
                 )  
               ],                 
-</code></pre><br>
+</code></pre>
+<br>
 <h2 id="materials">Materials:</h2>
 <p>Filament is a physically based rendering (PBR) engine for Android. Filament offers a customizable material system that you can use to create both simple and complex materials.</p>
 <p>A material defines the visual appearance of a surface. To completely describe and render a surface, a material provides the following information:</p>
@@ -551,7 +561,8 @@ It can load textures from assets or url and apply it to any shape.</p>
                 )  
               ],  
              
-</code></pre><br>
+</code></pre>
+<br>
 <h2 id="addendum-creating-the-ktx-files">Addendum: Creating the KTX Files</h2>
 <p>To make your own KTX file , you can obtain  <code>cmgen</code> by downloading the binary package for your host platform of choice from Filament’s  <a href="https://github.com/google/filament/releases">releases page</a> on GitHub. Be sure to choose a version that matches the The filament version we are using which is V1.32.1.</p>
 <p>To generate both a Skybox and an IBL, invoke  <code>cmgen</code> using a command line like this:</p>
@@ -562,7 +573,8 @@ It can load textures from assets or url and apply it to any shape.</p>
     --extract-blur=0.1  \    
     mySrcEnv.hdr  
 </code></pre>
-<p>The  <code>extract-blur</code> option tells  <code>cmgen</code> to make a skybox in addition to the IBL. To see the complete list of options, try  <code>cmgen -h</code>.</p><br>
+<p>The  <code>extract-blur</code> option tells  <code>cmgen</code> to make a skybox in addition to the IBL. To see the complete list of options, try  <code>cmgen -h</code>.</p>
+<br>
 <h2 id="documentation--references">Documentation &amp;&amp; References</h2>
 <ul>
 <li><a href="https://google.github.io/filament/Filament.html">Filament</a>, an in-depth explanation of real-time physically based rendering, the graphics capabilities and implementation of Filament. This document explains the math and reasoning behind most of our decisions. This document is a good introduction to PBR for graphics programmers.</li>
@@ -577,323 +589,8 @@ It can load textures from assets or url and apply it to any shape.</p>
       <section class="summary">
           <h2>Libraries</h2>
         <dl>
-          <dt id="animation">
-  <span class="name"><a href="models_model_animation/models_model_animation-library.html">animation</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="camera">
-  <span class="name"><a href="models_scene_camera_camera/models_scene_camera_camera-library.html">camera</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="camera_mode">
-  <span class="name"><a href="models_scene_camera_enums_camera_mode/models_scene_camera_enums_camera_mode-library.html">camera_mode</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="colored_skybox">
-  <span class="name"><a href="models_scene_skybox_colored_skybox/models_scene_skybox_colored_skybox-library.html">colored_skybox</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="cube">
-  <span class="name"><a href="models_shapes_cube/models_shapes_cube-library.html">cube</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="default_indirect_light">
-  <span class="name"><a href="models_scene_indirect_light_default_indirect_light/models_scene_indirect_light_default_indirect_light-library.html">default_indirect_light</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="direction">
-  <span class="name"><a href="models_scene_geometry_direction/models_scene_geometry_direction-library.html">direction</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="exposure">
-  <span class="name"><a href="models_scene_camera_exposure/models_scene_camera_exposure-library.html">exposure</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="fov">
-  <span class="name"><a href="models_scene_camera_enums_fov/models_scene_camera_enums_fov-library.html">fov</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="glb_model">
-  <span class="name"><a href="models_model_glb_model/models_model_glb_model-library.html">glb_model</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="gltf_model">
-  <span class="name"><a href="models_model_gltf_model/models_model_gltf_model-library.html">gltf_model</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="ground">
-  <span class="name"><a href="models_scene_ground/models_scene_ground-library.html">ground</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="hdr_indirect_light">
-  <span class="name"><a href="models_scene_indirect_light_hdr_indirect_light/models_scene_indirect_light_hdr_indirect_light-library.html">hdr_indirect_light</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="hdr_skybox">
-  <span class="name"><a href="models_scene_skybox_hdr_skybox/models_scene_skybox_hdr_skybox-library.html">hdr_skybox</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="indirect_light">
-  <span class="name"><a href="models_scene_indirect_light_indirect_light/models_scene_indirect_light_indirect_light-library.html">indirect_light</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="ktx_indirect_light">
-  <span class="name"><a href="models_scene_indirect_light_ktx_indirect_light/models_scene_indirect_light_ktx_indirect_light-library.html">ktx_indirect_light</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="ktx_skybox">
-  <span class="name"><a href="models_scene_skybox_ktx_skybox/models_scene_skybox_ktx_skybox-library.html">ktx_skybox</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="lens_projection">
-  <span class="name"><a href="models_scene_camera_lens_projection/models_scene_camera_lens_projection-library.html">lens_projection</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="light">
-  <span class="name"><a href="models_scene_light_light/models_scene_light_light-library.html">light</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="light_type">
-  <span class="name"><a href="models_scene_light_light_type/models_scene_light_light_type-library.html">light_type</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="mag_filter">
-  <span class="name"><a href="models_scene_material_texture_enums_mag_filter/models_scene_material_texture_enums_mag_filter-library.html">mag_filter</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="material">
-  <span class="name"><a href="models_scene_material_material/models_scene_material_material-library.html">material</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="material_paramater">
-  <span class="name"><a href="models_scene_material_material_paramater/models_scene_material_material_paramater-library.html">material_paramater</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="material_type">
-  <span class="name"><a href="models_scene_material_material_type/models_scene_material_material_type-library.html">material_type</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="min_filter">
-  <span class="name"><a href="models_scene_material_texture_enums_min_filter/models_scene_material_texture_enums_min_filter-library.html">min_filter</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="model">
-  <span class="name"><a href="models_model_model/models_model_model-library.html">model</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="model_state">
-  <span class="name"><a href="models_state_model_state/models_state_model_state-library.html">model_state</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="plane">
-  <span class="name"><a href="models_shapes_plane/models_shapes_plane-library.html">plane</a></span> 
-
-</dt>
-<dd>
-</dd>
-
           <dt id="playx_3d_scene">
-  <span class="name"><a href="view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="playx_3d_scene_controller">
-  <span class="name"><a href="controller_playx_3d_scene_controller/controller_playx_3d_scene_controller-library.html">playx_3d_scene_controller</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="position">
-  <span class="name"><a href="models_scene_geometry_position/models_scene_geometry_position-library.html">position</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="projection">
-  <span class="name"><a href="models_scene_camera_projection/models_scene_camera_projection-library.html">projection</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="projection_type">
-  <span class="name"><a href="models_scene_camera_enums_projection_type/models_scene_camera_enums_projection_type-library.html">projection_type</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="result">
-  <span class="name"><a href="utils_result/utils_result-library.html">result</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="scene">
-  <span class="name"><a href="models_scene_scene/models_scene_scene-library.html">scene</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="scene_state">
-  <span class="name"><a href="models_state_scene_state/models_state_scene_state-library.html">scene_state</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="shape">
-  <span class="name"><a href="models_shapes_shape/models_shapes_shape-library.html">shape</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="shape_state">
-  <span class="name"><a href="models_state_shape_state/models_state_shape_state-library.html">shape_state</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="size">
-  <span class="name"><a href="models_scene_geometry_size/models_scene_geometry_size-library.html">size</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="skybox">
-  <span class="name"><a href="models_scene_skybox_skybox/models_scene_skybox_skybox-library.html">skybox</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="sphere">
-  <span class="name"><a href="models_shapes_sphere/models_shapes_sphere-library.html">sphere</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="texture">
-  <span class="name"><a href="models_scene_material_texture_texture/models_scene_material_texture_texture-library.html">texture</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="texture_sampler">
-  <span class="name"><a href="models_scene_material_texture_texture_sampler/models_scene_material_texture_texture_sampler-library.html">texture_sampler</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="texture_type">
-  <span class="name"><a href="models_scene_material_texture_enums_texture_type/models_scene_material_texture_enums_texture_type-library.html">texture_type</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="utils">
-  <span class="name"><a href="utils_utils/utils_utils-library.html">utils</a></span> 
-
-</dt>
-<dd>
-</dd>
-
-          <dt id="wrap_mode">
-  <span class="name"><a href="models_scene_material_texture_enums_wrap_mode/models_scene_material_texture_enums_wrap_mode-library.html">wrap_mode</a></span> 
+  <span class="name"><a href="playx_3d_scene/playx_3d_scene-library.html">playx_3d_scene</a></span> 
 
 </dt>
 <dd>
@@ -905,66 +602,22 @@ It can load textures from assets or url and apply it to any shape.</p>
   </div> <!-- /.main-content -->
 
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <header id="header-search-sidebar" class="hidden-l">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
 
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
-  <li><a href="https://sourcya.com/">playx_3d_scene package</a></li>
+    <li><a href="https://sourcya.com/">playx_3d_scene package</a></li>
 </ol>
 
 
     <h5 class="hidden-xs"><span class="package-name">playx_3d_scene</span> <span class="package-kind">package</span></h5>
     <ol>
       <li class="section-title">Libraries</li>
-      <li><a href="models_model_animation/models_model_animation-library.html">animation</a></li>
-      <li><a href="models_scene_camera_camera/models_scene_camera_camera-library.html">camera</a></li>
-      <li><a href="models_scene_camera_enums_camera_mode/models_scene_camera_enums_camera_mode-library.html">camera_mode</a></li>
-      <li><a href="models_scene_skybox_colored_skybox/models_scene_skybox_colored_skybox-library.html">colored_skybox</a></li>
-      <li><a href="models_shapes_cube/models_shapes_cube-library.html">cube</a></li>
-      <li><a href="models_scene_indirect_light_default_indirect_light/models_scene_indirect_light_default_indirect_light-library.html">default_indirect_light</a></li>
-      <li><a href="models_scene_geometry_direction/models_scene_geometry_direction-library.html">direction</a></li>
-      <li><a href="models_scene_camera_exposure/models_scene_camera_exposure-library.html">exposure</a></li>
-      <li><a href="models_scene_camera_enums_fov/models_scene_camera_enums_fov-library.html">fov</a></li>
-      <li><a href="models_model_glb_model/models_model_glb_model-library.html">glb_model</a></li>
-      <li><a href="models_model_gltf_model/models_model_gltf_model-library.html">gltf_model</a></li>
-      <li><a href="models_scene_ground/models_scene_ground-library.html">ground</a></li>
-      <li><a href="models_scene_indirect_light_hdr_indirect_light/models_scene_indirect_light_hdr_indirect_light-library.html">hdr_indirect_light</a></li>
-      <li><a href="models_scene_skybox_hdr_skybox/models_scene_skybox_hdr_skybox-library.html">hdr_skybox</a></li>
-      <li><a href="models_scene_indirect_light_indirect_light/models_scene_indirect_light_indirect_light-library.html">indirect_light</a></li>
-      <li><a href="models_scene_indirect_light_ktx_indirect_light/models_scene_indirect_light_ktx_indirect_light-library.html">ktx_indirect_light</a></li>
-      <li><a href="models_scene_skybox_ktx_skybox/models_scene_skybox_ktx_skybox-library.html">ktx_skybox</a></li>
-      <li><a href="models_scene_camera_lens_projection/models_scene_camera_lens_projection-library.html">lens_projection</a></li>
-      <li><a href="models_scene_light_light/models_scene_light_light-library.html">light</a></li>
-      <li><a href="models_scene_light_light_type/models_scene_light_light_type-library.html">light_type</a></li>
-      <li><a href="models_scene_material_texture_enums_mag_filter/models_scene_material_texture_enums_mag_filter-library.html">mag_filter</a></li>
-      <li><a href="models_scene_material_material/models_scene_material_material-library.html">material</a></li>
-      <li><a href="models_scene_material_material_paramater/models_scene_material_material_paramater-library.html">material_paramater</a></li>
-      <li><a href="models_scene_material_material_type/models_scene_material_material_type-library.html">material_type</a></li>
-      <li><a href="models_scene_material_texture_enums_min_filter/models_scene_material_texture_enums_min_filter-library.html">min_filter</a></li>
-      <li><a href="models_model_model/models_model_model-library.html">model</a></li>
-      <li><a href="models_state_model_state/models_state_model_state-library.html">model_state</a></li>
-      <li><a href="models_shapes_plane/models_shapes_plane-library.html">plane</a></li>
-      <li><a href="view_playx_3d_scene/view_playx_3d_scene-library.html">playx_3d_scene</a></li>
-      <li><a href="controller_playx_3d_scene_controller/controller_playx_3d_scene_controller-library.html">playx_3d_scene_controller</a></li>
-      <li><a href="models_scene_geometry_position/models_scene_geometry_position-library.html">position</a></li>
-      <li><a href="models_scene_camera_projection/models_scene_camera_projection-library.html">projection</a></li>
-      <li><a href="models_scene_camera_enums_projection_type/models_scene_camera_enums_projection_type-library.html">projection_type</a></li>
-      <li><a href="utils_result/utils_result-library.html">result</a></li>
-      <li><a href="models_scene_scene/models_scene_scene-library.html">scene</a></li>
-      <li><a href="models_state_scene_state/models_state_scene_state-library.html">scene_state</a></li>
-      <li><a href="models_shapes_shape/models_shapes_shape-library.html">shape</a></li>
-      <li><a href="models_state_shape_state/models_state_shape_state-library.html">shape_state</a></li>
-      <li><a href="models_scene_geometry_size/models_scene_geometry_size-library.html">size</a></li>
-      <li><a href="models_scene_skybox_skybox/models_scene_skybox_skybox-library.html">skybox</a></li>
-      <li><a href="models_shapes_sphere/models_shapes_sphere-library.html">sphere</a></li>
-      <li><a href="models_scene_material_texture_texture/models_scene_material_texture_texture-library.html">texture</a></li>
-      <li><a href="models_scene_material_texture_texture_sampler/models_scene_material_texture_texture_sampler-library.html">texture_sampler</a></li>
-      <li><a href="models_scene_material_texture_enums_texture_type/models_scene_material_texture_enums_texture_type-library.html">texture_type</a></li>
-      <li><a href="utils_utils/utils_utils-library.html">utils</a></li>
-      <li><a href="models_scene_material_texture_enums_wrap_mode/models_scene_material_texture_enums_wrap_mode-library.html">wrap_mode</a></li>
+      <li><a href="playx_3d_scene/playx_3d_scene-library.html">playx_3d_scene</a></li>
 </ol>
 
   </div>
@@ -977,7 +630,7 @@ It can load textures from assets or url and apply it to any shape.</p>
 <footer>
   <span class="no-break">
     playx_3d_scene
-      0.0.1
+      0.0.3
   </span>
 
   
