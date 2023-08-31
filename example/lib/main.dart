@@ -1,33 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:playx_3d_scene/controller/playx_3d_scene_controller.dart';
-import 'package:playx_3d_scene/models/model/animation.dart';
-import 'package:playx_3d_scene/models/model/glb_model.dart';
-import 'package:playx_3d_scene/models/scene/camera/camera.dart';
-import 'package:playx_3d_scene/models/scene/camera/exposure.dart';
-import 'package:playx_3d_scene/models/scene/geometry/direction.dart';
-import 'package:playx_3d_scene/models/scene/geometry/position.dart';
-import 'package:playx_3d_scene/models/scene/ground.dart';
-import 'package:playx_3d_scene/models/scene/indirect_light/hdr_indirect_light.dart';
-import 'package:playx_3d_scene/models/scene/light/light.dart';
-import 'package:playx_3d_scene/models/scene/light/light_type.dart';
-import 'package:playx_3d_scene/models/scene/material/material.dart';
-import 'package:playx_3d_scene/models/scene/material/material_paramater.dart';
-import 'package:playx_3d_scene/models/scene/material/texture/enums/texture_type.dart';
-import 'package:playx_3d_scene/models/scene/material/texture/texture.dart';
-import 'package:playx_3d_scene/models/scene/material/texture/texture_sampler.dart';
-import 'package:playx_3d_scene/models/scene/scene.dart';
-import 'package:playx_3d_scene/models/scene/skybox/hdr_skybox.dart';
-import 'package:playx_3d_scene/models/shapes/cube.dart';
-import 'package:playx_3d_scene/models/shapes/sphere.dart';
-import 'package:playx_3d_scene/models/state/model_state.dart';
-import 'package:playx_3d_scene/models/state/scene_state.dart';
-import 'package:playx_3d_scene/models/state/shape_state.dart';
-import 'package:playx_3d_scene/utils/result.dart';
-import 'package:playx_3d_scene/view/playx_3d_scene.dart';
+import 'package:playx_3d_scene/playx_3d_scene.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
