@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package io.sourcya.playx_3d_scene.factory
 
 import android.content.Context
