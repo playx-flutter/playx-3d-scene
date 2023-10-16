@@ -33,6 +33,19 @@ dependencies:
   playx_3d_scene: ^0.0.3  
 ```  
 
+In `/android/app/build.gradle` :
+You will need to set minifyEnabled and shrinkResources to false to stop code shrinking and obfuscation. 
+
+ ```groovy
+buildTypes {
+  release {
+    minifyEnabled false
+    shrinkResources false
+  }
+}
+```
+
+
 ## Usage
 Basic usage to create 3d model from glb file with skybox and indirect lighting from hdr image file.
 ```dart  
