@@ -47,4 +47,22 @@ abstract class IndirectLight {
         'assetPath': assetPath,
         'url': url,
       };
+
+  @override
+  String toString() {
+    return 'IndirectLight(assetPath: $assetPath, url: $url, intensity: $intensity)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is IndirectLight &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.intensity == intensity;
+  }
+
+  @override
+  int get hashCode => assetPath.hashCode ^ url.hashCode ^ intensity.hashCode;
 }

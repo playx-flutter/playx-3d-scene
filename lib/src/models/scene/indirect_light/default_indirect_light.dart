@@ -54,4 +54,32 @@ class DefaultIndirectLight extends IndirectLight {
         'rotation': rotation,
         'lightType': 3
       };
+
+  @override
+  String toString() {
+    return 'DefaultIndirectLight(intensity: $intensity, radianceBands: $radianceBands, radianceSh: $radianceSh, irradianceBands: $irradianceBands, irradianceSh: $irradianceSh, rotation: $rotation)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is DefaultIndirectLight &&
+        other.intensity == intensity &&
+        other.radianceBands == radianceBands &&
+        other.radianceSh == radianceSh &&
+        other.irradianceBands == irradianceBands &&
+        other.irradianceSh == irradianceSh &&
+        other.rotation == rotation;
+  }
+
+  @override
+  int get hashCode {
+    return intensity.hashCode ^
+        radianceBands.hashCode ^
+        radianceSh.hashCode ^
+        irradianceBands.hashCode ^
+        irradianceSh.hashCode ^
+        rotation.hashCode;
+  }
 }

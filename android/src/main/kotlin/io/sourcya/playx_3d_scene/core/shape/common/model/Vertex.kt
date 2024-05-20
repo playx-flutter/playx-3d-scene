@@ -1,7 +1,11 @@
 package io.sourcya.playx_3d_scene.core.shape.common.model
 
 import com.google.android.filament.Box
-import com.google.android.filament.utils.*
+import com.google.android.filament.utils.Float2
+import com.google.android.filament.utils.Float3
+import com.google.android.filament.utils.Mat4
+import com.google.android.filament.utils.Quaternion
+import com.google.android.filament.utils.rotation
 import io.sourcya.playx_3d_scene.core.utils.Color
 
 

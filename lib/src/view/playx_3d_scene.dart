@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:core';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:playx_3d_scene/src/controller/playx_3d_scene_controller.dart';
 import 'package:playx_3d_scene/src/models/model/model.dart';
 import 'package:playx_3d_scene/src/models/scene/camera/camera.dart';
@@ -145,6 +145,8 @@ class Playx3dScene extends StatefulWidget {
 
 class PlayxModelViewerState extends State<Playx3dScene> {
   final Map<String, dynamic> _creationParams = <String, dynamic>{};
+  final Completer<Playx3dSceneController> _controller =
+      Completer<Playx3dSceneController>();
 
   late EventChannel _modelLoadingChannel;
   StreamSubscription? _modelLoadingSubscription;
@@ -160,7 +162,6 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   @override
   void initState() {
     _setupCreationParams();
-
     super.initState();
   }
 
@@ -188,6 +189,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   }
 
   void _setUpModelState(Playx3dSceneController controller) {
+    _modelLoadingSubscription?.cancel();
     if (widget.onModelStateChanged != null) {
       _modelLoadingSubscription = _getModelState().listen((state) {
         if (widget.onModelStateChanged != null) {
@@ -198,6 +200,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   }
 
   void _setUpSceneState(Playx3dSceneController controller) {
+    _sceneStateSubscription?.cancel();
     if (widget.onSceneStateChanged != null) {
       _sceneStateSubscription = _getSceneState().listen((state) {
         if (widget.onSceneStateChanged != null) {
@@ -208,6 +211,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   }
 
   void _setUpShapeState(Playx3dSceneController controller) {
+    _shapeStateSubscription?.cancel();
     if (widget.onShapeStateChanged != null) {
       _shapeStateSubscription = _getShapeState().listen((state) {
         if (widget.onShapeStateChanged != null) {
@@ -218,6 +222,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   }
 
   void _setUpOnEachRenderCallback(Playx3dSceneController controller) {
+    _rendererSubscription?.cancel();
     if (widget.onEachRender != null) {
       _rendererSubscription = _getOnEachRender().listen((time) {
         if (widget.onEachRender != null) {
@@ -230,6 +235,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   void _onPlatformViewCreated(int id) {
     final controller = Playx3dSceneController(id: id);
 
+    _controller.complete(controller);
     if (widget.onCreated != null) {
       widget.onCreated!(controller);
     }
@@ -242,15 +248,6 @@ class PlayxModelViewerState extends State<Playx3dScene> {
     _setUpSceneState(controller);
     _setUpShapeState(controller);
     _setUpOnEachRenderCallback(controller);
-  }
-
-  @override
-  void dispose() {
-    _modelLoadingSubscription?.cancel();
-    _rendererSubscription?.cancel();
-    _sceneStateSubscription?.cancel();
-    _shapeStateSubscription?.cancel();
-    super.dispose();
   }
 
   Stream<ModelState> _getModelState() {
@@ -278,5 +275,45 @@ class PlayxModelViewerState extends State<Playx3dScene> {
       final currentState = state as String?;
       return ShapeState.from(currentState);
     });
+  }
+
+  @override
+  void didUpdateWidget(Playx3dScene oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateWidget(oldWidget);
+  }
+
+  void _updateWidget(Playx3dScene? oldWidget) {
+    _setupCreationParams();
+
+    if (oldWidget?.model != widget.model ||
+        oldWidget?.scene != widget.scene ||
+        !listEquals(oldWidget?.shapes, widget.shapes)) {
+      _updatePlayxScene();
+    }
+  }
+
+  Future<void> _updatePlayxScene() async {
+    final controller = (await _controller.future);
+    await controller.updatePlayx3dScene(
+      model: widget.model,
+      scene: widget.scene,
+      shapes: widget.shapes,
+    );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _updateWidget(null);
+  }
+
+  @override
+  void dispose() {
+    _modelLoadingSubscription?.cancel();
+    _rendererSubscription?.cancel();
+    _sceneStateSubscription?.cancel();
+    _shapeStateSubscription?.cancel();
+    super.dispose();
   }
 }

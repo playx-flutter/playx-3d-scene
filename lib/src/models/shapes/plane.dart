@@ -26,4 +26,22 @@ class Plane extends Shape {
         'material': material?.toJson(),
         'shapeType': 1
       };
+
+  @override
+  String toString() {
+    return 'Plane(id: $id, size: $size, centerPosition: $centerPosition)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Plane &&
+        other.id == id &&
+        other.size == size &&
+        other.centerPosition == centerPosition;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ size.hashCode ^ centerPosition.hashCode;
 }

@@ -12,4 +12,19 @@ open class Plane(
     val size : Size? = null,
     normal: Direction? = null,
     material: Material? = null
-) : Shape(id,centerPosition,normal,material)
+) : Shape(id,centerPosition,normal,material){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Plane) return false
+
+        if (size != other.size) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (size?.hashCode() ?: 0)
+        return result
+    }
+}

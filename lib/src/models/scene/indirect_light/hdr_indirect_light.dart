@@ -16,4 +16,22 @@ class HdrIndirectLight extends IndirectLight {
         'intensity': intensity,
         'lightType': 2
       };
+
+  @override
+  String toString() {
+    return 'HdrIndirectLight(assetPath: $assetPath, url: $url, intensity: $intensity)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is HdrIndirectLight &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.intensity == intensity;
+  }
+
+  @override
+  int get hashCode => assetPath.hashCode ^ url.hashCode ^ intensity.hashCode;
 }

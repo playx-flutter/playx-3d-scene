@@ -12,4 +12,24 @@ class Sphere(
     val  stacks: Int?,
     val slices: Int?,
 
-    ) : Shape(id,centerPosition , null, material)
+    ) : Shape(id,centerPosition , null, material){
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Sphere) return false
+
+            if (radius != other.radius) return false
+            if (stacks != other.stacks) return false
+            if (slices != other.slices) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + (radius?.hashCode() ?: 0)
+            result = 31 * result + (stacks?.hashCode() ?: 0)
+            result = 31 * result + (slices?.hashCode() ?: 0)
+            return result
+        }
+    }

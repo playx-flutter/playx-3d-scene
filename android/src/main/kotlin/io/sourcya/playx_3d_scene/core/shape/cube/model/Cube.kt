@@ -10,4 +10,19 @@ class Cube(
     centerPosition: Position? = null,
     val size : Size? = null,
     material: Material? = null
-) : Shape(id,centerPosition, null, material)
+) : Shape(id,centerPosition, null, material){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Cube) return false
+
+        if (size != other.size) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (size?.hashCode() ?: 0)
+        return result
+    }
+}

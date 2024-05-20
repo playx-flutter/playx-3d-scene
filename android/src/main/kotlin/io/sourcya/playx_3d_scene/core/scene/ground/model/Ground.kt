@@ -6,10 +6,26 @@ import io.sourcya.playx_3d_scene.core.shape.common.model.Size
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
 import io.sourcya.playx_3d_scene.core.shape.plane.model.Plane
 
-class Ground (
+ class Ground (
     centerPosition: Position? = null,
     size : Size? = null,
     val isBelowModel:Boolean = false,
     normal: Direction? = null,
     material: Material? = null
-) : Plane(0,centerPosition,size,normal,material)
+) : Plane(0,centerPosition,size,normal,material){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Ground) return false
+
+        if (isBelowModel != other.isBelowModel) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + isBelowModel.hashCode()
+        return result
+    }
+
+}

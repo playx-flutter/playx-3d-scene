@@ -24,4 +24,28 @@ abstract class Model(
         return "Model(assetPath=$assetPath, url=$url, fallback=$fallback, position=$centerPosition, scale=$scale, animation=$animation)"
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Model) return false
+
+        if (assetPath != other.assetPath) return false
+        if (url != other.url) return false
+        if (fallback != other.fallback) return false
+        if (scale != other.scale) return false
+        if (centerPosition != other.centerPosition) return false
+        if (animation != other.animation) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = assetPath?.hashCode() ?: 0
+        result = 31 * result + (url?.hashCode() ?: 0)
+        result = 31 * result + (fallback?.hashCode() ?: 0)
+        result = 31 * result + (scale?.hashCode() ?: 0)
+        result = 31 * result + (centerPosition?.hashCode() ?: 0)
+        result = 31 * result + (animation?.hashCode() ?: 0)
+        return result
+    }
+
 }

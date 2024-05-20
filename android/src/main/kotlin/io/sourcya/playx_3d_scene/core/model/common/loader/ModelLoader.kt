@@ -6,6 +6,7 @@ import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.nio.Buffer
 
 class ModelLoader(
@@ -32,11 +33,15 @@ class ModelLoader(
         withContext(Dispatchers.Main) {
 
             destroyModel()
+
             asset = assetLoader.createAsset(buffer)
+
             asset?.let { asset ->
                 resourceLoader.asyncBeginLoad(asset)
+
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
+
                 if (transformToUnitCube) {
                     transformToUnitCube(centerPoint = centerPosition, scale=scale)
                 }
@@ -56,6 +61,7 @@ class ModelLoader(
         callback: suspend (String) -> Buffer?,
 
     ) {
+
         destroyModel()
         asset = assetLoader.createAsset(buffer)
         asset?.let { asset ->

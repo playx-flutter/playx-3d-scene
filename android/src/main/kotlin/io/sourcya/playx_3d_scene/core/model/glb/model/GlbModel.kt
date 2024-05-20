@@ -12,4 +12,19 @@ class GlbModel(
     scale: Float? =null,
     centerPosition: Position?,
     animation: Animation? =null,
-) : Model(assetPath,url, fallback, scale,centerPosition, animation)
+) : Model(assetPath,url, fallback, scale,centerPosition, animation){
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        val result = super.hashCode()
+        return result
+    }
+
+}

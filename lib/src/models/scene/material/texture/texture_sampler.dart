@@ -31,4 +31,9 @@ class PlayxTextureSampler {
         'wrap': wrap.toName(),
         'anisotropy': anisotropy,
       };
+
+  @override
+  String toString() {
+    return 'PlayxTextureSampler(min: $min, mag: $mag, wrap: $wrap, anisotropy: $anisotropy)';
+  }
 }

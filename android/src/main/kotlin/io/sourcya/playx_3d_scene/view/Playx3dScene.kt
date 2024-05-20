@@ -44,6 +44,7 @@ class Playx3dScene(
     }
 
 
+
     private fun setUpModelViewer() {
         val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
         val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)

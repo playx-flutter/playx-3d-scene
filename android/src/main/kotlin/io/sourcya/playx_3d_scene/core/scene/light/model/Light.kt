@@ -20,5 +20,4 @@ data class Light(
     val sunAngularRadius:Float? =null,
     val sunHaloSize:Float? =null,
     val sunHaloFalloff:Float? =null,
-) {
-}
+)

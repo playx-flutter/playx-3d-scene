@@ -9,6 +9,7 @@ import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
 import io.sourcya.playx_3d_scene.core.shape.plane.PlaneGeometry
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
+import timber.log.Timber
 
 class GroundManger(
     private val modelViewer: CustomModelViewer,
@@ -18,80 +19,89 @@ class GroundManger(
     var ground: Ground? = null
     var plane: PlaneGeometry? = null
 
-    suspend fun createGround(ground: Ground?): Resource<String> {
-        modelViewer.setGroundState(SceneState.LOADING)
-        if (ground == null) {
+    private suspend fun createGround(ground: Ground): Resource<String> {
+        try{
+            modelViewer.setGroundState(SceneState.LOADING)
+            if (ground.size == null) {
+                modelViewer.setGroundState(SceneState.ERROR)
+                return Resource.Error("Size must be provided")
+            }
+
+            val materialInstanceResult = materialManger.getMaterialInstance(ground.material)
+
+
+            val modelTransform = modelViewer.getModelTransform()
+
+            val center = if (ground.isBelowModel && modelTransform != null) {
+                Position(modelTransform[0, 3], modelTransform[1, 3], modelTransform[2, 3])
+            } else {
+                if (ground.centerPosition == null) {
+                    modelViewer.setGroundState(SceneState.ERROR)
+                    return Resource.Error("Position must be provided")
+                }
+                ground.centerPosition
+            }
+            this.ground = ground
+            val plane = PlaneGeometry.Builder(
+                center = center,
+                size = ground.size,
+                normal = ground.normal ?: Direction(y = 1f)
+            ).build(engine)
+            plane.setupScene(modelViewer, materialInstanceResult.data)
+
+            this.plane = plane
+            modelViewer.setGroundState(SceneState.LOADED)
+
+            return Resource.Success("Ground created successfully")
+        }catch (e:Throwable){
             modelViewer.setGroundState(SceneState.ERROR)
-            return Resource.Error("Ground must be provided")
+            return Resource.Error("couldn't create ground")
         }
-        if (ground.size == null) {
-            modelViewer.setGroundState(SceneState.ERROR)
-            return Resource.Error("Size must be provided")
-        }
-
-
-        val materialInstanceResult = materialManger.getMaterialInstance(ground.material)
-
-
-        val modelTransform = modelViewer.getModelTransform()
-
-        val center = if (ground.isBelowModel && modelTransform != null) {
-            Position(modelTransform[0, 3], modelTransform[1, 3], modelTransform[2, 3])
-        } else {
-            if (ground.centerPosition == null) return Resource.Error("Position must be provided")
-
-            ground.centerPosition
-        }
-        this.ground = ground
-
-        val plane = PlaneGeometry.Builder(
-            center = center,
-            size = ground.size,
-            normal = ground.normal ?: Direction(y = 1f)
-        ).build(engine)
-
-        plane.setupScene(modelViewer, materialInstanceResult.data)
-
-        this.plane = plane
-        modelViewer.setGroundState(SceneState.LOADED)
-
-        return Resource.Success("Ground created successfully")
-
     }
 
 
     suspend fun updateGround(newGround: Ground?): Resource<String> {
-        modelViewer.setGroundState(SceneState.LOADING)
 
-        if (newGround == null) {
-            modelViewer.setGroundState(SceneState.ERROR)
-            return Resource.Error("Ground must be provided")
-        }
-        if (newGround.size == null){
-            modelViewer.setGroundState(SceneState.ERROR)
-            return Resource.Error("Size must be provided")
-        }
+        try {
+            modelViewer.setGroundState(SceneState.LOADING)
 
-        val isBelowModel = newGround.isBelowModel
-        if (plane == null) {
-            return createGround(newGround)
-        } else {
-            val modelTransform = modelViewer.getModelTransform()
-            val center = if (isBelowModel && modelTransform != null) {
-                Position(modelTransform[0, 3], modelTransform[1, 3], modelTransform[2, 3])
-            } else {
-                if (newGround.centerPosition == null) return Resource.Error("Position must be provided")
-                newGround.centerPosition
+            if (newGround == null) {
+                plane?.removeGeometry(modelViewer)
+                modelViewer.setGroundState(SceneState.LOADED)
+
+                return Resource.Success("Ground Updated successfully")
             }
-            plane?.update(
-                engine,
-                center,
-                size = newGround.size,
-                normal = newGround.normal ?: Direction(y = 1f)
-            )
+            if (newGround.size == null){
+                modelViewer.setGroundState(SceneState.ERROR)
+                return Resource.Error("Size must be provided")
+            }
+
+            val isBelowModel = newGround.isBelowModel
+            if (plane == null) {
+
+                return createGround(newGround)
+            } else {
+                val modelTransform = modelViewer.getModelTransform()
+                val center = if (isBelowModel && modelTransform != null) {
+                    Position(modelTransform[0, 3], modelTransform[1, 3], modelTransform[2, 3])
+                } else {
+                    if (newGround.centerPosition == null) return Resource.Error("Position must be provided")
+                    newGround.centerPosition
+                }
+
+                plane?.update(
+                    engine,
+                    center,
+                    size = newGround.size,
+                    normal = newGround.normal ?: Direction(y = 1f)
+                )
+            }
+            modelViewer.setGroundState(SceneState.LOADED)
+            return Resource.Success("updated ground successfully")
+        }catch (e :Exception){
+            modelViewer.setGroundState(SceneState.ERROR)
+            return Resource.Error("couldn't update ground")
         }
-        modelViewer.setGroundState(SceneState.LOADED)
-        return Resource.Success("updated ground successfully")
     }
 
 

@@ -10,6 +10,7 @@ import io.sourcya.playx_3d_scene.core.utils.readAsset
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 
 internal class GlbLoader constructor(

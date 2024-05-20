@@ -26,6 +26,10 @@ apply plugin: 'kotlin-android'
 
 android {
 
+    if (project.android.hasProperty("namespace")) {
+        namespace = "io.sourcya.playx_3d_scene"
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

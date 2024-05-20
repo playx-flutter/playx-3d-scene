@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.nio.Buffer
 
-internal class SkyboxManger constructor(
+internal class SkyboxManger(
     private val modelViewer: CustomModelViewer,
     private val iblProfiler: IBLProfiler,
     private val context: Context,
