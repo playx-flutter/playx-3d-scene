@@ -36,12 +36,9 @@ class Plane extends Shape {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Plane &&
-        other.id == id &&
-        other.size == size &&
-        other.centerPosition == centerPosition;
+    return other is Plane && other.size == size && super == other;
   }
 
   @override
-  int get hashCode => id.hashCode ^ size.hashCode ^ centerPosition.hashCode;
+  int get hashCode => size.hashCode ^ super.hashCode;
 }

@@ -36,4 +36,19 @@ class PlayxTextureSampler {
   String toString() {
     return 'PlayxTextureSampler(min: $min, mag: $mag, wrap: $wrap, anisotropy: $anisotropy)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlayxTextureSampler &&
+        other.min == min &&
+        other.mag == mag &&
+        other.wrap == wrap &&
+        other.anisotropy == anisotropy;
+  }
+
+  @override
+  int get hashCode =>
+      min.hashCode ^ mag.hashCode ^ wrap.hashCode ^ anisotropy.hashCode;
 }

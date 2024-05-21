@@ -22,12 +22,9 @@ class ColoredSkybox extends Skybox {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ColoredSkybox &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        other.color == color;
+    return other is ColoredSkybox && super == other && other.color == color;
   }
 
   @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ color.hashCode;
+  int get hashCode => super.hashCode ^ color.hashCode;
 }

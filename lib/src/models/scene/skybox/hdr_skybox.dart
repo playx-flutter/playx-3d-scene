@@ -32,12 +32,9 @@ class HdrSkybox extends Skybox {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is HdrSkybox &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        other.showSun == showSun;
+    return other is HdrSkybox && super == other && other.showSun == showSun;
   }
 
   @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ showSun.hashCode;
+  int get hashCode => super.hashCode ^ showSun.hashCode;
 }

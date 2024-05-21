@@ -34,12 +34,9 @@ class Cube extends Shape {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Cube &&
-        other.id == id &&
-        other.length == length &&
-        other.centerPosition == centerPosition;
+    return other is Cube && other.length == length && super == other;
   }
 
   @override
-  int get hashCode => id.hashCode ^ length.hashCode ^ centerPosition.hashCode;
+  int get hashCode => length.hashCode ^ super.hashCode;
 }

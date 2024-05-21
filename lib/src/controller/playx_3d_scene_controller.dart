@@ -25,7 +25,7 @@ class Playx3dSceneController {
       {
         _updatePlayx3dSceneSceneKey: scene?.toJson(),
         _updatePlayx3dSceneModelKey: model?.toJson(),
-        _updatePlayx3dSceneShapesKey: model?.toJson(),
+        _updatePlayx3dSceneShapesKey: shapes?.map((e) => e.toJson()).toList(),
       },
     );
     return _handleError(data);

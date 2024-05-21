@@ -25,11 +25,12 @@ class KtxSkybox extends Skybox {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is KtxSkybox &&
-        other.assetPath == assetPath &&
-        other.url == url;
+    return other is KtxSkybox && super == other;
   }
 
   @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode;
+  int get hashCode {
+    final hash = super.hashCode;
+    return hash;
+  }
 }

@@ -65,21 +65,21 @@ class DefaultIndirectLight extends IndirectLight {
     if (identical(this, other)) return true;
 
     return other is DefaultIndirectLight &&
-        other.intensity == intensity &&
         other.radianceBands == radianceBands &&
         other.radianceSh == radianceSh &&
         other.irradianceBands == irradianceBands &&
         other.irradianceSh == irradianceSh &&
-        other.rotation == rotation;
+        other.rotation == rotation &&
+        super == other;
   }
 
   @override
   int get hashCode {
-    return intensity.hashCode ^
-        radianceBands.hashCode ^
+    return radianceBands.hashCode ^
         radianceSh.hashCode ^
         irradianceBands.hashCode ^
         irradianceSh.hashCode ^
-        rotation.hashCode;
+        rotation.hashCode ^
+        super.hashCode;
   }
 }

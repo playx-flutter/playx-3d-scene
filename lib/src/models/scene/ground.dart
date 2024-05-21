@@ -40,18 +40,13 @@ class Ground extends Plane {
     if (identical(this, other)) return true;
 
     return other is Ground &&
-        other.centerPosition == centerPosition &&
-        other.normal == normal &&
+        other.width == width &&
+        other.height == height &&
         other.isBelowModel == isBelowModel &&
-        other.size == size &&
-        other.material == material;
+        super == other;
   }
 
   @override
   int get hashCode =>
-      centerPosition.hashCode ^
-      normal.hashCode ^
-      isBelowModel.hashCode ^
-      size.hashCode ^
-      material.hashCode;
+      width.hashCode ^ height.hashCode ^ isBelowModel.hashCode ^ super.hashCode;
 }

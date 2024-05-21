@@ -42,11 +42,13 @@ class Sphere extends Shape {
     if (identical(this, other)) return true;
 
     return other is Sphere &&
-        other.id == id &&
         other.radius == radius &&
-        other.centerPosition == centerPosition;
+        other.stacks == stacks &&
+        other.slices == slices &&
+        super == other;
   }
 
   @override
-  int get hashCode => id.hashCode ^ radius.hashCode ^ centerPosition.hashCode;
+  int get hashCode =>
+      radius.hashCode ^ stacks.hashCode ^ slices.hashCode ^ super.hashCode;
 }

@@ -36,7 +36,7 @@ class Shape {
 
   @override
   String toString() {
-    return 'Shape(id: $id, centerPosition: $centerPosition)';
+    return 'Shape(id: $id, centerPosition: $centerPosition normal: $normal, material: $material)';
   }
 
   @override
@@ -45,9 +45,15 @@ class Shape {
 
     return other is Shape &&
         other.id == id &&
-        other.centerPosition == centerPosition;
+        other.centerPosition == centerPosition &&
+        other.normal == normal &&
+        other.material == material;
   }
 
   @override
-  int get hashCode => id.hashCode ^ centerPosition.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      centerPosition.hashCode ^
+      normal.hashCode ^
+      material.hashCode;
 }

@@ -285,7 +285,6 @@ class PlayxModelViewerState extends State<Playx3dScene> {
 
   void _updateWidget(Playx3dScene? oldWidget) {
     _setupCreationParams();
-
     if (oldWidget?.model != widget.model ||
         oldWidget?.scene != widget.scene ||
         !listEquals(oldWidget?.shapes, widget.shapes)) {
@@ -305,6 +304,7 @@ class PlayxModelViewerState extends State<Playx3dScene> {
   @override
   void reassemble() {
     super.reassemble();
+    // Update scene on hot reload for better debugging
     _updateWidget(null);
   }
 
