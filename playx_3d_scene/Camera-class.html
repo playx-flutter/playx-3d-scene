@@ -11,7 +11,7 @@
   
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
@@ -29,33 +29,33 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">playx_3d_scene</a></li>
-    <li><a href="../playx_3d_scene/playx_3d_scene-library.html">playx_3d_scene</a></li>
+    <li><a href="../playx_3d_scene/playx_3d_scene-library.html">playx_3d_scene.dart</a></li>
     <li class="self-crumb">Camera class</li>
   </ol>
   <div class="self-name">Camera</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button">
+  <div class="toggle" id="theme-button" title="Toggle brightness">
     <label for="theme">
       <input type="checkbox" id="theme" value="light-theme">
       <span id="dark-theme-button" class="material-symbols-outlined">
-        brightness_4
+        dark_mode
       </span>
       <span id="light-theme-button" class="material-symbols-outlined">
-        brightness_5
+        light_mode
       </span>
     </label>
   </div>
 </header>
 <main>
 
-  <div
-      id="dartdoc-main-content"
-      class="main-content"
-      data-above-sidebar="playx_3d_scene&#47;playx_3d_scene-library-sidebar.html"
-      data-below-sidebar="playx_3d_scene&#47;Camera-class-sidebar.html">
-      <div>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="playx_3d_scene&#47;playx_3d_scene-library-sidebar.html"
+    data-below-sidebar="playx_3d_scene&#47;Camera-class-sidebar.html">
+    <div>
 <h1><span class="kind-class">Camera</span> class 
  
 </h1></div>
@@ -92,222 +92,242 @@
         </dd>
     </dl>
   </section>
-
-    <section class="summary offset-anchor" id="instance-properties">
-      <h2>Properties</h2>
-
-      <dl class="properties">
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
         <dt id="exposure" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/exposure.html">exposure</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/Exposure-class.html">Exposure</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/Exposure-class.html">Exposure</a>?</span>
+  
 
 </dt>
 <dd>
   An object that control camera Exposure.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="farPlane" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/farPlane.html">farPlane</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   The distance to the far plane, which defaults to 5000.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="flightMaxMoveSpeed" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/flightMaxMoveSpeed.html">flightMaxMoveSpeed</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   The maximum camera translation speed in world units per second for FREE_FLIGHT mode.
 Defaults to 10.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="flightMoveDamping" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/flightMoveDamping.html">flightMoveDamping</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   Applies a deceleration to camera movement in FREE_FLIGHT mode. Defaults to 0 (no damping).
 Lower values give slower damping times. A good default is 15.0. Too high a value may lead to instability.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="flightSpeedSteps" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/flightSpeedSteps.html">flightSpeedSteps</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/num-class.html">num</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/num-class.html">num</a>?</span>
+  
 
 </dt>
 <dd>
   The number of speed steps adjustable with scroll wheel for FREE_FLIGHT mode.
 Defaults to 80.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="flightStartOrientation" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/flightStartOrientation.html">flightStartOrientation</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
   The initial orientation in pitch and yaw for FREE_FLIGHT mode.
 Defaults to <code>0,0</code>.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="flightStartPosition" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/flightStartPosition.html">flightStartPosition</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span>
+  
 
 </dt>
 <dd>
   The initial eye position in world space for FREE_FLIGHT mode.
 Defaults to (x:0,y:0,z:0).
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="fovDegrees" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/fovDegrees.html">fovDegrees</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   The full FOV (not the half-angle) in the degrees.
 This defaults to 33.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="fovDirection" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/fovDirection.html">fovDirection</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/Fov.html">Fov</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/Fov.html">Fov</a>?</span>
+  
 
 </dt>
 <dd>
   The FOV axis that's held constant when the viewport changes.
 This defaults to Vertical.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="groundPlane" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/groundPlane.html">groundPlane</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
   The ground plane equation used for ray casts. This is a plane equation as in Ax + By + Cz + D = 0. Defaults to (0, 0, 1, 0).
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
-        <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../playx_3d_scene/Camera/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
 
 </dt>
-<dd class="inherited">
+<dd>
   The hash code for this object.
-  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
         <dt id="lensProjection" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/lensProjection.html">lensProjection</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/LensProjection-class.html">LensProjection</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/LensProjection-class.html">LensProjection</a>?</span>
+  
 
 </dt>
 <dd>
   An object that control camera and set it's projection matrix from the focal length.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="mapExtent" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/mapExtent.html">mapExtent</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
   The ground plane size used to compute the home position for MAP mode.
 This defaults to 512 x 512
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="mapMinDistance" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/mapMinDistance.html">mapMinDistance</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   Constrains the zoom-in level. Defaults to 0.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="orbitHomePosition" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/orbitHomePosition.html">orbitHomePosition</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span>
+  
 
 </dt>
 <dd>
   The initial eye position in world space for ORBIT mode.
 This defaults to (x:0,y:0,z:1).
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="orbitSpeed" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/orbitSpeed.html">orbitSpeed</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
   Sets the multiplier with viewport delta for ORBIT mode.This defaults to 0.01
 List of 2 double :<code>x,y</code>
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="projection" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/projection.html">projection</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/Projection-class.html">Projection</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/Projection-class.html">Projection</a>?</span>
+  
 
 </dt>
 <dd>
   An object that controls camera projection matrix.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
 
 </dt>
 <dd class="inherited">
   A representation of the runtime type of the object.
-  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="scaling" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/scaling.html">scaling</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
@@ -315,13 +335,14 @@ List of 2 double :<code>x,y</code>
 This is useful to adjust the aspect ratio of the camera independent from its projection.
 Its sent as List of 2 double elements :
 * xscaling  horizontal scaling to be applied after the projection matrix.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="shift" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/shift.html">shift</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span>?</span>
+  
 
 </dt>
 <dd>
@@ -330,46 +351,48 @@ The shift parameters are specified in NDC coordinates.
 Its sent as List of 2 double elements :
 *  xshift    horizontal shift in NDC coordinates applied after the projection
 *  yshift    vertical shift in NDC coordinates applied after the projection
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="targetPosition" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/targetPosition.html">targetPosition</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span>
+  
 
 </dt>
 <dd>
   The world-space position of interest, which defaults to (x:0,y:0,z:-4).
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="upVector" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/upVector.html">upVector</a></span>
-  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span> 
+  <span class="signature">&#8596; <a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a>?</span>
+  
 
 </dt>
 <dd>
   The orientation for the home position, which defaults to (x:0,y:1,z:0).
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
         <dt id="zoomSpeed" class="property">
   <span class="name"><a href="../playx_3d_scene/Camera/zoomSpeed.html">zoomSpeed</a></span>
-  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> 
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
 
 </dt>
 <dd>
   The scroll delta multiplier, which defaults to 0.01.
-  <div class="features"><span class="feature">read / write</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
-      </dl>
-    </section>
-
+    </dl>
+  </section>
     
   <section
       class="summary offset-anchor"
@@ -402,16 +425,16 @@ Its sent as List of 2 double elements :
 
 </dd>
 
-        <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../playx_3d_scene/Camera/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   A string representation of this object.
-  <div class="features"><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -419,20 +442,20 @@ Its sent as List of 2 double elements :
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="operators">
     <h2>Operators</h2>
     <dl class="callables">
-        <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../playx_3d_scene/Camera/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The equality operator.
-  <div class="features"><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -460,7 +483,7 @@ Its sent as List of 2 double elements :
 </ol>
 
 
-    <!--<h5>playx_3d_scene library</h5>-->
+    <h5>playx_3d_scene library</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div>
 
@@ -472,7 +495,7 @@ Its sent as List of 2 double elements :
 <footer>
   <span class="no-break">
     playx_3d_scene
-      0.0.3
+      0.1.0
   </span>
 
   

@@ -11,7 +11,7 @@
   
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
@@ -29,36 +29,42 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">playx_3d_scene</a></li>
-    <li class="self-crumb">playx_3d_scene library</li>
+    <li class="self-crumb">playx_3d_scene.dart</li>
   </ol>
   <div class="self-name">playx_3d_scene</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button">
+  <div class="toggle" id="theme-button" title="Toggle brightness">
     <label for="theme">
       <input type="checkbox" id="theme" value="light-theme">
       <span id="dark-theme-button" class="material-symbols-outlined">
-        brightness_4
+        dark_mode
       </span>
       <span id="light-theme-button" class="material-symbols-outlined">
-        brightness_5
+        light_mode
       </span>
     </label>
   </div>
 </header>
 <main>
 
-  <div
-      id="dartdoc-main-content"
-      class="main-content"
-      data-above-sidebar=""
-      data-below-sidebar="playx_3d_scene&#47;playx_3d_scene-library-sidebar.html">
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="playx_3d_scene&#47;playx_3d_scene-library-sidebar.html">
+  
+    <div>
       
-      <div>
-<h1><span class="kind-library">playx_3d_scene</span> library 
+
+      <h1>
+        <span class="kind-library">playx_3d_scene</span>
+        library 
  
-</h1></div>
+
+      </h1>
+    </div>
 
     
 
@@ -67,7 +73,7 @@
       <h2>Classes</h2>
 
       <dl>
-        <dt id="Camera">
+          <dt id="Camera">
   <span class="name "><a href="../playx_3d_scene/Camera-class.html">Camera</a></span> 
 
 </dt>
@@ -75,7 +81,7 @@
   An object that controls camera, it describes what mode it operates on, position, exposure and more.
 </dd>
 
-        <dt id="ColoredSkybox">
+          <dt id="ColoredSkybox">
   <span class="name "><a href="../playx_3d_scene/ColoredSkybox-class.html">ColoredSkybox</a></span> 
 
 </dt>
@@ -83,7 +89,7 @@
   An object that represents skybox based that shows a color only.
 </dd>
 
-        <dt id="Cube">
+          <dt id="Cube">
   <span class="name "><a href="../playx_3d_scene/Cube-class.html">Cube</a></span> 
 
 </dt>
@@ -91,7 +97,7 @@
   An object that represents a cube shape to be rendered.
 </dd>
 
-        <dt id="DefaultIndirectLight">
+          <dt id="DefaultIndirectLight">
   <span class="name "><a href="../playx_3d_scene/DefaultIndirectLight-class.html">DefaultIndirectLight</a></span> 
 
 </dt>
@@ -103,7 +109,7 @@ The irradiance is calculated automatically from the Reflections (see below), and
 However, it can be provided separately from the Reflections as Spherical Harmonics  (SH) of 1, 2 or 3 bands, respectively 1, 4 or 9 coefficients.
 </dd>
 
-        <dt id="Exposure">
+          <dt id="Exposure">
   <span class="name "><a href="../playx_3d_scene/Exposure-class.html">Exposure</a></span> 
 
 </dt>
@@ -117,7 +123,7 @@ the scene must contain at least one Light of intensity similar to the sun
 Default is f/16, 1/125s, 100 ISO
 </dd>
 
-        <dt id="GlbModel">
+          <dt id="GlbModel">
   <span class="name "><a href="../playx_3d_scene/GlbModel-class.html">GlbModel</a></span> 
 
 </dt>
@@ -125,7 +131,7 @@ Default is f/16, 1/125s, 100 ISO
   represents object of model that will be loaded from glb file.
 </dd>
 
-        <dt id="GltfModel">
+          <dt id="GltfModel">
   <span class="name "><a href="../playx_3d_scene/GltfModel-class.html">GltfModel</a></span> 
 
 </dt>
@@ -133,7 +139,7 @@ Default is f/16, 1/125s, 100 ISO
   represents object of model that will be loaded from gltf file.
 </dd>
 
-        <dt id="Ground">
+          <dt id="Ground">
   <span class="name "><a href="../playx_3d_scene/Ground-class.html">Ground</a></span> 
 
 </dt>
@@ -141,7 +147,7 @@ Default is f/16, 1/125s, 100 ISO
   An object that represents ground plane to be drawn on the scene.
 </dd>
 
-        <dt id="HdrIndirectLight">
+          <dt id="HdrIndirectLight">
   <span class="name "><a href="../playx_3d_scene/HdrIndirectLight-class.html">HdrIndirectLight</a></span> 
 
 </dt>
@@ -149,7 +155,7 @@ Default is f/16, 1/125s, 100 ISO
   An object that represents indirect light that is created from hdr file format.
 </dd>
 
-        <dt id="HdrSkybox">
+          <dt id="HdrSkybox">
   <span class="name "><a href="../playx_3d_scene/HdrSkybox-class.html">HdrSkybox</a></span> 
 
 </dt>
@@ -157,7 +163,7 @@ Default is f/16, 1/125s, 100 ISO
   An object that represents skybox that will be loaded from hdr file.
 </dd>
 
-        <dt id="IndirectLight">
+          <dt id="IndirectLight">
   <span class="name "><a href="../playx_3d_scene/IndirectLight-class.html">IndirectLight</a></span> 
 
 </dt>
@@ -176,7 +182,7 @@ Only a single IndirectLight can be used in a Scene. This limitation will be lift
 Use the cmgen tool to generate the Spherical Harmonics for a given environment.
 </dd>
 
-        <dt id="KtxIndirectLight">
+          <dt id="KtxIndirectLight">
   <span class="name "><a href="../playx_3d_scene/KtxIndirectLight-class.html">KtxIndirectLight</a></span> 
 
 </dt>
@@ -184,7 +190,7 @@ Use the cmgen tool to generate the Spherical Harmonics for a given environment.
   An object that represents indirect light that is created from ktx file format.
 </dd>
 
-        <dt id="KtxSkybox">
+          <dt id="KtxSkybox">
   <span class="name "><a href="../playx_3d_scene/KtxSkybox-class.html">KtxSkybox</a></span> 
 
 </dt>
@@ -196,7 +202,7 @@ the Skybox object can be loaded from a KTX that does contain visible images.
 Filament provides an offline tool called cmgen that can consume an equirectangular image and produce these two files in one fell swoop.
 </dd>
 
-        <dt id="LensProjection">
+          <dt id="LensProjection">
   <span class="name "><a href="../playx_3d_scene/LensProjection-class.html">LensProjection</a></span> 
 
 </dt>
@@ -204,7 +210,7 @@ Filament provides an offline tool called cmgen that can consume an equirectangul
   An object that control camera and set it's projection matrix from the focal length.
 </dd>
 
-        <dt id="Light">
+          <dt id="Light">
   <span class="name "><a href="../playx_3d_scene/Light-class.html">Light</a></span> 
 
 </dt>
@@ -213,7 +219,7 @@ Filament provides an offline tool called cmgen that can consume an equirectangul
 Light types - Lights come in three flavors:
 </dd>
 
-        <dt id="MaterialParameter">
+          <dt id="MaterialParameter">
   <span class="name "><a href="../playx_3d_scene/MaterialParameter-class.html">MaterialParameter</a></span> 
 
 </dt>
@@ -221,7 +227,7 @@ Light types - Lights come in three flavors:
   An object that represents material parameters that are defined in the .mat file.
 </dd>
 
-        <dt id="Model">
+          <dt id="Model">
   <span class="name "><a href="../playx_3d_scene/Model-class.html">Model</a></span> 
 
 </dt>
@@ -229,7 +235,7 @@ Light types - Lights come in three flavors:
   represents base object of the 3d model to be rendered.
 </dd>
 
-        <dt id="Plane">
+          <dt id="Plane">
   <span class="name "><a href="../playx_3d_scene/Plane-class.html">Plane</a></span> 
 
 </dt>
@@ -237,7 +243,7 @@ Light types - Lights come in three flavors:
   An object that represents a plane shape to be rendered.
 </dd>
 
-        <dt id="Playx3dScene">
+          <dt id="Playx3dScene">
   <span class="name "><a href="../playx_3d_scene/Playx3dScene-class.html">Playx3dScene</a></span> 
 
 </dt>
@@ -245,7 +251,7 @@ Light types - Lights come in three flavors:
   
 </dd>
 
-        <dt id="Playx3dSceneController">
+          <dt id="Playx3dSceneController">
   <span class="name "><a href="../playx_3d_scene/Playx3dSceneController-class.html">Playx3dSceneController</a></span> 
 
 </dt>
@@ -256,7 +262,7 @@ It provides utility methods to update the viewer, change the animation environme
 Each controller is unique for each widget.
 </dd>
 
-        <dt id="PlayxAnimation">
+          <dt id="PlayxAnimation">
   <span class="name "><a href="../playx_3d_scene/PlayxAnimation-class.html">PlayxAnimation</a></span> 
 
 </dt>
@@ -264,7 +270,7 @@ Each controller is unique for each widget.
   An object representing what animation to be played for current model.
 </dd>
 
-        <dt id="PlayxDirection">
+          <dt id="PlayxDirection">
   <span class="name "><a href="../playx_3d_scene/PlayxDirection-class.html">PlayxDirection</a></span> 
 
 </dt>
@@ -272,7 +278,7 @@ Each controller is unique for each widget.
   An object that represents the direction of the shape in the world space.
 </dd>
 
-        <dt id="PlayxMaterial">
+          <dt id="PlayxMaterial">
   <span class="name "><a href="../playx_3d_scene/PlayxMaterial-class.html">PlayxMaterial</a></span> 
 
 </dt>
@@ -285,7 +291,7 @@ To use the .mat file in the app, Use matc tool in filament to convert .mat files
 For more information about materials, see the filament material documentation
 </dd>
 
-        <dt id="PlayxModelViewerState">
+          <dt id="PlayxModelViewerState">
   <span class="name "><a href="../playx_3d_scene/PlayxModelViewerState-class.html">PlayxModelViewerState</a></span> 
 
 </dt>
@@ -293,7 +299,7 @@ For more information about materials, see the filament material documentation
   
 </dd>
 
-        <dt id="PlayxPosition">
+          <dt id="PlayxPosition">
   <span class="name "><a href="../playx_3d_scene/PlayxPosition-class.html">PlayxPosition</a></span> 
 
 </dt>
@@ -302,7 +308,7 @@ For more information about materials, see the filament material documentation
 By providing x, y and z coordinates.
 </dd>
 
-        <dt id="PlayxSize">
+          <dt id="PlayxSize">
   <span class="name "><a href="../playx_3d_scene/PlayxSize-class.html">PlayxSize</a></span> 
 
 </dt>
@@ -310,7 +316,7 @@ By providing x, y and z coordinates.
   An object that represents shape size in the world space.
 </dd>
 
-        <dt id="PlayxTexture">
+          <dt id="PlayxTexture">
   <span class="name "><a href="../playx_3d_scene/PlayxTexture-class.html">PlayxTexture</a></span> 
 
 </dt>
@@ -318,7 +324,7 @@ By providing x, y and z coordinates.
   An object represents textures to be loaded by the material.
 </dd>
 
-        <dt id="PlayxTextureSampler">
+          <dt id="PlayxTextureSampler">
   <span class="name "><a href="../playx_3d_scene/PlayxTextureSampler-class.html">PlayxTextureSampler</a></span> 
 
 </dt>
@@ -326,7 +332,7 @@ By providing x, y and z coordinates.
   An object that defines how a texture is accessed.
 </dd>
 
-        <dt id="Projection">
+          <dt id="Projection">
   <span class="name "><a href="../playx_3d_scene/Projection-class.html">Projection</a></span> 
 
 </dt>
@@ -334,7 +340,7 @@ By providing x, y and z coordinates.
   An object that controls camera projection matrix.
 </dd>
 
-        <dt id="Result">
+          <dt id="Result">
   <span class="name "><a href="../playx_3d_scene/Result-class.html">Result</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
 </dt>
@@ -342,7 +348,7 @@ By providing x, y and z coordinates.
   Wrapper class to hold data on success or message on failure
 </dd>
 
-        <dt id="Scene">
+          <dt id="Scene">
   <span class="name "><a href="../playx_3d_scene/Scene-class.html">Scene</a></span> 
 
 </dt>
@@ -350,7 +356,7 @@ By providing x, y and z coordinates.
   An object that represents the scene to  be rendered with information about light, skybox and more.
 </dd>
 
-        <dt id="Shape">
+          <dt id="Shape">
   <span class="name "><a href="../playx_3d_scene/Shape-class.html">Shape</a></span> 
 
 </dt>
@@ -358,7 +364,7 @@ By providing x, y and z coordinates.
   An object that represents shapes to be rendered on the scene.
 </dd>
 
-        <dt id="Skybox">
+          <dt id="Skybox">
   <span class="name "><a href="../playx_3d_scene/Skybox-class.html">Skybox</a></span> 
 
 </dt>
@@ -366,7 +372,7 @@ By providing x, y and z coordinates.
   An object that represents the skybox to be rendered in the scene.
 </dd>
 
-        <dt id="Sphere">
+          <dt id="Sphere">
   <span class="name "><a href="../playx_3d_scene/Sphere-class.html">Sphere</a></span> 
 
 </dt>
@@ -377,16 +383,11 @@ By providing x, y and z coordinates.
       </dl>
     </section>
 
-
-
-
-
-
     <section class="summary offset-anchor" id="enums">
       <h2>Enums</h2>
 
       <dl>
-        <dt id="Fov">
+          <dt id="Fov">
   <span class="name "><a href="../playx_3d_scene/Fov.html">Fov</a></span> 
 
 </dt>
@@ -394,7 +395,7 @@ By providing x, y and z coordinates.
   Denotes a field-of-view direction.
 </dd>
 
-        <dt id="LightType">
+          <dt id="LightType">
   <span class="name "><a href="../playx_3d_scene/LightType.html">LightType</a></span> 
 
 </dt>
@@ -402,7 +403,7 @@ By providing x, y and z coordinates.
   Type of the direct that will be used in the scene.
 </dd>
 
-        <dt id="MagFilter">
+          <dt id="MagFilter">
   <span class="name "><a href="../playx_3d_scene/MagFilter.html">MagFilter</a></span> 
 
 </dt>
@@ -410,7 +411,7 @@ By providing x, y and z coordinates.
   Magnification filter to be used.
 </dd>
 
-        <dt id="MaterialType">
+          <dt id="MaterialType">
   <span class="name "><a href="../playx_3d_scene/MaterialType.html">MaterialType</a></span> 
 
 </dt>
@@ -419,7 +420,7 @@ By providing x, y and z coordinates.
 See also:
 </dd>
 
-        <dt id="MinFilter">
+          <dt id="MinFilter">
   <span class="name "><a href="../playx_3d_scene/MinFilter.html">MinFilter</a></span> 
 
 </dt>
@@ -427,7 +428,7 @@ See also:
   Minification filter to be used.
 </dd>
 
-        <dt id="Mode">
+          <dt id="Mode">
   <span class="name "><a href="../playx_3d_scene/Mode.html">Mode</a></span> 
 
 </dt>
@@ -436,7 +437,7 @@ See also:
 Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
 </dd>
 
-        <dt id="ModelState">
+          <dt id="ModelState">
   <span class="name "><a href="../playx_3d_scene/ModelState.html">ModelState</a></span> 
 
 </dt>
@@ -444,7 +445,7 @@ Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
   Represents the state of the model.
 </dd>
 
-        <dt id="ProjectionType">
+          <dt id="ProjectionType">
   <span class="name "><a href="../playx_3d_scene/ProjectionType.html">ProjectionType</a></span> 
 
 </dt>
@@ -452,7 +453,7 @@ Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
   Denotes the projection type used by this camera.
 </dd>
 
-        <dt id="SceneState">
+          <dt id="SceneState">
   <span class="name "><a href="../playx_3d_scene/SceneState.html">SceneState</a></span> 
 
 </dt>
@@ -460,7 +461,7 @@ Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
   Represents the state of the scene.
 </dd>
 
-        <dt id="ShapeState">
+          <dt id="ShapeState">
   <span class="name "><a href="../playx_3d_scene/ShapeState.html">ShapeState</a></span> 
 
 </dt>
@@ -468,7 +469,7 @@ Three modes are supported: ORBIT, MAP, and FREE_FLIGHT.
   Represents the state of loading shapes.
 </dd>
 
-        <dt id="TextureType">
+          <dt id="TextureType">
   <span class="name "><a href="../playx_3d_scene/TextureType.html">TextureType</a></span> 
 
 </dt>
@@ -478,7 +479,7 @@ Color is the only type of texture we want to pre-multiply with the alpha channel
 Pre-multiplication is the default behavior, so we need to turn it off  based on the type.
 </dd>
 
-        <dt id="WrapMode">
+          <dt id="WrapMode">
   <span class="name "><a href="../playx_3d_scene/WrapMode.html">WrapMode</a></span> 
 
 </dt>
@@ -488,6 +489,12 @@ Pre-multiplication is the default behavior, so we need to turn it off  based on 
 
       </dl>
     </section>
+
+
+
+
+
+
 
     <section class="summary offset-anchor" id="typedefs">
       <h2>Typedefs</h2>
@@ -579,7 +586,7 @@ Pre-multiplication is the default behavior, so we need to turn it off  based on 
 
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">playx_3d_scene</a></li>
-    <li class="self-crumb">playx_3d_scene library</li>
+    <li class="self-crumb">playx_3d_scene.dart</li>
 </ol>
 
 
@@ -600,7 +607,7 @@ Pre-multiplication is the default behavior, so we need to turn it off  based on 
 <footer>
   <span class="no-break">
     playx_3d_scene
-      0.0.3
+      0.1.0
   </span>
 
   
