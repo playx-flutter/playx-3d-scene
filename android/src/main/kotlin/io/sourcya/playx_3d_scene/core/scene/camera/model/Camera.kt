@@ -1,9 +1,9 @@
 package io.sourcya.playx_3d_scene.core.scene.camera.model
 
-import com.google.android.filament.Camera
 import com.google.android.filament.utils.Manipulator
 import com.google.android.filament.utils.Manipulator.Mode
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
+import io.sourcya.playx_3d_scene.utils.gson
 
 data class Camera (
      val exposure: Exposure? = null,
@@ -111,11 +111,19 @@ data class Camera (
      }
 
 
+     companion object {
+          fun fromMap(map: Map<String?, Any?>?): Camera? {
+               if (map == null) return null
+               val json = gson.toJson(map)
+               return gson.fromJson(json, Camera::class.java)
+          }
+     }
+
 }
 
 
 data class Projection(
-     val projection: Camera.Projection? = null,
+     val projection: com.google.android.filament.Camera.Projection? = null,
      val left: Double? = null,
      val right: Double? = null,
      val bottom: Double? = null,
@@ -126,17 +134,33 @@ data class Projection(
 
      val fovInDegrees: Double? = null,
      val aspect: Double? = null,
-     val direction : Camera.Fov? = null,
+     val direction : com.google.android.filament.Camera.Fov? = null,
 
 
-    )
+     ){
+        companion object {
+            fun fromMap(map: Map<String?, Any?>?): Projection? {
+                if (map == null) return null
+                val json = gson.toJson(map)
+                return gson.fromJson(json, Projection::class.java)
+            }
+        }
+}
 
 data class LensProjection(
      val focalLength: Double?= null,
      val aspect: Double? = null,
      val near: Double? = null,
      val far: Double? = null,
-    )
+    ){
+        companion object {
+            fun fromMap(map: Map<String?, Any?>?): LensProjection? {
+                if (map == null) return null
+                val json = gson.toJson(map)
+                return gson.fromJson(json, LensProjection::class.java)
+            }
+        }
+}
 
 data class Exposure(
     //Sets this camera's exposure (default is f/16, 1/125s, 100 ISO)
@@ -166,4 +190,12 @@ data class Exposure(
      */
      val exposure :Float?= null,
 
-)
+){
+     companion object {
+          fun fromMap(map: Map<String?, Any?>?): Exposure? {
+               if (map == null) return null
+               val json = gson.toJson(map)
+               return gson.fromJson(json, Exposure::class.java)
+          }
+     }
+}

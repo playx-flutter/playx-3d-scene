@@ -33,7 +33,14 @@ class GltfModel extends Model {
     super.scale,
     super.centerPosition,
     super.animation,
-  }) : super(assetPath: path);
+  }) : super(assetPath: path) {
+    assert(path.isNotEmpty);
+    assert(
+        path.contains(
+          '.gltf',
+        ),
+        'path should be a gltf file path');
+  }
 
   /// creates gltf model based on glb file url .
   /// currently supporting only .zip file format.
@@ -59,4 +66,36 @@ class GltfModel extends Model {
         'animation': animation?.toJson(),
         'isGlb': false,
       };
+
+  @override
+  String toString() {
+    return 'GltfModel(assetPath: $assetPath, url: $url, prefix: $prefix, postfix: $postfix, fallback: $fallback, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GltfModel &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.prefix == prefix &&
+        other.postfix == postfix &&
+        other.fallback == fallback &&
+        other.scale == scale &&
+        other.centerPosition == centerPosition &&
+        other.animation == animation;
+  }
+
+  @override
+  int get hashCode {
+    return assetPath.hashCode ^
+        url.hashCode ^
+        prefix.hashCode ^
+        postfix.hashCode ^
+        fallback.hashCode ^
+        scale.hashCode ^
+        centerPosition.hashCode ^
+        animation.hashCode;
+  }
 }

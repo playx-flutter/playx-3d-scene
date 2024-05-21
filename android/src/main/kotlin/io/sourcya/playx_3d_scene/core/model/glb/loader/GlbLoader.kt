@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-internal class GlbLoader constructor(
+internal class GlbLoader(
     private val modelViewer: CustomModelViewer,
     private val context: Context,
     private val flutterAssets: FlutterAssets,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:playx_3d_scene/src/models/scene/material/material_parameter.dart';
 
 /// An object that defines the visual appearance of a surface.
@@ -29,4 +30,22 @@ class PlayxMaterial {
         'url': url,
         'parameters': parameters?.map((param) => param.toJson()).toList()
       };
+
+  @override
+  String toString() {
+    return 'PlayxMaterial(assetPath: $assetPath, url: $url, parameters: $parameters)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlayxMaterial &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        listEquals(other.parameters, parameters);
+  }
+
+  @override
+  int get hashCode => assetPath.hashCode ^ url.hashCode ^ parameters.hashCode;
 }

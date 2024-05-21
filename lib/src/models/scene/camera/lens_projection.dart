@@ -26,4 +26,28 @@ class LensProjection {
       "far": far,
     };
   }
+
+  @override
+  String toString() {
+    return 'LensProjection(focalLength: $focalLength, aspect: $aspect, near: $near, far: $far)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is LensProjection &&
+        other.focalLength == focalLength &&
+        other.aspect == aspect &&
+        other.near == near &&
+        other.far == far;
+  }
+
+  @override
+  int get hashCode {
+    return focalLength.hashCode ^
+        aspect.hashCode ^
+        near.hashCode ^
+        far.hashCode;
+  }
 }

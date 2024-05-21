@@ -1,16 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:playx_3d_scene/src/models/scene/camera/camera.dart';
-import 'package:playx_3d_scene/src/models/scene/camera/exposure.dart';
-import 'package:playx_3d_scene/src/models/scene/camera/lens_projection.dart';
-import 'package:playx_3d_scene/src/models/scene/camera/projection.dart';
-import 'package:playx_3d_scene/src/models/scene/geometry/position.dart';
-import 'package:playx_3d_scene/src/models/scene/ground.dart';
-import 'package:playx_3d_scene/src/models/scene/indirect_light/default_indirect_light.dart';
-import 'package:playx_3d_scene/src/models/scene/light/light.dart';
-import 'package:playx_3d_scene/src/models/scene/material/material.dart';
-import 'package:playx_3d_scene/src/models/shapes/shape.dart';
-import 'package:playx_3d_scene/src/models/state/model_state.dart';
-import 'package:playx_3d_scene/src/utils/result.dart';
+import 'package:playx_3d_scene/playx_3d_scene.dart';
 import 'package:playx_3d_scene/src/utils/utils.dart';
 
 ///An object which helps facilitate communication between the [Playx3dScene] Widget
@@ -27,8 +16,52 @@ class Playx3dSceneController {
     _channel = MethodChannel('${_channelName}_$id');
   }
 
-  //animation
+  /// Updates the current 3d scene view with the new [scene], [model], and [shapes].
+  /// Returns true if the scene was updated successfully.
+  Future<Result<bool>> updatePlayx3dScene(
+      {Scene? scene, Model? model, List<Shape>? shapes}) {
+    final data = _channel.invokeMethod<bool>(
+      _updatePlayx3dScene,
+      {
+        _updatePlayx3dSceneSceneKey: scene?.toJson(),
+        _updatePlayx3dSceneModelKey: model?.toJson(),
+        _updatePlayx3dSceneShapesKey: shapes?.map((e) => e.toJson()).toList(),
+      },
+    );
+    return _handleError(data);
+  }
 
+  /// Updates the current scene with the new [scene].
+  /// Returns true if the scene was updated successfully.
+  Future<Result<bool>> updateScene({Scene? scene}) {
+    final data = _channel.invokeMethod<bool>(
+      _updateScene,
+      {_updateSceneKey: scene?.toJson()},
+    );
+    return _handleError(data);
+  }
+
+  /// Updates the current scene with the new [model].
+  /// Returns true if the models were updated successfully.
+  Future<Result<bool>> updateModel({Model? model}) {
+    final data = _channel.invokeMethod<bool>(
+      _updateModel,
+      {_updateModelKey: model?.toJson()},
+    );
+    return _handleError(data);
+  }
+
+  /// Updates the current scene with the new [shapes].
+  /// Returns true if the shapes were updated successfully.
+  Future<Result<bool>> updateShapes({List<Shape>? shapes}) {
+    final data = _channel.invokeMethod<bool>(
+      _updateShapes,
+      {_updateShapesKey: shapes?.map((e) => e.toJson()).toList()},
+    );
+    return _handleError(data);
+  }
+
+  //animation
   /// Updates the current animation by index.
   /// Returns  the updated animation index.
   ///
@@ -656,6 +689,11 @@ Future<Result<T>> _handleError<T>(Future<T?> data) async {
   }
 }
 
+const String _updatePlayx3dScene = "UPDATE_PLAYX_3D_SCENE";
+const String _updatePlayx3dSceneSceneKey = "UPDATE_PLAYX_3D_SCENE_SCENE_KEY";
+const String _updatePlayx3dSceneModelKey = "UPDATE_PLAYX_3D_SCENE_MODEL_KEY";
+const String _updatePlayx3dSceneShapesKey = "UPDATE_PLAYX_3D_SCENE_SHAPES_KEY";
+
 const String _changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX";
 const String _changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY";
 
@@ -733,6 +771,12 @@ const String _loadGltfModelFromAssetsPrefixPathKey =
 const String _loadGltfModelFromAssetsPostfixPathKey =
     "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY";
 
+const String _updateScene = "UPDATE_SCENE";
+const String _updateSceneKey = "UPDATE_SCENE_KEY";
+const String _updateModel = "UPDATE_MODEL";
+const String _updateModelKey = "UPDATE_MODELS_KEY";
+const String _updateShapes = "UPDATE_SHAPES";
+const String _updateShapesKey = "UPDATE_SHAPES_KEY";
 const String _getCurrentModelState = "GET_CURRENT_MODEL_STATE";
 const String _changeModelScale = "CHANGE_MODEL_SCALE";
 const String _changeModelScaleKey = "CHANGE_MODEL_SCALE_KEY";

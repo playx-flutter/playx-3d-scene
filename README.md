@@ -1,5 +1,9 @@
 # Playx 3d Scene
 
+[![pub package](https://img.shields.io/pub/v/playx_3d_scene.svg?color=1284C5)](https://pub.dev/packages/playx_3d_scene)
+<a href="https://github.com/playx-flutter/playx_core/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
+
+
 Plugin for rendering interactive 3D models based on [Google filament](https://github.com/google/filament) natively on Android.  
 With the ability of controlling environment skybox, light, camera, ground and more.
 
@@ -30,19 +34,16 @@ In the `dependencies:` section of your `pubspec.yaml`, add the following line:
 
 ```yaml  
 dependencies:  
-  playx_3d_scene: ^0.0.3  
+  playx_3d_scene: ^0.1.0  
 ```  
 
 In `/android/app/build.gradle` :
 You will need to set minifyEnabled and shrinkResources to false to stop code shrinking and obfuscation. 
 
  ```groovy
-buildTypes {
-  release {
-    minifyEnabled false
-    shrinkResources false
-  }
-}
+ android {
+  ndkVersion "26.1.10909125"
+     }
 ```
 
 

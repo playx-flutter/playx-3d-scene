@@ -4,12 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Choreographer
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.annotation.Size
 import com.google.android.filament.Engine
 import com.google.android.filament.View
-import com.google.android.filament.gltfio.AssetLoader
-import com.google.android.filament.gltfio.ResourceLoader
+import com.google.android.filament.gltfio.MaterialProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.model.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.model.animation.model.Animation
@@ -32,6 +33,7 @@ import io.sourcya.playx_3d_scene.core.scene.ground.model.Ground
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.IndirectLightManger
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.HdrIndirectLight
+import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.IndirectLight
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.KtxIndirectLight
 import io.sourcya.playx_3d_scene.core.scene.light.LightManger
 import io.sourcya.playx_3d_scene.core.scene.light.model.Light
@@ -39,6 +41,7 @@ import io.sourcya.playx_3d_scene.core.scene.skybox.SkyboxManger
 import io.sourcya.playx_3d_scene.core.scene.skybox.model.ColoredSkybox
 import io.sourcya.playx_3d_scene.core.scene.skybox.model.HdrSkybox
 import io.sourcya.playx_3d_scene.core.scene.skybox.model.KtxSkybox
+import io.sourcya.playx_3d_scene.core.scene.skybox.model.Skybox
 import io.sourcya.playx_3d_scene.core.shape.ShapeManger
 import io.sourcya.playx_3d_scene.core.shape.common.material.MaterialManger
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
@@ -51,26 +54,26 @@ import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 /**
  * This is the main class to handle filament engine.
  * and provide the model viewer for a surface view.
  */
-class Playx3dSceneController constructor(
+class Playx3dSceneController(
     private val context: Context,
     private var engine: Engine,
     private val iblProfiler: IBLProfiler,
-    private val assetLoader: AssetLoader,
-    private val resourceLoader: ResourceLoader,
+    private val materialProvider: MaterialProvider,
     private val flutterAssets: FlutterAssets,
-    private val scene: Scene?,
-    private val model: Model?,
-    private val shapes: List<Shape>?,
-    private val id :Int,
+    private var scene: Scene?,
+    private var model: Model?,
+    private var shapes: List<Shape>?,
+    private val id: Int,
 
     ) {
     private lateinit var modelViewer: CustomModelViewer
@@ -80,6 +83,13 @@ class Playx3dSceneController constructor(
     private var glbModelStateJob: Job? = null
     private var sceneStateJob: Job? = null
     private var shapeStateJob: Job? = null
+    private var current3dSceneJob: Job? = null
+
+    private val doubleTapListener = DoubleTapListener()
+    private val singleTapListener = SingleTapListener()
+
+    private lateinit var doubleTapDetector: GestureDetector
+    private lateinit var singleTapDetector: GestureDetector
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -98,9 +108,9 @@ class Playx3dSceneController constructor(
 
     private lateinit var animationManger: AnimationManger
 
-    private lateinit var cameraManger : CameraManger
+    private lateinit var cameraManger: CameraManger
 
-    private lateinit var groundManger : GroundManger
+    private lateinit var groundManger: GroundManger
 
     private lateinit var materialManger: MaterialManger
 
@@ -112,24 +122,24 @@ class Playx3dSceneController constructor(
 
     init {
         setUpViewer()
-        setUpGround()
-        setUpCamera()
-        setUpSkybox()
-        setUpLight()
-        setUpIndirectLight()
-        setUpLoadingModel()
-        setUpShapes()
+        setCurrent3dScene()
     }
-
 
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
-        Timber.d("Playx3dScenePlugin : setUpViewer ")
 
-        modelViewer = CustomModelViewer(surfaceView, engine, assetLoader, resourceLoader)
+        doubleTapDetector = GestureDetector(context, doubleTapListener)
+        singleTapDetector = GestureDetector(context, singleTapListener)
 
-        surfaceView.setOnTouchListener(modelViewer)
+        modelViewer = CustomModelViewer(surfaceView, engine, materialProvider)
+
+        surfaceView.setOnTouchListener { _, event ->
+            modelViewer.onTouchEvent(event)
+            doubleTapDetector.onTouchEvent(event)
+            singleTapDetector.onTouchEvent(event)
+            true
+        }
         surfaceView.setZOrderOnTop(true) // necessary
 
         glbLoader = GlbLoader(modelViewer, context, flutterAssets)
@@ -143,22 +153,61 @@ class Playx3dSceneController constructor(
 
         animationManger = AnimationManger(modelViewer)
         cameraManger = modelViewer.cameraManger
-        materialManger = MaterialManger(modelViewer,context,flutterAssets)
-        groundManger = GroundManger(modelViewer,materialManger)
+        materialManger = MaterialManger(modelViewer, context, flutterAssets)
+        groundManger = GroundManger(modelViewer, materialManger)
 
-        shapeManger = ShapeManger(modelViewer,materialManger)
+        shapeManger = ShapeManger(modelViewer, materialManger)
 
 
     }
 
-    private fun setUpLoadingModel() {
-        modelJob = coroutineScope.launch {
+    private fun setCurrent3dScene() {
+        current3dSceneJob?.cancel()
+        current3dSceneJob = coroutineScope.launch {
+            updateScene(scene, false)
+            updateModel(model, false)
+            updateGround(scene?.ground)
+            updateShapes(shapes, false)
+        }
+    }
+
+    suspend fun update3dScene(scene: Scene?, model: Model?, shapes: List<Shape>?) {
+        current3dSceneJob?.join()
+        updateScene(scene, true)
+        updateModel(model, true)
+        if (scene?.ground != this.scene?.ground)
+            updateGround(scene?.ground)
+        updateShapes(shapes, true)
+    }
+
+    suspend fun updateScene(scene: Scene? = null, isUpdate: Boolean = true) {
+        if (!isUpdate || this.scene != scene) {
+
+            if (!isUpdate || scene?.light != this.scene?.light) {
+                updateLight(scene?.light)
+            }
+            if (!isUpdate || scene?.indirectLight != this.scene?.indirectLight) {
+                updateIndirectLight(scene?.indirectLight)
+            }
+            if (!isUpdate || scene?.skybox != this.scene?.skybox) {
+                updateSkybox(scene?.skybox)
+            }
+            if (!isUpdate || scene?.camera != this.scene?.camera) {
+                updateCamera(scene?.camera)
+            }
+        }
+        this.scene = scene
+
+    }
+
+
+    suspend fun updateModel(model: Model? = null, isUpdate: Boolean = true) {
+        if (!isUpdate || this.model != model) {
             val result = loadModel(model)
             if (result != null && model?.fallback != null) {
                 if (result is Resource.Error) {
                     loadModel(model.fallback)
                     setUpAnimation(model.fallback.animation)
-
                 } else {
                     setUpAnimation(model.animation)
                 }
@@ -166,7 +215,7 @@ class Playx3dSceneController constructor(
                 setUpAnimation(model?.animation)
             }
         }
-
+        this.model = model
     }
 
     private suspend fun loadModel(model: Model?): Resource<String>? {
@@ -174,132 +223,146 @@ class Playx3dSceneController constructor(
         when (model) {
             is GlbModel -> {
                 if (!model.assetPath.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromAsset(model.assetPath,model.scale,model.centerPosition)
+                    result = glbLoader.loadGlbFromAsset(
+                        model.assetPath,
+                        model.scale,
+                        model.centerPosition
+                    )
                 } else if (!model.url.isNullOrEmpty()) {
-                    result = glbLoader.loadGlbFromUrl(model.url,model.scale,model.centerPosition)
+                    result = glbLoader.loadGlbFromUrl(model.url, model.scale, model.centerPosition)
                 }
             }
+
             is GltfModel -> {
                 if (!model.assetPath.isNullOrEmpty()) {
                     result = gltfLoader.loadGltfFromAsset(
                         model.assetPath,
                         model.pathPrefix,
                         model.pathPostfix,
-                        model.scale
-                        ,model.centerPosition
+                        model.scale, model.centerPosition
                     )
                 } else if (!model.url.isNullOrEmpty()) {
                     result =
-                        gltfLoader.loadGltfFromUrl(model.url, model.pathPrefix, model.pathPostfix,model.scale,model.centerPosition)
+                        gltfLoader.loadGltfFromUrl(
+                            model.url,
+                            model.pathPrefix,
+                            model.pathPostfix,
+                            model.scale,
+                            model.centerPosition
+                        )
                 }
             }
+
             else -> {}
         }
         return result
     }
 
 
-    private fun setUpLight(){
-        val light= scene?.light
-        if(light!=null){
+    private fun updateLight(light: Light?) {
+        if (light != null) {
             lightManger.changeLight(light)
-        }else{
+        } else {
             lightManger.setDefaultLight()
         }
 
     }
-    private fun setUpIndirectLight() {
 
-        coroutineScope.launch {
-            val light = scene?.indirectLight
-
-            if (light == null) {
-                indirectLightManger.setDefaultIndirectLight()
-            } else {
-                when (light) {
-                    is KtxIndirectLight -> {
-                        if (!light.assetPath.isNullOrEmpty()) {
-                            indirectLightManger.setIndirectLightFromKtxAsset(
-                                light.assetPath, light.intensity
-                            )
-                        } else if (!light.url.isNullOrEmpty()) {
-                            indirectLightManger.setIndirectLightFromKtxUrl(light.url, light.intensity)
-                        }
+    private suspend fun updateIndirectLight(light: IndirectLight?) {
+        if (light == null) {
+            indirectLightManger.setDefaultIndirectLight()
+        } else {
+            when (light) {
+                is KtxIndirectLight -> {
+                    if (!light.assetPath.isNullOrEmpty()) {
+                        indirectLightManger.setIndirectLightFromKtxAsset(
+                            light.assetPath, light.intensity
+                        )
+                    } else if (!light.url.isNullOrEmpty()) {
+                        indirectLightManger.setIndirectLightFromKtxUrl(
+                            light.url,
+                            light.intensity
+                        )
                     }
-                    is HdrIndirectLight -> {
-
-                        if (!light.assetPath.isNullOrEmpty()) {
-                            val shouldUpdateLight = light.assetPath != scene?.skybox?.assetPath
-
-                            if (shouldUpdateLight) {
-                                indirectLightManger.setIndirectLightFromHdrAsset(
-                                    light.assetPath, light.intensity
-                                )
-                            }
-
-                        } else if (!light.url.isNullOrEmpty()) {
-                            val shouldUpdateLight = light.url != scene?.skybox?.url
-                            if (shouldUpdateLight) {
-                                indirectLightManger.setIndirectLightFromHdrUrl(light.url, light.intensity)
-                            }
-                        }
-                    }
-                    is DefaultIndirectLight ->{
-                        indirectLightManger.setIndirectLight(light)
-                    }
-                    else -> {
-                        indirectLightManger.setDefaultIndirectLight()
-                    }
-
                 }
 
+                is HdrIndirectLight -> {
+
+                    if (!light.assetPath.isNullOrEmpty()) {
+                        val shouldUpdateLight = light.assetPath != scene?.skybox?.assetPath
+
+                        if (shouldUpdateLight) {
+                            indirectLightManger.setIndirectLightFromHdrAsset(
+                                light.assetPath, light.intensity
+                            )
+                        }
+
+                    } else if (!light.url.isNullOrEmpty()) {
+                        val shouldUpdateLight = light.url != scene?.skybox?.url
+                        if (shouldUpdateLight) {
+                            indirectLightManger.setIndirectLightFromHdrUrl(
+                                light.url,
+                                light.intensity
+                            )
+                        }
+                    }
+                }
+
+                is DefaultIndirectLight -> {
+                    indirectLightManger.setIndirectLight(light)
+                }
+
+                else -> {
+                    indirectLightManger.setDefaultIndirectLight()
+                }
 
             }
+
+
         }
     }
 
-    private fun setUpSkybox() {
-        coroutineScope.launch {
-            val skybox = scene?.skybox
-            if (skybox == null) {
-                skyboxManger.setDefaultSkybox()
-                makeSurfaceViewTransparent()
-            } else {
-                when (skybox) {
-                    is KtxSkybox -> {
-                        if (!skybox.assetPath.isNullOrEmpty()) {
-                            skyboxManger.setSkyboxFromKTXAsset(skybox.assetPath)
-                        } else if (!skybox.url.isNullOrEmpty()) {
-                            skyboxManger.setSkyboxFromKTXUrl(skybox.url)
-                        }
+    private suspend fun updateSkybox(skybox: Skybox?) {
+        if (skybox == null) {
+            skyboxManger.setDefaultSkybox()
+            makeSurfaceViewTransparent()
+        } else {
+            when (skybox) {
+                is KtxSkybox -> {
+                    if (!skybox.assetPath.isNullOrEmpty()) {
+                        skyboxManger.setSkyboxFromKTXAsset(skybox.assetPath)
+                    } else if (!skybox.url.isNullOrEmpty()) {
+                        skyboxManger.setSkyboxFromKTXUrl(skybox.url)
                     }
-                    is HdrSkybox -> {
-
-                        if (!skybox.assetPath.isNullOrEmpty()) {
-                            val shouldUpdateLight = skybox.assetPath == scene?.indirectLight?.assetPath
-                            skyboxManger.setSkyboxFromHdrAsset(
-                                skybox.assetPath,
-                                skybox.showSun ?: false,
-                                shouldUpdateLight,
-                                scene?.indirectLight?.intensity
-                            )
-                        } else if (!skybox.url.isNullOrEmpty()) {
-                            val shouldUpdateLight = skybox.url == scene?.indirectLight?.url
-                            skyboxManger.setSkyboxFromHdrUrl(
-                                skybox.url,
-                                skybox.showSun ?: false,
-                                shouldUpdateLight,
-                                scene?.indirectLight?.intensity
-                            )
-                        }
-                    }
-                    is ColoredSkybox -> {
-                        if (skybox.color != null) {
-                            skyboxManger.setSkyboxFromColor(skybox.color)
-                        }
-                    }
-
                 }
+
+                is HdrSkybox -> {
+                    if (!skybox.assetPath.isNullOrEmpty()) {
+                        val shouldUpdateLight =
+                            skybox.assetPath == scene?.indirectLight?.assetPath
+                        skyboxManger.setSkyboxFromHdrAsset(
+                            skybox.assetPath,
+                            skybox.showSun ?: false,
+                            shouldUpdateLight,
+                            scene?.indirectLight?.intensity
+                        )
+                    } else if (!skybox.url.isNullOrEmpty()) {
+                        val shouldUpdateLight = skybox.url == scene?.indirectLight?.url
+                        skyboxManger.setSkyboxFromHdrUrl(
+                            skybox.url,
+                            skybox.showSun ?: false,
+                            shouldUpdateLight,
+                            scene?.indirectLight?.intensity
+                        )
+                    }
+                }
+
+                is ColoredSkybox -> {
+                    if (skybox.color != null) {
+                        skyboxManger.setSkyboxFromColor(skybox.color)
+                    }
+                }
+
             }
         }
     }
@@ -317,26 +380,16 @@ class Playx3dSceneController constructor(
         }
     }
 
-    private fun setUpCamera(){
-        val camera = scene?.camera?: return
-        cameraManger.updateCamera(camera)
-    }
 
-    private fun setUpGround(){
-        coroutineScope.launch {
-            groundManger.createGround(scene?.ground)
-
+    suspend fun updateShapes(shapes: List<Shape>? = null, isUpdate: Boolean = true) {
+        if (!isUpdate || this.shapes != shapes) {
+            shapeManger.clearShapes()
+            if (shapes?.isNotEmpty() ==true) {
+                shapeManger.createShapes(shapes)
+            }
         }
-
+        this.shapes = shapes
     }
-
-
-    private fun setUpShapes() {
-        coroutineScope.launch {
-            shapeManger.createShapes(shapes)
-        }
-    }
-
 
 
     private fun makeSurfaceViewTransparent() {
@@ -362,6 +415,7 @@ class Playx3dSceneController constructor(
     fun getAnimationCount(): Int {
         return animationManger.getAnimationCount()
     }
+
 
     fun changeAnimation(animationIndex: Int?): Resource<Int> {
         return if (animationIndex == null) {
@@ -493,7 +547,10 @@ class Playx3dSceneController constructor(
 
     }
 
-    suspend fun changeIndirectLightFromKtxUrl(url: String?, intensity: Double? = null): Resource<String> {
+    suspend fun changeIndirectLightFromKtxUrl(
+        url: String?,
+        intensity: Double? = null
+    ): Resource<String> {
         removeFrameCallback()
         val resource = indirectLightManger.setIndirectLightFromKtxUrl(url, intensity)
         if (resource is Resource.Success) {
@@ -519,7 +576,10 @@ class Playx3dSceneController constructor(
 
     }
 
-    suspend fun changeIndirectLightFromHdrUrl(url: String?, intensity: Double? = null): Resource<String> {
+    suspend fun changeIndirectLightFromHdrUrl(
+        url: String?,
+        intensity: Double? = null
+    ): Resource<String> {
         removeFrameCallback()
         val resource = indirectLightManger.setIndirectLightFromHdrUrl(url, intensity)
         if (resource is Resource.Success) {
@@ -555,12 +615,11 @@ class Playx3dSceneController constructor(
     }
 
 
-
     fun changeLight(light: Light?): Resource<String> {
         removeFrameCallback()
 
-        val result= lightManger.changeLight(light)
-        if(result is Resource.Success){
+        val result = lightManger.changeLight(light)
+        if (result is Resource.Success) {
             scene?.light = light
         }
         addFrameCallback()
@@ -568,9 +627,9 @@ class Playx3dSceneController constructor(
     }
 
 
-    fun changeToDefaultLight(){
+    fun changeToDefaultLight() {
         removeFrameCallback()
-        val result= lightManger.setDefaultLight()
+        val result = lightManger.setDefaultLight()
         addFrameCallback()
         return result
     }
@@ -580,7 +639,7 @@ class Playx3dSceneController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromAsset(assetPath,model?.scale,model?.centerPosition)
+        val resource = glbLoader.loadGlbFromAsset(assetPath, model?.scale, model?.centerPosition)
         addFrameCallback()
         return resource
     }
@@ -589,7 +648,7 @@ class Playx3dSceneController constructor(
 
         removeFrameCallback()
         modelJob?.cancel()
-        val resource = glbLoader.loadGlbFromUrl(url,model?.scale,model?.centerPosition)
+        val resource = glbLoader.loadGlbFromUrl(url, model?.scale, model?.centerPosition)
         addFrameCallback()
         return resource
     }
@@ -604,7 +663,13 @@ class Playx3dSceneController constructor(
         modelJob?.cancel()
 
         val resource =
-            gltfLoader.loadGltfFromAsset(assetPath, gltfImagePathPrefix, gltfImagePathPostfix,model?.scale,model?.centerPosition)
+            gltfLoader.loadGltfFromAsset(
+                assetPath,
+                gltfImagePathPrefix,
+                gltfImagePathPostfix,
+                model?.scale,
+                model?.centerPosition
+            )
         addFrameCallback()
         return resource
 
@@ -613,11 +678,11 @@ class Playx3dSceneController constructor(
 
     fun changeModelScale(scale: Float?): Resource<String> {
         removeFrameCallback()
-        if(scale == null){
+        if (scale == null) {
             addFrameCallback()
-          return  Resource.Error("Scale must be provided")
+            return Resource.Error("Scale must be provided")
         }
-        modelViewer.transformToUnitCube(model?.centerPosition,scale)
+        modelViewer.transformToUnitCube(model?.centerPosition, scale)
         model?.scale = scale
         addFrameCallback()
         return Resource.Success("Model scale has been changed successfully")
@@ -627,17 +692,16 @@ class Playx3dSceneController constructor(
 
     fun changeModelPosition(position: Position?): Resource<String> {
         removeFrameCallback()
-        if(position == null){
+        if (position == null) {
             addFrameCallback()
-            return  Resource.Error("Center position must be provided")
+            return Resource.Error("Center position must be provided")
         }
-        modelViewer.transformToUnitCube(position,model?.scale)
+        modelViewer.transformToUnitCube(position, model?.scale)
         model?.centerPosition = position
         addFrameCallback()
         return Resource.Success("Model center position has been changed successfully")
 
     }
-
 
 
     /***===========================================CAMERA===============================================***/
@@ -646,6 +710,7 @@ class Playx3dSceneController constructor(
         return cameraManger.updateCamera(cameraInfo)
 
     }
+
     fun updateExposure(exposure: Exposure?): Resource<String> {
         return cameraManger.updateExposure(exposure)
     }
@@ -669,13 +734,10 @@ class Playx3dSceneController constructor(
     }
 
 
-    fun setDefaultCamera():Resource<String> {
+    fun setDefaultCamera(): Resource<String> {
         cameraManger.setDefaultCamera()
         return Resource.Success("Default camera updated successfully")
     }
-
-
-
 
 
     fun lookAtDefaultPosition(): Resource<String> {
@@ -696,8 +758,8 @@ class Playx3dSceneController constructor(
         return cameraManger.getLookAt()
     }
 
-    fun scroll(x: Int?, y: Int?, scrollDelta: Float?) :Resource<String>{
-        return cameraManger.scroll(x,y,scrollDelta)
+    fun scroll(x: Int?, y: Int?, scrollDelta: Float?): Resource<String> {
+        return cameraManger.scroll(x, y, scrollDelta)
     }
 
 
@@ -721,7 +783,7 @@ class Playx3dSceneController constructor(
      * @param strafe ORBIT mode only; if true, starts a translation rather than a rotation
      */
     fun grabBegin(x: Int?, y: Int?, strafe: Boolean?): Resource<String> {
-        return cameraManger.grabBegin(x,y,strafe)
+        return cameraManger.grabBegin(x, y, strafe)
     }
 
     /**
@@ -730,8 +792,9 @@ class Playx3dSceneController constructor(
      * This must be called at least once between grabBegin / grabEnd to dirty the camera.
      */
     fun grabUpdate(x: Int?, y: Int?): Resource<String> {
-        return cameraManger.grabUpdate(x,y)
+        return cameraManger.grabUpdate(x, y)
     }
+
     fun grabEnd(): Resource<String> {
         return cameraManger.grabEnd()
     }
@@ -739,22 +802,24 @@ class Playx3dSceneController constructor(
 
     suspend fun updateGround(ground: Ground?): Resource<String> {
         return groundManger.updateGround(ground)
+
     }
+
     suspend fun updateGroundMaterial(material: Material?): Resource<String> {
         return groundManger.updateGroundMaterial(material)
     }
 
 
-    suspend fun addShape(shape: Shape?):Resource<String> {
+    suspend fun addShape(shape: Shape?): Resource<String> {
         return shapeManger.addShape(shape)
     }
 
-     fun removeShape(id: Int?):Resource<String> {
+    fun removeShape(id: Int?): Resource<String> {
         return shapeManger.removeShape(id)
     }
 
-    suspend fun updateShape(id: Int?, shape: Shape?):Resource<String> {
-        return shapeManger.updateShape(id,shape)
+    suspend fun updateShape(id: Int?, shape: Shape?): Resource<String> {
+        return shapeManger.updateShape(id, shape)
     }
 
     fun getCreatedShapesIds(): List<Int> {
@@ -771,7 +836,6 @@ class Playx3dSceneController constructor(
     }
 
 
-
     private fun listenToModelState() {
         glbModelStateJob = coroutineScope.launch {
             modelViewer.currentModelState.collectLatest {
@@ -786,8 +850,8 @@ class Playx3dSceneController constructor(
                 modelViewer.currentSkyboxState,
                 modelViewer.currentLightState,
                 modelViewer.currentGroundState
-            ) { (skyboxState, lightState,groundState) ->
-                getSceneState(skyboxState, lightState,groundState)
+            ) { (skyboxState, lightState, groundState) ->
+                getSceneState(skyboxState, lightState, groundState)
             }.collectLatest { state ->
                 sceneState.value = state
             }
@@ -861,6 +925,24 @@ class Playx3dSceneController constructor(
 
     }
 
+    // Just for testing purposes, We may add these callbacks later.
+    inner class DoubleTapListener : GestureDetector.SimpleOnGestureListener() {
+    }
 
+
+    // Just for testing purposes, We may add these callbacks later.
+    inner class SingleTapListener : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
+//            modelViewer.view.pick(
+//                event.x.toInt(),
+//                surfaceView.height - event.y.toInt(),
+//                surfaceView.handler,
+//            ) {
+//                val name = modelViewer.modelLoader.asset?.getName(it.renderable)
+//                Log.v("Filament", "Picked ${it.renderable}: " + name)
+//            }
+            return super.onSingleTapUp(event)
+        }
+    }
 }
 

@@ -125,4 +125,22 @@ class MaterialParameter {
       'type': type.toName(),
     };
   }
+
+  @override
+  String toString() {
+    return 'MaterialParameter(name: $name, value: $value, type: $type)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is MaterialParameter &&
+        other.name == name &&
+        other.value == value &&
+        other.type == type;
+  }
+
+  @override
+  int get hashCode => name.hashCode ^ value.hashCode ^ type.hashCode;
 }

@@ -22,4 +22,19 @@ class HdrSkybox extends Skybox {
   @override
   Map<String, dynamic> toJson() =>
       {'assetPath': assetPath, 'url': url, 'showSun': showSun, 'skyboxType': 2};
+
+  @override
+  String toString() {
+    return 'HdrSkybox(assetPath: $assetPath, url: $url, showSun: $showSun)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is HdrSkybox && super == other && other.showSun == showSun;
+  }
+
+  @override
+  int get hashCode => super.hashCode ^ showSun.hashCode;
 }

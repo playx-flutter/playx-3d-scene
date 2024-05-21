@@ -25,4 +25,24 @@ class PlayxTexture {
         'type': type?.toName(),
         'sampler': sampler?.toJson(),
       };
+
+  @override
+  String toString() {
+    return 'PlayxTexture(assetPath: $assetPath, url: $url, type: $type, sampler: $sampler)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlayxTexture &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.type == type &&
+        other.sampler == sampler;
+  }
+
+  @override
+  int get hashCode =>
+      assetPath.hashCode ^ url.hashCode ^ type.hashCode ^ sampler.hashCode;
 }

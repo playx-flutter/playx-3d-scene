@@ -31,4 +31,24 @@ class Sphere extends Shape {
         'material': material?.toJson(),
         'shapeType': 3
       };
+
+  @override
+  String toString() {
+    return 'Sphere(id: $id, radius: $radius, centerPosition: $centerPosition)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Sphere &&
+        other.radius == radius &&
+        other.stacks == stacks &&
+        other.slices == slices &&
+        super == other;
+  }
+
+  @override
+  int get hashCode =>
+      radius.hashCode ^ stacks.hashCode ^ slices.hashCode ^ super.hashCode;
 }
