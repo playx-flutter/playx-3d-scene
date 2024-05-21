@@ -1,18 +1,18 @@
 package io.sourcya.playx_3d_scene.core.model.common.loader
 
+import com.google.android.filament.EntityManager
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
+import io.sourcya.playx_3d_scene.core.model.common.model.ModelState
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import kotlinx.coroutines.*
-import timber.log.Timber
 import java.nio.Buffer
 
 class ModelLoader(
     private val modelViewer: CustomModelViewer,
-    private val assetLoader: AssetLoader,
-    private val resourceLoader: ResourceLoader,
+    private val materialProvider: MaterialProvider,
 ) {
     private val engine = modelViewer.engine
 
@@ -24,6 +24,19 @@ class ModelLoader(
     private var fetchResourcesJob: Job? = null
 
 
+    private var assetLoader :AssetLoader? = null
+    private var resourceLoader :ResourceLoader? = null
+
+
+   private fun setupModelLoader() {
+        destroyModel()
+        assetLoader?.destroy()
+        resourceLoader?.destroy()
+
+        assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
+        resourceLoader = ResourceLoader(engine, true)
+    }
+
     /**
      * Loads a monolithic binary glTF and populates the Filament scene.
      */
@@ -32,19 +45,19 @@ class ModelLoader(
 
         withContext(Dispatchers.Main) {
 
-            destroyModel()
+            setupModelLoader()
 
-            asset = assetLoader.createAsset(buffer)
+            asset = assetLoader!!.createAsset(buffer)
 
             asset?.let { asset ->
-                resourceLoader.asyncBeginLoad(asset)
-
+                resourceLoader!!.asyncBeginLoad(asset)
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
 
                 if (transformToUnitCube) {
                     transformToUnitCube(centerPoint = centerPosition, scale=scale)
                 }
+
             }
         }
     }
@@ -62,8 +75,9 @@ class ModelLoader(
 
     ) {
 
-        destroyModel()
-        asset = assetLoader.createAsset(buffer)
+        setupModelLoader()
+
+        asset = assetLoader!!.createAsset(buffer)
         asset?.let { asset ->
             for (uri in asset.resourceUris) {
                 val resourceBuffer = callback(uri)
@@ -71,9 +85,9 @@ class ModelLoader(
                     this.asset = null
                     return
                 }
-                resourceLoader.addResourceData(uri, resourceBuffer)
+                resourceLoader!!.addResourceData(uri, resourceBuffer)
             }
-            resourceLoader.asyncBeginLoad(asset)
+            resourceLoader!!.asyncBeginLoad(asset)
             modelViewer.animator = asset.instance.animator
             asset.releaseSourceData()
             if (transformToUnitCube) {
@@ -94,13 +108,13 @@ class ModelLoader(
         centerPosition: Position?,
         callback: suspend (String) -> Buffer?,
     ) {
+
         withContext(Dispatchers.Main) {
-            destroyModel()
-            asset = assetLoader.createAsset(buffer)
+            setupModelLoader()
+            asset = assetLoader!!.createAsset(buffer)
             withContext(Dispatchers.IO) {
                     asset?.let { fetchResources(it, callback) }
             }
-
             if (transformToUnitCube) {
                 transformToUnitCube(centerPosition,scale=scale)
             }
@@ -113,12 +127,12 @@ class ModelLoader(
      */
     fun destroyModel() {
         fetchResourcesJob?.cancel()
-        resourceLoader.asyncCancelLoad()
-        resourceLoader.evictResourceData()
+        resourceLoader?.asyncCancelLoad()
+        resourceLoader?.evictResourceData()
 
         asset?.let { asset ->
             modelViewer.scene.removeEntities(asset.entities)
-            assetLoader.destroyAsset(asset)
+            assetLoader?.destroyAsset(asset)
             this.asset = null
             this.modelViewer.animator = null
         }
@@ -136,9 +150,9 @@ class ModelLoader(
         }
         withContext(Dispatchers.Main) {
             for ((uri, buffer) in items) {
-                resourceLoader.addResourceData(uri, buffer)
+                resourceLoader?.addResourceData(uri, buffer)
             }
-                resourceLoader.asyncBeginLoad(asset)
+                resourceLoader?.asyncBeginLoad(asset)
                 modelViewer.animator = asset.instance.animator
                 asset.releaseSourceData()
         }
@@ -190,7 +204,7 @@ class ModelLoader(
 
     fun updateScene() {
         // Allow the resource loader to finalize textures that have become ready.
-        resourceLoader.asyncUpdateLoad()
+        resourceLoader?.asyncUpdateLoad()
 
         // Add renderable entities to the scene as they become ready.
         asset?.let {
@@ -219,7 +233,7 @@ class ModelLoader(
 
     @Suppress("unused")
     val progress
-        get() = resourceLoader.asyncGetLoadProgress()
+        get() = resourceLoader?.asyncGetLoadProgress()
 
 
     private fun Int.getTransform(): Mat4 {
@@ -231,5 +245,13 @@ class ModelLoader(
         val tm = modelViewer.engine.transformManager
         tm.setTransform(tm.getInstance(this), mat.toFloatArray())
     }
+
+
+    fun destroy(){
+        destroyModel()
+        assetLoader?.destroy()
+        resourceLoader?.destroy()
+    }
+
 }
 

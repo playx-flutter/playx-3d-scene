@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -110,8 +109,11 @@ class PlayxMethodHandler(
     private fun updatePlayx3dScene(call: MethodCall, result: MethodChannel.Result) {
         val scene =
             getValue<Map<String?, Any?>>(call, updatePlayx3dSceneSceneKey)?.toObject<Scene>()
-        val model =
-            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneModelKey)?.toObject<Model>()
+        val modelMap =
+            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneModelKey);
+        val model = Model.fromMap(modelMap)
+
+
         val shapeList = getValue<List<Any>?>(call, updatePlayx3dSceneShapesKey)
         val shapes = Shape.fromJson(shapeList)
         updatePlayx3dSceneJob?.cancel()
@@ -131,7 +133,10 @@ class PlayxMethodHandler(
     }
 
     private fun updateModel(call: MethodCall, result: MethodChannel.Result) {
-        val model = getValue<Map<String?, Any?>>(call, updateModelKey)?.toObject<Model>()
+        val modelMap =
+            getValue<Map<String?, Any?>>(call, updateModelKey);
+        val model = Model.fromMap(modelMap)
+
         updateModelJob?.cancel()
         updateModelJob = coroutineScope.launch {
             modelViewer?.updateModel(model)

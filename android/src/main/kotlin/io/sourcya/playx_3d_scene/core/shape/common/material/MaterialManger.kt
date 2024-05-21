@@ -9,7 +9,6 @@ import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
 import io.sourcya.playx_3d_scene.core.shape.common.material.utils.setParameter
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
-import timber.log.Timber
 
 class MaterialManger(
     private val modelViewer: CustomModelViewer,
@@ -44,15 +43,11 @@ class MaterialManger(
                 for (param in it) {
                     if (materialParamNames.contains(param.name)) {
                         materialInstance.setParameter(param,textureLoader)
-                        Timber.d("Playx3dScenePlugin : getMaterialInstance setParameter")
-
                     }
                 }
             }
 
         }
-
-        Timber.d("Playx3dScenePlugin : getMaterialInstance Success")
 
         return Resource.Success(materialInstance)
     }

@@ -19,7 +19,7 @@ open class Plane(
 
         if (size != other.size) return false
 
-        return true
+        return super.equals(other)
     }
 
     override fun hashCode(): Int {

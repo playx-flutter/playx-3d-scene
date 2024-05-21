@@ -9,7 +9,6 @@ import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
 import io.sourcya.playx_3d_scene.core.shape.plane.PlaneGeometry
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
-import timber.log.Timber
 
 class GroundManger(
     private val modelViewer: CustomModelViewer,

@@ -1,6 +1,8 @@
 package io.sourcya.playx_3d_scene.core.model.common.model
 
 import io.sourcya.playx_3d_scene.core.model.animation.model.Animation
+import io.sourcya.playx_3d_scene.core.model.glb.model.GlbModel
+import io.sourcya.playx_3d_scene.core.model.gltf.model.GltfModel
 import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.utils.toObject
 
@@ -16,7 +18,15 @@ abstract class Model(
 
     companion object {
         fun fromMap(map: Map<String?, Any?>?): Model? {
-            return map?.toObject<Model>()
+            val isGlb :Boolean = map?.get("isGlb") as? Boolean ?: true
+            return if (isGlb) {
+                val glbModel =  map?.toObject<GlbModel>()
+                glbModel
+            } else {
+
+               val gltfModel =  map?.toObject<GltfModel>()
+                gltfModel
+            }
         }
     }
 

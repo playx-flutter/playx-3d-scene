@@ -2,12 +2,16 @@ import 'model.dart';
 
 /// represents object of model that will be loaded from glb file.
 ///
-/// GLB is a binary container format of glTF. It bundles all the textures and mesh data into a single file.
+/// GLB is a binary container format of glTF.
+/// It bundles all the textures and mesh data into a single file.
 class GlbModel extends Model {
   /// creates glb model based on glb file asset path.
   GlbModel.asset(String path,
       {super.fallback, super.scale, super.centerPosition, super.animation})
-      : super(assetPath: path);
+      : super(assetPath: path) {
+    assert(path.isNotEmpty);
+    assert(path.contains('.glb'), "path should be a glb file path");
+  }
 
   /// creates glb model based on glb file url.
   GlbModel.url(String url,

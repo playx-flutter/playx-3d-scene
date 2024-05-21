@@ -22,7 +22,7 @@ class Sphere(
             if (stacks != other.stacks) return false
             if (slices != other.slices) return false
 
-            return true
+            return super.equals(other)
         }
 
         override fun hashCode(): Int {

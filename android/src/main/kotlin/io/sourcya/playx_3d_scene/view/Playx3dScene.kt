@@ -7,6 +7,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
 import com.google.android.filament.gltfio.AssetLoader
+import com.google.android.filament.gltfio.MaterialProvider
 import com.google.android.filament.gltfio.ResourceLoader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
@@ -19,7 +20,6 @@ import io.sourcya.playx_3d_scene.method_handler.PlayxEventHandler
 import io.sourcya.playx_3d_scene.method_handler.PlayxMethodHandler
 import io.sourcya.playx_3d_scene.utils.LifecycleProvider
 import io.sourcya.playx_3d_scene.utils.getMapValue
-import timber.log.Timber
 
 
 class Playx3dScene(
@@ -29,8 +29,7 @@ class Playx3dScene(
     private val binding: FlutterPlugin.FlutterPluginBinding,
     private val engine: Engine,
     private val iblProfiler: IBLProfiler,
-    private val assetLoader: AssetLoader,
-    private val resourceLoader: ResourceLoader,
+    private val materialProvider: MaterialProvider,
     private val lifecycleProvider: LifecycleProvider
 ) : PlatformView, LifecycleEventObserver {
     private var modelViewer: Playx3dSceneController? = null
@@ -58,8 +57,7 @@ class Playx3dScene(
             context,
             engine,
             iblProfiler,
-            assetLoader,
-            resourceLoader,
+            materialProvider,
             binding.flutterAssets,
             model = model,
             scene = scene,

@@ -33,7 +33,14 @@ class GltfModel extends Model {
     super.scale,
     super.centerPosition,
     super.animation,
-  }) : super(assetPath: path);
+  }) : super(assetPath: path) {
+    assert(path.isNotEmpty);
+    assert(
+        path.contains(
+          '.gltf',
+        ),
+        'path should be a gltf file path');
+  }
 
   /// creates gltf model based on glb file url .
   /// currently supporting only .zip file format.

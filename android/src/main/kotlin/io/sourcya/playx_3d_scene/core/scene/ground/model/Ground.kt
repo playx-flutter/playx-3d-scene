@@ -14,12 +14,13 @@ import io.sourcya.playx_3d_scene.core.shape.plane.model.Plane
     material: Material? = null
 ) : Plane(0,centerPosition,size,normal,material){
     override fun equals(other: Any?): Boolean {
+        print("Ground.equals() called $this => $other")
         if (this === other) return true
         if (other !is Ground) return false
 
         if (isBelowModel != other.isBelowModel) return false
 
-        return true
+        return super.equals(other)
     }
 
     override fun hashCode(): Int {

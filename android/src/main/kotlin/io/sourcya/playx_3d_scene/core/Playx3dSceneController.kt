@@ -8,8 +8,7 @@ import android.view.SurfaceView
 import androidx.annotation.Size
 import com.google.android.filament.Engine
 import com.google.android.filament.View
-import com.google.android.filament.gltfio.AssetLoader
-import com.google.android.filament.gltfio.ResourceLoader
+import com.google.android.filament.gltfio.MaterialProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
 import io.sourcya.playx_3d_scene.core.model.animation.AnimationManger
 import io.sourcya.playx_3d_scene.core.model.animation.model.Animation
@@ -67,8 +66,7 @@ class Playx3dSceneController(
     private val context: Context,
     private var engine: Engine,
     private val iblProfiler: IBLProfiler,
-    private val assetLoader: AssetLoader,
-    private val resourceLoader: ResourceLoader,
+    private val materialProvider: MaterialProvider,
     private val flutterAssets: FlutterAssets,
     private var scene: Scene?,
     private var model: Model?,
@@ -84,7 +82,6 @@ class Playx3dSceneController(
     private var sceneStateJob: Job? = null
     private var shapeStateJob: Job? = null
     private var current3dSceneJob: Job? = null
-    private var update3dSceneJob: Job? = null
 
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -125,7 +122,7 @@ class Playx3dSceneController(
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
 
-        modelViewer = CustomModelViewer(surfaceView, engine, assetLoader, resourceLoader)
+        modelViewer = CustomModelViewer(surfaceView, engine, materialProvider)
 
         surfaceView.setOnTouchListener(modelViewer)
         surfaceView.setZOrderOnTop(true) // necessary
@@ -166,7 +163,6 @@ class Playx3dSceneController(
         if (scene?.ground != this.scene?.ground)
             updateGround(scene?.ground)
         updateShapes(shapes, true)
-
     }
 
     suspend fun updateScene(scene: Scene? = null, isUpdate: Boolean = true) {
