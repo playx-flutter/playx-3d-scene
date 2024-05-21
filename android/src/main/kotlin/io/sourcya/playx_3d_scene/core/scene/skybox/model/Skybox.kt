@@ -1,12 +1,14 @@
 package io.sourcya.playx_3d_scene.core.scene.skybox.model
 
+import io.sourcya.playx_3d_scene.utils.getMapValue
+
 abstract class Skybox(
     var assetPath: String? = null,
     var url: String? = null,
-    var color: String? =null,
-    ){
+    var color: String? = null,
+) {
 
-override fun toString(): String {
+    override fun toString(): String {
         return "Skybox(assetPath=$assetPath, url=$url, color=$color)"
     }
 
@@ -30,13 +32,24 @@ override fun toString(): String {
         return result
     }
 
+    companion object {
+        fun fromMap(map: Map<String?, Any?>?): Skybox? {
+            if (map == null) return null
+            return when (map["skyboxType"] as Int) {
+                1 -> KtxSkybox.fromMap(map)
+                2 -> HdrSkybox.fromMap(map)
+                3 -> ColoredSkybox.fromMap(map)
+                else -> null
+            }
+        }
+    }
 }
 
 
 class KtxSkybox(
     assetPath: String? = null,
     url: String? = null,
-    ): Skybox(assetPath, url,null) {
+) : Skybox(assetPath, url, null) {
 
     override fun toString(): String {
         return "KtxSkybox(assetPath=$assetPath)"
@@ -56,13 +69,26 @@ class KtxSkybox(
         return super.hashCode()
     }
 
+
+    companion object {
+        fun fromMap(map: Map<String?, Any?>?): KtxSkybox? {
+            if (map == null) return null
+            return KtxSkybox(
+                assetPath = getMapValue("assetPath", map),
+                url = getMapValue("url", map),
+            )
+        }
+
+    }
 }
 
-class HdrSkybox(  assetPath: String? = null,
-                     url: String? = null,
-                   val showSun :Boolean? =null,
 
-): Skybox(assetPath, url,null,) {
+class HdrSkybox(
+    assetPath: String? = null,
+    url: String? = null,
+    val showSun: Boolean? = null,
+
+    ) : Skybox(assetPath, url, null) {
 
     override fun toString(): String {
         return "HdrSkybox(assetPath =$assetPath  showSun=$showSun)"
@@ -83,9 +109,22 @@ class HdrSkybox(  assetPath: String? = null,
         result = 31 * result + (showSun?.hashCode() ?: 0)
         return result
     }
+
+    companion object {
+        fun fromMap(map: Map<String?, Any?>?): HdrSkybox? {
+            if (map == null) return null
+            return  HdrSkybox(
+                assetPath = getMapValue("assetPath", map),
+                url = getMapValue("url", map),
+                showSun =getMapValue("showSun", map),
+            )
+        }
+
+
+    }
 }
 
-class ColoredSkybox(  color: String?= null ): Skybox(color = color){
+class ColoredSkybox(color: String? = null) : Skybox(color = color) {
 
     override fun toString(): String {
         return "ColoredSkybox(color=$color)"
@@ -107,5 +146,13 @@ class ColoredSkybox(  color: String?= null ): Skybox(color = color){
         return result
     }
 
+    companion object {
+        fun fromMap(map: Map<String?, Any?>?): ColoredSkybox? {
+            if (map == null) return null
+            return ColoredSkybox(
+                color =getMapValue("color", map),
+            )
+        }
+    }
 
 }

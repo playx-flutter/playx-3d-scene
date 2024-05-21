@@ -179,8 +179,8 @@ class CustomModelViewer(
 //        view.bloomOptions = view.bloomOptions.apply {
 //            enabled = true
 //        }
-
         }
+
     }
 
     fun getModelTransform()= modelLoader.getModelTransform()
@@ -234,7 +234,7 @@ class CustomModelViewer(
     /**
      * Handles a [MotionEvent] to enable one-finger orbit, two-finger pan, and pinch-to-zoom.
      */
-    private fun onTouchEvent(event: MotionEvent) {
+    fun onTouchEvent(event: MotionEvent) {
         cameraManger.onTouchEvent(event)
     }
 

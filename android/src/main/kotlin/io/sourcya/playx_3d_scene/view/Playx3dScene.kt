@@ -6,9 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.filament.Engine
-import com.google.android.filament.gltfio.AssetLoader
 import com.google.android.filament.gltfio.MaterialProvider
-import com.google.android.filament.gltfio.ResourceLoader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.platform.PlatformView
 import io.sourcya.playx_3d_scene.core.Playx3dSceneController
@@ -47,11 +45,11 @@ class Playx3dScene(
     private fun setUpModelViewer() {
         val modelMap = getMapValue<Map<String?, Any?>>("model", creationParams)
         val sceneMap = getMapValue<Map<String?, Any?>>("scene", creationParams)
-        val shapeList = getMapValue<List<Any>>("shapes",creationParams)
+        val shapeList = getMapValue<List<Map<String?, Any?>>>("shapes",creationParams)
 
-        val model = Model.fromMap(modelMap)
+        val model = Model.fromJson(modelMap)
         val scene = Scene.fromMap(sceneMap)
-        val shapes = Shape.fromJson(shapeList)
+        val shapes = Shape.fromJsonList(shapeList)
 
         modelViewer = Playx3dSceneController(
             context,

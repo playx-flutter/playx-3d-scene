@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Choreographer
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.annotation.Size
 import com.google.android.filament.Engine
@@ -83,6 +85,11 @@ class Playx3dSceneController(
     private var shapeStateJob: Job? = null
     private var current3dSceneJob: Job? = null
 
+    private val doubleTapListener = DoubleTapListener()
+    private val singleTapListener = SingleTapListener()
+
+    private lateinit var doubleTapDetector: GestureDetector
+    private lateinit var singleTapDetector: GestureDetector
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -122,9 +129,17 @@ class Playx3dSceneController(
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpViewer() {
 
+        doubleTapDetector = GestureDetector(context, doubleTapListener)
+        singleTapDetector = GestureDetector(context, singleTapListener)
+
         modelViewer = CustomModelViewer(surfaceView, engine, materialProvider)
 
-        surfaceView.setOnTouchListener(modelViewer)
+        surfaceView.setOnTouchListener { _, event ->
+            modelViewer.onTouchEvent(event)
+            doubleTapDetector.onTouchEvent(event)
+            singleTapDetector.onTouchEvent(event)
+            true
+        }
         surfaceView.setZOrderOnTop(true) // necessary
 
         glbLoader = GlbLoader(modelViewer, context, flutterAssets)
@@ -910,6 +925,24 @@ class Playx3dSceneController(
 
     }
 
+    // Just for testing purposes, We may add these callbacks later.
+    inner class DoubleTapListener : GestureDetector.SimpleOnGestureListener() {
+    }
 
+
+    // Just for testing purposes, We may add these callbacks later.
+    inner class SingleTapListener : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
+//            modelViewer.view.pick(
+//                event.x.toInt(),
+//                surfaceView.height - event.y.toInt(),
+//                surfaceView.handler,
+//            ) {
+//                val name = modelViewer.modelLoader.asset?.getName(it.renderable)
+//                Log.v("Filament", "Picked ${it.renderable}: " + name)
+//            }
+            return super.onSingleTapUp(event)
+        }
+    }
 }
 

@@ -8,7 +8,6 @@ import io.sourcya.playx_3d_scene.core.shape.common.material.model.MaterialType
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.PlayxTexture
 import io.sourcya.playx_3d_scene.core.utils.Resource
 import io.sourcya.playx_3d_scene.core.utils.colorOf
-import io.sourcya.playx_3d_scene.utils.convertToObject
 
 
 suspend fun MaterialInstance.setParameter(materialParameter: MaterialParameter, textureLoader: TextureLoader) {
@@ -221,7 +220,8 @@ suspend fun MaterialInstance.setParameter(materialParameter: MaterialParameter, 
         }
         MaterialType.TEXTURE -> {
             if (materialParameter.value is Map<*, *>) {
-                val playxTexture = materialParameter.value.convertToObject<PlayxTexture>()
+                val json = materialParameter.value
+                val playxTexture = PlayxTexture.fromJson(json) ?: return
                 val textureResult = textureLoader.loadTexture(playxTexture)
                 if (textureResult is Resource.Success) {
                     val texture = textureResult.data

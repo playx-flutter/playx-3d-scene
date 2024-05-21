@@ -15,10 +15,9 @@ import io.sourcya.playx_3d_scene.core.scene.ground.model.Ground
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.scene.light.model.Light
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
-import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.core.shape.common.model.Shape
+import io.sourcya.playx_3d_scene.core.shape.common.model.convertJsonToPosition
 import io.sourcya.playx_3d_scene.core.utils.Resource
-import io.sourcya.playx_3d_scene.utils.toObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -107,15 +106,16 @@ class PlayxMethodHandler(
     }
 
     private fun updatePlayx3dScene(call: MethodCall, result: MethodChannel.Result) {
-        val scene =
-            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneSceneKey)?.toObject<Scene>()
+        val sceneMap =
+            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneSceneKey)
+        val scene = Scene.fromMap(sceneMap)
         val modelMap =
             getValue<Map<String?, Any?>>(call, updatePlayx3dSceneModelKey);
-        val model = Model.fromMap(modelMap)
+        val model = Model.fromJson(modelMap)
 
+        val shapeList = getValue<List<Map<String?, Any?>>?>(call, updatePlayx3dSceneShapesKey)
 
-        val shapeList = getValue<List<Any>?>(call, updatePlayx3dSceneShapesKey)
-        val shapes = Shape.fromJson(shapeList)
+        val shapes = Shape.fromJsonList(shapeList)
         updatePlayx3dSceneJob?.cancel()
         updatePlayx3dSceneJob = coroutineScope.launch {
             modelViewer?.update3dScene(scene, model, shapes)
@@ -124,7 +124,10 @@ class PlayxMethodHandler(
     }
 
     private fun updateScene(call: MethodCall, result: MethodChannel.Result) {
-        val scene = getValue<Map<String?, Any?>>(call, updateSceneKey)?.toObject<Scene>()
+        val sceneMap =
+            getValue<Map<String?, Any?>>(call, updateSceneKey)
+        val scene = Scene.fromMap(sceneMap)
+
         updateSceneJob?.cancel()
         updateSceneJob = coroutineScope.launch {
             modelViewer?.updateScene(scene)
@@ -135,7 +138,7 @@ class PlayxMethodHandler(
     private fun updateModel(call: MethodCall, result: MethodChannel.Result) {
         val modelMap =
             getValue<Map<String?, Any?>>(call, updateModelKey);
-        val model = Model.fromMap(modelMap)
+        val model = Model.fromJson(modelMap)
 
         updateModelJob?.cancel()
         updateModelJob = coroutineScope.launch {
@@ -145,8 +148,8 @@ class PlayxMethodHandler(
     }
 
     private fun updateShapes(call: MethodCall, result: MethodChannel.Result) {
-        val shapeList = getValue<List<Any>?>(call, updateShapesKey);
-        val shapes = Shape.fromJson(shapeList)
+        val shapeList = getValue<List<Map<String?, Any?>>?>(call, updateShapesKey);
+        val shapes = Shape.fromJsonList(shapeList)
         updateShapesJob?.cancel()
         updateShapesJob = coroutineScope.launch {
             modelViewer?.updateShapes(shapes)
@@ -474,10 +477,12 @@ class PlayxMethodHandler(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        val light = getValue<Map<String?, Any?>>(
+        val lightMap = getValue<Map<String?, Any?>>(
             call,
             changeIndirectLightByDefaultIndirectLightKey
-        )?.toObject<DefaultIndirectLight>()
+        )
+        val light = DefaultIndirectLight.fromJson(lightMap)
+
         when (val resource = modelViewer?.changeIndirectLightByDefaultIndirectLight(light)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
@@ -509,7 +514,8 @@ class PlayxMethodHandler(
      * and update the scene  light with it.
      */
     private fun changeSceneLight(call: MethodCall, result: MethodChannel.Result) {
-        val light = getValue<Map<String?, Any?>>(call, changeLightKey)?.toObject<Light>()
+        val lightMap = getValue<Map<String?, Any?>>(call, changeLightKey)
+        val light = Light.fromMap(lightMap)
         when (val resource = modelViewer?.changeLight(light)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
@@ -638,8 +644,9 @@ class PlayxMethodHandler(
      * and updates current model center position.
      */
     private fun changeModelPosition(call: MethodCall, result: MethodChannel.Result) {
-        val position =
-            getValue<Map<String?, Any?>>(call, changeModelPositionKey)?.toObject<Position>()
+        val positionMap =
+            getValue<Map<String?, Any?>>(call, changeModelPositionKey)
+        val position =   convertJsonToPosition(positionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.changeModelPosition(position)) {
                 is Resource.Success -> result.success(resource.data)
@@ -661,9 +668,10 @@ class PlayxMethodHandler(
      * and updates current camera.
      */
     private fun updateCamera(call: MethodCall, result: MethodChannel.Result) {
-        val cameraInfo = getValue<Map<String?, Any?>>(call, updateCameraKey)?.toObject<Camera>()
+        val cameraInfoMap = getValue<Map<String?, Any?>>(call, updateCameraKey)
+        val camera = Camera.fromMap(cameraInfoMap)
         coroutineScope.launch {
-            when (val resource = modelViewer?.updateCamera(cameraInfo)) {
+            when (val resource = modelViewer?.updateCamera(camera)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -682,7 +690,8 @@ class PlayxMethodHandler(
      * and updates current camera exposure.
      */
     private fun updateExposure(call: MethodCall, result: MethodChannel.Result) {
-        val exposure = getValue<Map<String?, Any?>>(call, updateExposureKey)?.toObject<Exposure>()
+        val exposureMap = getValue<Map<String?, Any?>>(call, updateExposureKey)
+        val  exposure = Exposure.fromMap(exposureMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateExposure(exposure)) {
                 is Resource.Success -> result.success(resource.data)
@@ -704,8 +713,9 @@ class PlayxMethodHandler(
      * and updates current camera projection.
      */
     private fun updateProjection(call: MethodCall, result: MethodChannel.Result) {
-        val projection =
-            getValue<Map<String?, Any?>>(call, updateProjectionKey)?.toObject<Projection>()
+        val projectionMap =
+            getValue<Map<String?, Any?>>(call, updateProjectionKey)
+        val projection = Projection.fromMap(projectionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateProjection(projection)) {
                 is Resource.Success -> result.success(resource.data)
@@ -727,8 +737,9 @@ class PlayxMethodHandler(
      * and updates current model center position.
      */
     private fun updateLensProjection(call: MethodCall, result: MethodChannel.Result) {
-        val lensProjection =
-            getValue<Map<String?, Any?>>(call, updateLensProjectionKey)?.toObject<LensProjection>()
+        val lensProjectionMap =
+            getValue<Map<String?, Any?>>(call, updateLensProjectionKey)
+        val lensProjection = LensProjection.fromMap(lensProjectionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateLensProjection(lensProjection)) {
                 is Resource.Success -> result.success(resource.data)
@@ -982,7 +993,8 @@ class PlayxMethodHandler(
      * and updates current camera.
      */
     private fun updateGround(call: MethodCall, result: MethodChannel.Result) {
-        val ground = getValue<Map<String?, Any?>>(call, updateGroundKey)?.toObject<Ground>()
+        val groundMap = getValue<Map<String?, Any?>>(call, updateGroundKey)
+        val ground = Ground.fromMap(groundMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateGround(ground)) {
                 is Resource.Success -> result.success(resource.data)
@@ -1004,8 +1016,9 @@ class PlayxMethodHandler(
      * and updates current camera.
      */
     private fun updateGroundMaterial(call: MethodCall, result: MethodChannel.Result) {
-        val material =
-            getValue<Map<String?, Any?>>(call, updateGroundMaterialKey)?.toObject<Material>()
+        val materialMap =
+            getValue<Map<String?, Any?>>(call, updateGroundMaterialKey)
+        val material = Material.fromJson(materialMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateGroundMaterial(material)) {
                 is Resource.Success -> result.success(resource.data)
@@ -1027,7 +1040,8 @@ class PlayxMethodHandler(
      * and adds the shape to current rendered shapes.
      */
     private fun addShape(call: MethodCall, result: MethodChannel.Result) {
-        val shape = getValue<Map<String?, Any?>>(call, addShapeKey)?.toObject<Shape>()
+        val shapeMap = getValue<Map<String?, Any?>>(call, addShapeKey)
+        val shape = Shape.fromMap(shapeMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.addShape(shape)) {
                 is Resource.Success -> result.success(resource.data)
@@ -1070,7 +1084,9 @@ class PlayxMethodHandler(
      * and adds the shape to current rendered shapes.
      */
     private fun updateShape(call: MethodCall, result: MethodChannel.Result) {
-        val shape = getValue<Map<String?, Any?>>(call, updateShapeKey)?.toObject<Shape>()
+        val shapeMap = getValue<Map<String?, Any?>>(call, updateShapeKey)
+        val shape = Shape.fromMap(shapeMap)
+
         val id = getValue<Int>(call, updateShapeIdKey)
 
         coroutineScope.launch {
