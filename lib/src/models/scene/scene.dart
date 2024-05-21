@@ -22,4 +22,46 @@ class Scene {
         'camera': camera?.toJson(),
         'ground': ground?.toJson(),
       };
+
+  @override
+  String toString() {
+    return 'Scene(skybox: $skybox, indirectLight: $indirectLight, light: $light, camera: $camera, ground: $ground)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Scene &&
+        other.skybox == skybox &&
+        other.indirectLight == indirectLight &&
+        other.light == light &&
+        other.camera == camera &&
+        other.ground == ground;
+  }
+
+  @override
+  int get hashCode {
+    return skybox.hashCode ^
+        indirectLight.hashCode ^
+        light.hashCode ^
+        camera.hashCode ^
+        ground.hashCode;
+  }
+
+  Scene copyWith({
+    Skybox? skybox,
+    IndirectLight? indirectLight,
+    Light? light,
+    Camera? camera,
+    Ground? ground,
+  }) {
+    return Scene(
+      skybox: skybox ?? this.skybox,
+      indirectLight: indirectLight ?? this.indirectLight,
+      light: light ?? this.light,
+      camera: camera ?? this.camera,
+      ground: ground ?? this.ground,
+    );
+  }
 }

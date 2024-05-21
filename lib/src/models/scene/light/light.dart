@@ -152,4 +152,48 @@ class Light {
         'sunHaloSize': sunHaloSize,
         'sunHaloFalloff': sunHaloFalloff
       };
+
+  @override
+  String toString() {
+    return 'Light(type: $type, color: $color, colorTemperature: $colorTemperature, intensity: $intensity, position: $position, direction: $direction, castLight: $castLight, castShadows: $castShadows, falloffRadius: $falloffRadius, spotLightConeInner: $spotLightConeInner, spotLightConeOuter: $spotLightConeOuter, sunAngularRadius: $sunAngularRadius, sunHaloSize: $sunHaloSize, sunHaloFalloff: $sunHaloFalloff)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Light &&
+        other.type == type &&
+        other.color == color &&
+        other.colorTemperature == colorTemperature &&
+        other.intensity == intensity &&
+        other.position == position &&
+        other.direction == direction &&
+        other.castLight == castLight &&
+        other.castShadows == castShadows &&
+        other.falloffRadius == falloffRadius &&
+        other.spotLightConeInner == spotLightConeInner &&
+        other.spotLightConeOuter == spotLightConeOuter &&
+        other.sunAngularRadius == sunAngularRadius &&
+        other.sunHaloSize == sunHaloSize &&
+        other.sunHaloFalloff == sunHaloFalloff;
+  }
+
+  @override
+  int get hashCode {
+    return type.hashCode ^
+        color.hashCode ^
+        colorTemperature.hashCode ^
+        intensity.hashCode ^
+        position.hashCode ^
+        direction.hashCode ^
+        castLight.hashCode ^
+        castShadows.hashCode ^
+        falloffRadius.hashCode ^
+        spotLightConeInner.hashCode ^
+        spotLightConeOuter.hashCode ^
+        sunAngularRadius.hashCode ^
+        sunHaloSize.hashCode ^
+        sunHaloFalloff.hashCode;
+  }
 }

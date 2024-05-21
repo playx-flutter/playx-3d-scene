@@ -41,4 +41,22 @@ abstract class Skybox {
         'url': url,
         'color': color?.toHex,
       };
+
+  @override
+  String toString() {
+    return 'Skybox(assetPath: $assetPath, url: $url, color: $color)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Skybox &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode => assetPath.hashCode ^ url.hashCode ^ color.hashCode;
 }

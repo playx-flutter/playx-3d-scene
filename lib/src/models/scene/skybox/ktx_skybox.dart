@@ -15,4 +15,22 @@ class KtxSkybox extends Skybox {
   @override
   Map<String, dynamic> toJson() =>
       {'assetPath': assetPath, 'url': url, 'skyboxType': 1};
+
+  @override
+  String toString() {
+    return 'KtxSkybox(assetPath: $assetPath, url: $url)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is KtxSkybox && super == other;
+  }
+
+  @override
+  int get hashCode {
+    final hash = super.hashCode;
+    return hash;
+  }
 }

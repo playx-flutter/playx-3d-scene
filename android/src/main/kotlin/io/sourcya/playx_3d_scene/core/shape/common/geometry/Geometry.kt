@@ -1,12 +1,28 @@
 package io.sourcya.playx_3d_scene.core.shape.common.geometry
 
-import com.google.android.filament.*
-import com.google.android.filament.utils.*
-import io.sourcya.playx_3d_scene.core.shape.common.model.*
+import com.google.android.filament.Box
+import com.google.android.filament.Engine
+import com.google.android.filament.EntityManager
+import com.google.android.filament.IndexBuffer
+import com.google.android.filament.MaterialInstance
+import com.google.android.filament.RenderableManager
+import com.google.android.filament.VertexBuffer
+import com.google.android.filament.utils.Float3
+import com.google.android.filament.utils.Quaternion
+import com.google.android.filament.utils.cross
+import com.google.android.filament.utils.dot
+import com.google.android.filament.utils.max
+import com.google.android.filament.utils.min
+import com.google.android.filament.utils.normalize
+import io.sourcya.playx_3d_scene.core.shape.common.model.Direction
+import io.sourcya.playx_3d_scene.core.shape.common.model.Submesh
+import io.sourcya.playx_3d_scene.core.shape.common.model.Transform
+import io.sourcya.playx_3d_scene.core.shape.common.model.Vertex
 import io.sourcya.playx_3d_scene.core.utils.geometry
 import io.sourcya.playx_3d_scene.core.viewer.CustomModelViewer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
+
 
 private const val kPositionSize = 3 // x, y, z
 private const val kTangentSize = 4 // Quaternion: x, y, z, w

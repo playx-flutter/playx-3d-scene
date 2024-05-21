@@ -24,4 +24,19 @@ class Cube extends Shape {
         'material': material?.toJson(),
         'shapeType': 2
       };
+
+  @override
+  String toString() {
+    return 'Cube(id: $id, length: $length, centerPosition: $centerPosition)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Cube && other.length == length && super == other;
+  }
+
+  @override
+  int get hashCode => length.hashCode ^ super.hashCode;
 }

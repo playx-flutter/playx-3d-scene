@@ -178,4 +178,64 @@ class Camera {
       "groundPlane": groundPlane,
     };
   }
+
+  @override
+  String toString() {
+    return 'Camera(exposure: $exposure, projection: $projection, lensProjection: $lensProjection, scaling: $scaling, shift: $shift, mode: $_mode, targetPosition: $targetPosition, upVector: $upVector, zoomSpeed: $zoomSpeed, orbitHomePosition: $orbitHomePosition, orbitSpeed: $orbitSpeed, fovDirection: $fovDirection, fovDegrees: $fovDegrees, farPlane: $farPlane, mapExtent: $mapExtent, mapMinDistance: $mapMinDistance, flightStartPosition: $flightStartPosition, flightStartOrientation: $flightStartOrientation, flightMaxMoveSpeed: $flightMaxMoveSpeed, flightSpeedSteps: $flightSpeedSteps, flightMoveDamping: $flightMoveDamping, groundPlane: $groundPlane)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Camera &&
+        other.exposure == exposure &&
+        other.projection == projection &&
+        other.lensProjection == lensProjection &&
+        other.scaling == scaling &&
+        other.shift == shift &&
+        other._mode == _mode &&
+        other.targetPosition == targetPosition &&
+        other.upVector == upVector &&
+        other.zoomSpeed == zoomSpeed &&
+        other.orbitHomePosition == orbitHomePosition &&
+        other.orbitSpeed == orbitSpeed &&
+        other.fovDirection == fovDirection &&
+        other.fovDegrees == fovDegrees &&
+        other.farPlane == farPlane &&
+        other.mapExtent == mapExtent &&
+        other.mapMinDistance == mapMinDistance &&
+        other.flightStartPosition == flightStartPosition &&
+        other.flightStartOrientation == flightStartOrientation &&
+        other.flightMaxMoveSpeed == flightMaxMoveSpeed &&
+        other.flightSpeedSteps == flightSpeedSteps &&
+        other.flightMoveDamping == flightMoveDamping &&
+        other.groundPlane == groundPlane;
+  }
+
+  @override
+  int get hashCode {
+    return exposure.hashCode ^
+        projection.hashCode ^
+        lensProjection.hashCode ^
+        scaling.hashCode ^
+        shift.hashCode ^
+        _mode.hashCode ^
+        targetPosition.hashCode ^
+        upVector.hashCode ^
+        zoomSpeed.hashCode ^
+        orbitHomePosition.hashCode ^
+        orbitSpeed.hashCode ^
+        fovDirection.hashCode ^
+        fovDegrees.hashCode ^
+        farPlane.hashCode ^
+        mapExtent.hashCode ^
+        mapMinDistance.hashCode ^
+        flightStartPosition.hashCode ^
+        flightStartOrientation.hashCode ^
+        flightMaxMoveSpeed.hashCode ^
+        flightSpeedSteps.hashCode ^
+        flightMoveDamping.hashCode ^
+        groundPlane.hashCode;
+  }
 }

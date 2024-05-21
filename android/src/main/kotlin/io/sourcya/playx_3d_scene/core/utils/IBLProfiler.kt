@@ -3,7 +3,6 @@ package io.sourcya.playx_3d_scene.core.utils
 import com.google.android.filament.Engine
 import com.google.android.filament.Texture
 import com.google.android.filament.utils.IBLPrefilterContext
-import timber.log.Timber
 
 /**
  * IBLPrefilter creates and initializes GPU state common to all environment map filters

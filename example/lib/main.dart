@@ -5,7 +5,6 @@ void main() {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -180,16 +179,19 @@ class _MyAppState extends State<MyApp> {
                 });
               },
               onModelStateChanged: (state) {
+                print('Playx3dSceneController: onModelStateChanged: $state');
                 setState(() {
                   isModelLoading = state == ModelState.loading;
                 });
               },
               onSceneStateChanged: (state) {
+                print('Playx3dSceneController: onSceneStateChanged: $state');
                 setState(() {
                   isSceneLoading = state == SceneState.loading;
                 });
               },
               onShapeStateChanged: (state) {
+                print('Playx3dSceneController: onShapeStateChanged: $state');
                 setState(() {
                   isShapeLoading = state == ShapeState.loading;
                 });

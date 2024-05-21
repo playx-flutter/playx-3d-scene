@@ -29,4 +29,24 @@ class Ground extends Plane {
         'size': size.toJson(),
         'material': material?.toJson(),
       };
+
+  @override
+  String toString() {
+    return 'Ground(width: $width, height: $height, isBelowModel: $isBelowModel)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Ground &&
+        other.width == width &&
+        other.height == height &&
+        other.isBelowModel == isBelowModel &&
+        super == other;
+  }
+
+  @override
+  int get hashCode =>
+      width.hashCode ^ height.hashCode ^ isBelowModel.hashCode ^ super.hashCode;
 }

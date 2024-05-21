@@ -2,7 +2,6 @@ package io.sourcya.playx_3d_scene
 
 import androidx.lifecycle.Lifecycle
 import com.google.android.filament.Engine
-import com.google.android.filament.EntityManager
 import com.google.android.filament.gltfio.AssetLoader
 import com.google.android.filament.gltfio.MaterialProvider
 import com.google.android.filament.gltfio.ResourceLoader
@@ -31,10 +30,6 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
         Timber.plant(Timber.DebugTree())
        engine= Engine.create()
          materialProvider = UbershaderProvider(engine)
-
-         assetLoader = AssetLoader(engine, materialProvider, EntityManager.get())
-         resourceLoader = ResourceLoader(engine, true)
-
         iblProfiler = IBLProfiler(engine)
 
         binding
@@ -44,8 +39,7 @@ class Playx3dScenePlugin : FlutterPlugin, ActivityAware {
                 Playx3dSceneFactory(binding,
                     engine,
                     iblProfiler,
-                    assetLoader,
-                    resourceLoader,
+                    materialProvider,
                     object : LifecycleProvider {
                         override fun getLifecycle(): Lifecycle? {
                             return lifecycle

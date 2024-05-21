@@ -72,4 +72,40 @@ class Projection {
       "direction": fovDirection?.toName(),
     };
   }
+
+  @override
+  String toString() {
+    return 'Projection(projection: $projection, left: $left, right: $right, bottom: $bottom, top: $top, near: $near, far: $far, fovInDegrees: $fovInDegrees, aspect: $aspect, fovDirection: $fovDirection)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Projection &&
+        other.projection == projection &&
+        other.left == left &&
+        other.right == right &&
+        other.bottom == bottom &&
+        other.top == top &&
+        other.near == near &&
+        other.far == far &&
+        other.fovInDegrees == fovInDegrees &&
+        other.aspect == aspect &&
+        other.fovDirection == fovDirection;
+  }
+
+  @override
+  int get hashCode {
+    return projection.hashCode ^
+        left.hashCode ^
+        right.hashCode ^
+        bottom.hashCode ^
+        top.hashCode ^
+        near.hashCode ^
+        far.hashCode ^
+        fovInDegrees.hashCode ^
+        aspect.hashCode ^
+        fovDirection.hashCode;
+  }
 }

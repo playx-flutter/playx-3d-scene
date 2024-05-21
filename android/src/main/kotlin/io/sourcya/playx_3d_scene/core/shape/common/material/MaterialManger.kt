@@ -43,13 +43,11 @@ class MaterialManger(
                 for (param in it) {
                     if (materialParamNames.contains(param.name)) {
                         materialInstance.setParameter(param,textureLoader)
-
                     }
                 }
             }
 
         }
-
 
         return Resource.Success(materialInstance)
     }

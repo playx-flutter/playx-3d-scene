@@ -5,19 +5,24 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.sourcya.playx_3d_scene.core.Playx3dSceneController
+import io.sourcya.playx_3d_scene.core.model.common.model.Model
 import io.sourcya.playx_3d_scene.core.scene.camera.model.Camera
 import io.sourcya.playx_3d_scene.core.scene.camera.model.Exposure
 import io.sourcya.playx_3d_scene.core.scene.camera.model.LensProjection
 import io.sourcya.playx_3d_scene.core.scene.camera.model.Projection
+import io.sourcya.playx_3d_scene.core.scene.common.model.Scene
 import io.sourcya.playx_3d_scene.core.scene.ground.model.Ground
 import io.sourcya.playx_3d_scene.core.scene.indirect_light.model.DefaultIndirectLight
 import io.sourcya.playx_3d_scene.core.scene.light.model.Light
 import io.sourcya.playx_3d_scene.core.shape.common.material.model.Material
-import io.sourcya.playx_3d_scene.core.shape.common.model.Position
 import io.sourcya.playx_3d_scene.core.shape.common.model.Shape
+import io.sourcya.playx_3d_scene.core.shape.common.model.convertJsonToPosition
 import io.sourcya.playx_3d_scene.core.utils.Resource
-import io.sourcya.playx_3d_scene.utils.toObject
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * class to handle method calls from the Flutter side of the plugin.
@@ -29,14 +34,22 @@ class PlayxMethodHandler(
 ) : MethodCallHandler {
 
     private var job: Job = SupervisorJob()
+    private var updatePlayx3dSceneJob: Job? = null
+    private var updateSceneJob: Job? = null
+    private var updateModelJob: Job? = null
+    private var updateShapesJob: Job? = null
+
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
 
     private var methodChannel: MethodChannel? = null
 
 
-
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
+            updatePlayx3dScene -> updatePlayx3dScene(call, result)
+            updateScene -> updateScene(call, result)
+            updateModel -> updateModel(call, result)
+            updateShapes -> updateShapes(call, result)
             changeAnimationByIndex -> changeAnimationByIndex(call, result)
             changeAnimationByName -> changeAnimationByName(call, result)
             getAnimationNames -> getAnimationNames(result)
@@ -44,47 +57,103 @@ class PlayxMethodHandler(
             getCurrentAnimationIndex -> getCurrentAnimationIndex(result)
             getAnimationCount -> getAnimationCount(result)
             changeSkyboxByAsset -> changeSkyboxByKtxAsset(call, result)
-            changeSkyboxByUrl->changeSkyboxByKtxUrl(call,result)
-            changeSkyboxByHdrAsset-> changeSkyboxByHdrAsset(call,result)
-            changeSkyboxByHdrUrl-> changeSkyboxByHdrUrl(call, result)
+            changeSkyboxByUrl -> changeSkyboxByKtxUrl(call, result)
+            changeSkyboxByHdrAsset -> changeSkyboxByHdrAsset(call, result)
+            changeSkyboxByHdrUrl -> changeSkyboxByHdrUrl(call, result)
             changeSkyboxColor -> changeSkyboxColor(call, result)
             changeToTransparentSkybox -> changeToTransparentSkybox(result)
             changeIndirectLightByKtxAsset -> changeIndirectLightByKtxAsset(call, result)
-            changeIndirectLightByKtxUrl ->changeIndirectLightByKtxUrl(call,result)
+            changeIndirectLightByKtxUrl -> changeIndirectLightByKtxUrl(call, result)
             changeIndirectLightByHdrAsset -> changeIndirectLightByHdrAsset(call, result)
             changeIndirectLightByHdrUrl -> changeIndirectLightByHdrUrl(call, result)
-            changeIndirectLightByDefaultIndirectLight -> changeIndirectLightByDefaultIndirectLight(call, result)
+            changeIndirectLightByDefaultIndirectLight -> changeIndirectLightByDefaultIndirectLight(
+                call,
+                result
+            )
+
             changeToDefaultIndirectLight -> changeToDefaultIndirectLight(result)
             changeLight -> changeSceneLight(call, result)
-            changeToDefaultLight -> changeToDefaultLight( result)
+            changeToDefaultLight -> changeToDefaultLight(result)
             loadGlbModelFromAssets -> loadGlbModelFromAssets(call, result)
             loadGlbModelFromUrl -> loadGlbModelFromUrl(call, result)
             loadGltfModelFromAssets -> loadGltfModelFromAssets(call, result)
             changeModelScale -> changeModelScale(call, result)
             changeModelPosition -> changeModelPosition(call, result)
             getCurrentModelState -> getCurrentModelState(result)
-            updateCamera ->updateCamera(call,result)
-            updateExposure->updateExposure(call,result)
-            updateProjection -> updateProjection(call,result)
-            updateLensProjection -> updateLensProjection(call,result)
-            updateCameraShift->updateCameraShift(call,result)
-            updateCameraScaling->updateCameraScaling(call,result)
+            updateCamera -> updateCamera(call, result)
+            updateExposure -> updateExposure(call, result)
+            updateProjection -> updateProjection(call, result)
+            updateLensProjection -> updateLensProjection(call, result)
+            updateCameraShift -> updateCameraShift(call, result)
+            updateCameraScaling -> updateCameraScaling(call, result)
             setDefaultCamera -> setDefaultCamera(result)
             lookAtDefaultPosition -> lookAtDefaultPosition(result)
-            lookAtPosition -> lookAtCameraPosition(call,result)
+            lookAtPosition -> lookAtCameraPosition(call, result)
             getLookAt -> getCameraLookAtPositions(result)
-            cameraScroll -> scrollCameraTo(call,result)
-            cameraGrabBegin-> beginCameraGrab(call,result)
-            cameraGrabUpdate -> updateCameraGrab(call,result)
-            cameraGrabEnd-> endCameraGrab(result)
-            cameraRayCast-> getCameraRayCast(call,result)
-            updateGround -> updateGround(call,result)
-            updateGroundMaterial -> updateGroundMaterial(call,result)
-            addShape->addShape(call,result)
-            removeShape -> removeShape(call,result)
-            updateShape -> updateShape(call,result)
+            cameraScroll -> scrollCameraTo(call, result)
+            cameraGrabBegin -> beginCameraGrab(call, result)
+            cameraGrabUpdate -> updateCameraGrab(call, result)
+            cameraGrabEnd -> endCameraGrab(result)
+            cameraRayCast -> getCameraRayCast(call, result)
+            updateGround -> updateGround(call, result)
+            updateGroundMaterial -> updateGroundMaterial(call, result)
+            addShape -> addShape(call, result)
+            removeShape -> removeShape(call, result)
+            updateShape -> updateShape(call, result)
             getCurrentCreatedShapesIds -> getCurrentCreatedShapesIds(result)
             else -> result.notImplemented()
+        }
+    }
+
+    private fun updatePlayx3dScene(call: MethodCall, result: MethodChannel.Result) {
+        val sceneMap =
+            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneSceneKey)
+        val scene = Scene.fromMap(sceneMap)
+        val modelMap =
+            getValue<Map<String?, Any?>>(call, updatePlayx3dSceneModelKey);
+        val model = Model.fromJson(modelMap)
+
+        val shapeList = getValue<List<Map<String?, Any?>>?>(call, updatePlayx3dSceneShapesKey)
+
+        val shapes = Shape.fromJsonList(shapeList)
+        updatePlayx3dSceneJob?.cancel()
+        updatePlayx3dSceneJob = coroutineScope.launch {
+            modelViewer?.update3dScene(scene, model, shapes)
+            result.success(true)
+        }
+    }
+
+    private fun updateScene(call: MethodCall, result: MethodChannel.Result) {
+        val sceneMap =
+            getValue<Map<String?, Any?>>(call, updateSceneKey)
+        val scene = Scene.fromMap(sceneMap)
+
+        updateSceneJob?.cancel()
+        updateSceneJob = coroutineScope.launch {
+            modelViewer?.updateScene(scene)
+            result.success(true)
+        }
+    }
+
+    private fun updateModel(call: MethodCall, result: MethodChannel.Result) {
+        val modelMap =
+            getValue<Map<String?, Any?>>(call, updateModelKey);
+        val model = Model.fromJson(modelMap)
+
+        updateModelJob?.cancel()
+        updateModelJob = coroutineScope.launch {
+            modelViewer?.updateModel(model)
+            result.success(true)
+        }
+    }
+
+    private fun updateShapes(call: MethodCall, result: MethodChannel.Result) {
+        val shapeList = getValue<List<Map<String?, Any?>>?>(call, updateShapesKey);
+        val shapes = Shape.fromJsonList(shapeList)
+        updateShapesJob?.cancel()
+        updateShapesJob = coroutineScope.launch {
+            modelViewer?.updateShapes(shapes)
+            result.success(true)
         }
     }
 
@@ -260,7 +329,6 @@ class PlayxMethodHandler(
     }
 
 
-
     /**  change environment by given color.
      * it takes an Color?  as an argument.
      * and updates the environment skybox color
@@ -304,7 +372,8 @@ class PlayxMethodHandler(
 
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeIndirectLightFromKtxAsset(assetPath, intensity)) {
+            when (val resource =
+                modelViewer?.changeIndirectLightFromKtxAsset(assetPath, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -357,7 +426,8 @@ class PlayxMethodHandler(
         val intensity: Double? = getValue(call, changeIndirectLightByHdrAssetIntensityKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.changeIndirectLightFromHdrAsset(assetPath, intensity)) {
+            when (val resource =
+                modelViewer?.changeIndirectLightFromHdrAsset(assetPath, intensity)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -398,15 +468,21 @@ class PlayxMethodHandler(
     }
 
 
-
-
     /**
      * change scene indirect light by given intensity.
      * it takes light intensity as an argument.
      * and update the scene light intensity with it.
      */
-    private fun changeIndirectLightByDefaultIndirectLight(call: MethodCall, result: MethodChannel.Result) {
-        val light = getValue<Map<String?, Any?>>(call, changeIndirectLightByDefaultIndirectLightKey)?.toObject<DefaultIndirectLight>()
+    private fun changeIndirectLightByDefaultIndirectLight(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val lightMap = getValue<Map<String?, Any?>>(
+            call,
+            changeIndirectLightByDefaultIndirectLightKey
+        )
+        val light = DefaultIndirectLight.fromJson(lightMap)
+
         when (val resource = modelViewer?.changeIndirectLightByDefaultIndirectLight(light)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
@@ -438,7 +514,8 @@ class PlayxMethodHandler(
      * and update the scene  light with it.
      */
     private fun changeSceneLight(call: MethodCall, result: MethodChannel.Result) {
-        val light = getValue<Map<String?, Any?>>(call, changeLightKey)?.toObject<Light>()
+        val lightMap = getValue<Map<String?, Any?>>(call, changeLightKey)
+        val light = Light.fromMap(lightMap)
         when (val resource = modelViewer?.changeLight(light)) {
             is Resource.Success -> result.success(resource.data)
             is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
@@ -456,7 +533,7 @@ class PlayxMethodHandler(
      */
     private fun changeToDefaultLight(result: MethodChannel.Result) {
         if (modelViewer != null) {
-           return modelViewer.changeToDefaultLight()
+            return modelViewer.changeToDefaultLight()
         } else {
             result.error("Model viewer isn't initialized.", "Model viewer isn't initialized.", null)
         }
@@ -567,7 +644,9 @@ class PlayxMethodHandler(
      * and updates current model center position.
      */
     private fun changeModelPosition(call: MethodCall, result: MethodChannel.Result) {
-        val position = getValue<Map<String?, Any?>>(call, changeModelPositionKey)?.toObject<Position>()
+        val positionMap =
+            getValue<Map<String?, Any?>>(call, changeModelPositionKey)
+        val position =   convertJsonToPosition(positionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.changeModelPosition(position)) {
                 is Resource.Success -> result.success(resource.data)
@@ -589,9 +668,10 @@ class PlayxMethodHandler(
      * and updates current camera.
      */
     private fun updateCamera(call: MethodCall, result: MethodChannel.Result) {
-        val cameraInfo = getValue<Map<String?, Any?>>(call, updateCameraKey)?.toObject<Camera>()
+        val cameraInfoMap = getValue<Map<String?, Any?>>(call, updateCameraKey)
+        val camera = Camera.fromMap(cameraInfoMap)
         coroutineScope.launch {
-            when (val resource = modelViewer?.updateCamera(cameraInfo)) {
+            when (val resource = modelViewer?.updateCamera(camera)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -603,13 +683,15 @@ class PlayxMethodHandler(
 
         }
     }
+
     /**
      *update Exposure : updates current camera exposure.
      * it takes an Exposure object as an argument.
      * and updates current camera exposure.
      */
     private fun updateExposure(call: MethodCall, result: MethodChannel.Result) {
-        val exposure = getValue<Map<String?, Any?>>(call, updateExposureKey)?.toObject<Exposure>()
+        val exposureMap = getValue<Map<String?, Any?>>(call, updateExposureKey)
+        val  exposure = Exposure.fromMap(exposureMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateExposure(exposure)) {
                 is Resource.Success -> result.success(resource.data)
@@ -631,7 +713,9 @@ class PlayxMethodHandler(
      * and updates current camera projection.
      */
     private fun updateProjection(call: MethodCall, result: MethodChannel.Result) {
-        val projection = getValue<Map<String?, Any?>>(call, updateProjectionKey)?.toObject<Projection>()
+        val projectionMap =
+            getValue<Map<String?, Any?>>(call, updateProjectionKey)
+        val projection = Projection.fromMap(projectionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateProjection(projection)) {
                 is Resource.Success -> result.success(resource.data)
@@ -653,7 +737,9 @@ class PlayxMethodHandler(
      * and updates current model center position.
      */
     private fun updateLensProjection(call: MethodCall, result: MethodChannel.Result) {
-        val lensProjection = getValue<Map<String?, Any?>>(call, updateLensProjectionKey)?.toObject<LensProjection>()
+        val lensProjectionMap =
+            getValue<Map<String?, Any?>>(call, updateLensProjectionKey)
+        val lensProjection = LensProjection.fromMap(lensProjectionMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateLensProjection(lensProjection)) {
                 is Resource.Success -> result.success(resource.data)
@@ -675,7 +761,8 @@ class PlayxMethodHandler(
      * and updates current camera shift.
      */
     private fun updateCameraShift(call: MethodCall, result: MethodChannel.Result) {
-        val shift: DoubleArray? = getValue<List<Double>>(call, updateCameraShiftKey)?.toDoubleArray()
+        val shift: DoubleArray? =
+            getValue<List<Double>>(call, updateCameraShiftKey)?.toDoubleArray()
         coroutineScope.launch {
             when (val resource = modelViewer?.updateCameraShift(shift)) {
                 is Resource.Success -> result.success(resource.data)
@@ -697,7 +784,8 @@ class PlayxMethodHandler(
      * and updates current camera scaling.
      */
     private fun updateCameraScaling(call: MethodCall, result: MethodChannel.Result) {
-        val scaling: DoubleArray? = getValue<List<Double>>(call, updateCameraScalingKey)?.toDoubleArray()
+        val scaling: DoubleArray? =
+            getValue<List<Double>>(call, updateCameraScalingKey)?.toDoubleArray()
         coroutineScope.launch {
             when (val resource = modelViewer?.updateCameraScaling(scaling)) {
                 is Resource.Success -> result.success(resource.data)
@@ -716,7 +804,7 @@ class PlayxMethodHandler(
     /**
      *setDefaultCamera.
      */
-    private fun setDefaultCamera( result: MethodChannel.Result) {
+    private fun setDefaultCamera(result: MethodChannel.Result) {
         coroutineScope.launch {
             when (val resource = modelViewer?.setDefaultCamera()) {
                 is Resource.Success -> result.success(resource.data)
@@ -732,15 +820,16 @@ class PlayxMethodHandler(
     }
 
 
-
     private fun lookAtCameraPosition(call: MethodCall, result: MethodChannel.Result) {
 
         val eyeArray: DoubleArray? = getValue<List<Double>>(call, eyeArrayKey)?.toDoubleArray()
-        val targetArray: DoubleArray? = getValue<List<Double>>(call, targetArrayKey)?.toDoubleArray()
-        val upwardArray: DoubleArray? = getValue<List<Double>>(call, upwardArrayKey)?.toDoubleArray()
+        val targetArray: DoubleArray? =
+            getValue<List<Double>>(call, targetArrayKey)?.toDoubleArray()
+        val upwardArray: DoubleArray? =
+            getValue<List<Double>>(call, upwardArrayKey)?.toDoubleArray()
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.lookAtPosition(eyeArray,targetArray,upwardArray)) {
+            when (val resource = modelViewer?.lookAtPosition(eyeArray, targetArray, upwardArray)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -756,7 +845,7 @@ class PlayxMethodHandler(
     /**
      *lookAtDefault camera Position.
      */
-    private fun lookAtDefaultPosition( result: MethodChannel.Result) {
+    private fun lookAtDefaultPosition(result: MethodChannel.Result) {
         coroutineScope.launch {
             when (val resource = modelViewer?.lookAtDefaultPosition()) {
                 is Resource.Success -> result.success(resource.data)
@@ -771,11 +860,10 @@ class PlayxMethodHandler(
     }
 
 
-
     /**
      *lookAtDefault camera Position.
      */
-    private fun getCameraLookAtPositions( result: MethodChannel.Result) {
+    private fun getCameraLookAtPositions(result: MethodChannel.Result) {
         coroutineScope.launch {
             when (val resource = modelViewer?.getLookAt()) {
                 is Resource.Success -> result.success(resource.data)
@@ -790,7 +878,6 @@ class PlayxMethodHandler(
     }
 
 
-
     private fun scrollCameraTo(call: MethodCall, result: MethodChannel.Result) {
 
         val x: Int? = getValue(call, cameraScrollXKey)
@@ -798,7 +885,7 @@ class PlayxMethodHandler(
         val scrollDelta: Float? = getValue<Double>(call, cameraScrollDeltaKey)?.toFloat()
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.scroll(x,y,scrollDelta)) {
+            when (val resource = modelViewer?.scroll(x, y, scrollDelta)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -819,7 +906,7 @@ class PlayxMethodHandler(
         val strafe = getValue<Boolean>(call, cameraGrabBeginStrafeKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.grabBegin(x,y,strafe)) {
+            when (val resource = modelViewer?.grabBegin(x, y, strafe)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -839,7 +926,7 @@ class PlayxMethodHandler(
         val y: Int? = getValue(call, cameraGrabUpdateYKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.grabUpdate(x,y)) {
+            when (val resource = modelViewer?.grabUpdate(x, y)) {
                 is Resource.Success -> result.success(resource.data)
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
@@ -866,17 +953,19 @@ class PlayxMethodHandler(
 
         }
     }
+
     private fun getCameraRayCast(call: MethodCall, result: MethodChannel.Result) {
 
         val x: Int? = getValue(call, cameraRayCastXKey)
         val y: Int? = getValue(call, cameraRayCastYKey)
 
         coroutineScope.launch {
-            when (val resource = modelViewer?.raycast(x,y)) {
+            when (val resource = modelViewer?.raycast(x, y)) {
                 is Resource.Success -> {
                     val data = resource.data?.toList()?.map { it.toDouble() }
                     result.success(data)
                 }
+
                 is Resource.Error -> result.error(resource.message ?: "", resource.message, null)
                 else -> result.error(
                     "Model viewer isn't initialized.",
@@ -889,7 +978,7 @@ class PlayxMethodHandler(
     }
 
 
-    private fun getCurrentModelState( result: MethodChannel.Result) {
+    private fun getCurrentModelState(result: MethodChannel.Result) {
         if (modelViewer != null) {
             result.success(modelViewer.modelState.value.toString())
         } else {
@@ -904,7 +993,8 @@ class PlayxMethodHandler(
      * and updates current camera.
      */
     private fun updateGround(call: MethodCall, result: MethodChannel.Result) {
-        val ground = getValue<Map<String?, Any?>>(call, updateGroundKey)?.toObject<Ground>()
+        val groundMap = getValue<Map<String?, Any?>>(call, updateGroundKey)
+        val ground = Ground.fromMap(groundMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateGround(ground)) {
                 is Resource.Success -> result.success(resource.data)
@@ -920,14 +1010,15 @@ class PlayxMethodHandler(
     }
 
 
-
     /**
      *update ground.
      * it takes an Ground object as an argument.
      * and updates current camera.
      */
     private fun updateGroundMaterial(call: MethodCall, result: MethodChannel.Result) {
-        val material = getValue<Map<String?, Any?>>(call, updateGroundMaterialKey)?.toObject<Material>()
+        val materialMap =
+            getValue<Map<String?, Any?>>(call, updateGroundMaterialKey)
+        val material = Material.fromJson(materialMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.updateGroundMaterial(material)) {
                 is Resource.Success -> result.success(resource.data)
@@ -943,14 +1034,14 @@ class PlayxMethodHandler(
     }
 
 
-
     /**
      *add Shape.
      * it takes an shape object as an argument.
      * and adds the shape to current rendered shapes.
      */
     private fun addShape(call: MethodCall, result: MethodChannel.Result) {
-        val shape = getValue<Map<String?, Any?>>(call, addShapeKey)?.toObject<Shape>()
+        val shapeMap = getValue<Map<String?, Any?>>(call, addShapeKey)
+        val shape = Shape.fromMap(shapeMap)
         coroutineScope.launch {
             when (val resource = modelViewer?.addShape(shape)) {
                 is Resource.Success -> result.success(resource.data)
@@ -993,7 +1084,9 @@ class PlayxMethodHandler(
      * and adds the shape to current rendered shapes.
      */
     private fun updateShape(call: MethodCall, result: MethodChannel.Result) {
-        val shape = getValue<Map<String?, Any?>>(call, updateShapeKey)?.toObject<Shape>()
+        val shapeMap = getValue<Map<String?, Any?>>(call, updateShapeKey)
+        val shape = Shape.fromMap(shapeMap)
+
         val id = getValue<Int>(call, updateShapeIdKey)
 
         coroutineScope.launch {
@@ -1010,19 +1103,20 @@ class PlayxMethodHandler(
         }
     }
 
-    private fun getCurrentCreatedShapesIds( result: MethodChannel.Result) {
-        if(modelViewer != null) {
+    private fun getCurrentCreatedShapesIds(result: MethodChannel.Result) {
+        if (modelViewer != null) {
             val ids = modelViewer.getCreatedShapesIds()
             result.success(ids)
-        }else{
+        } else {
             result.error(
-                    "Model viewer isn't initialized.",
-                    "Model viewer isn't initialized.",
-                    null
-                )
-            }
+                "Model viewer isn't initialized.",
+                "Model viewer isn't initialized.",
+                null
+            )
+        }
 
     }
+
     fun startListeningToChannel() {
         methodChannel = MethodChannel(messenger, "${MAIN_CHANNEL_NAME}_$id")
         methodChannel?.setMethodCallHandler(this)
@@ -1035,8 +1129,6 @@ class PlayxMethodHandler(
         methodChannel = null
         job.cancel()
     }
-
-
 
 
     private inline fun <reified T> getValue(call: MethodCall, key: String, default: T? = null): T? {
@@ -1055,71 +1147,90 @@ class PlayxMethodHandler(
 
         private const val MAIN_CHANNEL_NAME = "io.sourcya.playx.3d.scene.channel"
 
-        private  const val changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX"
+        private const val updatePlayx3dScene = "UPDATE_PLAYX_3D_SCENE"
+        private const val updatePlayx3dSceneSceneKey = "UPDATE_PLAYX_3D_SCENE_SCENE_KEY"
+        private const val updatePlayx3dSceneModelKey = "UPDATE_PLAYX_3D_SCENE_MODEL_KEY"
+        private const val updatePlayx3dSceneShapesKey = "UPDATE_PLAYX_3D_SCENE_SHAPES_KEY"
+
+
+        private const val updateScene = "UPDATE_SCENE"
+        private const val updateSceneKey = "UPDATE_SCENE_KEY"
+        private const val updateModel = "UPDATE_MODEL"
+        private const val updateModelKey = "UPDATE_MODELS_KEY"
+        private const val updateShapes = "UPDATE_SHAPES"
+        private const val updateShapesKey = "UPDATE_SHAPES_KEY"
+
+        private const val changeAnimationByIndex = "CHANGE_ANIMATION_BY_INDEX"
         private const val changeAnimationByIndexKey = "CHANGE_ANIMATION_BY_INDEX_KEY"
 
-        private  const val changeAnimationByName = "CHANGE_ANIMATION_BY_NAME"
+        private const val changeAnimationByName = "CHANGE_ANIMATION_BY_NAME"
         private const val changeAnimationByNameKey = "CHANGE_ANIMATION_BY_NAME_KEY"
 
-        private  const val getAnimationNames = "GET_ANIMATION_NAMES"
+        private const val getAnimationNames = "GET_ANIMATION_NAMES"
 
         private const val getAnimationNameByIndex = "GET_ANIMATION_NAME_BY_INDEX"
         private const val getAnimationNameByIndexKey = "GET_ANIMATION_NAME_BY_INDEX_KEY"
 
         private const val getAnimationCount = "GET_ANIMATION_COUNT"
 
-        private  const val getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX"
+        private const val getCurrentAnimationIndex = "GET_CURRENT_ANIMATION_INDEX"
 
-        private  const val changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET"
-        private  const val changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY"
+        private const val changeSkyboxByAsset = "CHANGE_SKYBOX_BY_ASSET"
+        private const val changeSkyboxByAssetKey = "CHANGE_SKYBOX_BY_ASSET_KEY"
 
         private const val changeSkyboxByUrl = "CHANGE_SKYBOX_BY_URL"
         private const val changeSkyboxByUrlKey = "CHANGE_SKYBOX_BY_URL_KEY"
 
 
         private const val changeSkyboxByHdrAsset = "CHANGE_SKYBOX_BY_HDR_ASSET"
-        private const val changeSkyboxByHdrAssetKey ="CHANGE_SKYBOX_BY_HDR_ASSET_KEY"
+        private const val changeSkyboxByHdrAssetKey = "CHANGE_SKYBOX_BY_HDR_ASSET_KEY"
 
         private const val changeSkyboxByHdrUrl = "CHANGE_SKYBOX_BY_HDR_URL"
         private const val changeSkyboxByHdrUrlKey = "CHANGE_SKYBOX_BY_HDR_URL_KEY"
 
 
         private const val changeSkyboxColor = "CHANGE_SKYBOX_COLOR"
-        private  const val changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY"
+        private const val changeSkyboxColorKey = "CHANGE_SKYBOX_COLOR_KEY"
 
-        private  const val changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX"
+        private const val changeToTransparentSkybox = "CHANGE_TO_TRANSPARENT_SKYBOX"
 
         private const val changeIndirectLightByKtxAsset = "CHANGE_LIGHT_BY_ASSET"
         private const val changeIndirectLightByKtxAssetKey = "CHANGE_LIGHT_BY_ASSET_KEY"
-        private const val changeIndirectLightByKtxAssetIntensityKey = "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
+        private const val changeIndirectLightByKtxAssetIntensityKey =
+            "CHANGE_LIGHT_BY_ASSET_INTENSITY_KEY"
 
         private const val changeIndirectLightByKtxUrl = "CHANGE_LIGHT_BY_KTX_URL"
         private const val changeIndirectLightByKtxUrlKey = "CHANGE_LIGHT_BY_KTX_URL_KEY"
-        private const val changeIndirectLightByKtxUrlIntensityKey = "CHANGE_LIGHT_BY_KTX_URL_INTENSITY_KEY"
+        private const val changeIndirectLightByKtxUrlIntensityKey =
+            "CHANGE_LIGHT_BY_KTX_URL_INTENSITY_KEY"
 
 
         private const val changeIndirectLightByHdrAsset = "CHANGE_LIGHT_BY_HDR_ASSET"
         private const val changeIndirectLightByHdrAssetKey = "CHANGE_LIGHT_BY_HDR_ASSET_KEY"
-        private const val changeIndirectLightByHdrAssetIntensityKey = "CHANGE_LIGHT_BY_HDR_ASSET_INTENSITY_KEY"
+        private const val changeIndirectLightByHdrAssetIntensityKey =
+            "CHANGE_LIGHT_BY_HDR_ASSET_INTENSITY_KEY"
 
         private const val changeIndirectLightByHdrUrl = "CHANGE_LIGHT_BY_HDR_URL"
         private const val changeIndirectLightByHdrUrlKey = "CHANGE_LIGHT_BY_HDR_URL_KEY"
-        private const val changeIndirectLightByHdrUrlIntensityKey = "CHANGE_LIGHT_BY_HDR_URL_INTENSITY_KEY"
+        private const val changeIndirectLightByHdrUrlIntensityKey =
+            "CHANGE_LIGHT_BY_HDR_URL_INTENSITY_KEY"
 
 
-        private const val changeIndirectLightByDefaultIndirectLight = "CHANGE_LIGHT_BY_INDIRECT_LIGHT"
-        private const val changeIndirectLightByDefaultIndirectLightKey = "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY"
+        private const val changeIndirectLightByDefaultIndirectLight =
+            "CHANGE_LIGHT_BY_INDIRECT_LIGHT"
+        private const val changeIndirectLightByDefaultIndirectLightKey =
+            "CHANGE_LIGHT_BY_INDIRECT_LIGHT_KEY"
 
         private const val changeToDefaultIndirectLight = "CHANGE_TO_DEFAULT_LIGHT_INTENSITY"
 
-        private const val changeLight="CHANGE_LIGHT"
-        private const val changeLightKey="CHANGE_LIGHT_KEY"
+        private const val changeLight = "CHANGE_LIGHT"
+        private const val changeLightKey = "CHANGE_LIGHT_KEY"
 
         private const val changeToDefaultLight = "CHANGE_TO_DEFAULT_LIGHT"
 
 
         private const val loadGlbModelFromAssets = "LOAD_GLB_MODEL_FROM_ASSETS"
-        private  const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"
+        private const val loadGlbModelFromAssetsPathKey = "LOAD_GLB_MODEL_FROM_ASSETS_PATH_KEY"
 
         private const val loadGlbModelFromUrl = "LOAD_GLB_MODEL_FROM_URL"
         private const val loadGlbModelFromUrlKey = "LOAD_GLB_MODEL_FROM_URL_KEY"
@@ -1130,51 +1241,51 @@ class PlayxMethodHandler(
             "LOAD_GLTF_MODEL_FROM_ASSETS_PREFIX_PATH_KEY"
         private const val loadGltfModelFromAssetsPostfixPathKey =
             "LOAD_GLTF_MODEL_FROM_ASSETS_POSTFIX_PATH_KEY"
-       private const val getCurrentModelState = "GET_CURRENT_MODEL_STATE"
+        private const val getCurrentModelState = "GET_CURRENT_MODEL_STATE"
 
-        private const val changeModelScale ="CHANGE_MODEL_SCALE"
-        private const val changeModelScaleKey ="CHANGE_MODEL_SCALE_KEY"
-        private const val changeModelPosition ="CHANGE_MODEL_POSITION"
-        private const val changeModelPositionKey ="CHANGE_MODEL_POSITION_KEY"
+        private const val changeModelScale = "CHANGE_MODEL_SCALE"
+        private const val changeModelScaleKey = "CHANGE_MODEL_SCALE_KEY"
+        private const val changeModelPosition = "CHANGE_MODEL_POSITION"
+        private const val changeModelPositionKey = "CHANGE_MODEL_POSITION_KEY"
 
 
-        private const val updateCamera ="UPDATE_CAMERA"
-        private const val updateCameraKey ="UPDATE_CAMERA_KEY"
+        private const val updateCamera = "UPDATE_CAMERA"
+        private const val updateCameraKey = "UPDATE_CAMERA_KEY"
 
-        private const val updateExposure ="UPDATE_EXPOSURE"
-        private const val updateExposureKey ="UPDATE_EXPOSURE_KEY"
+        private const val updateExposure = "UPDATE_EXPOSURE"
+        private const val updateExposureKey = "UPDATE_EXPOSURE_KEY"
 
-        private const val updateProjection ="UPDATE_PROJECTION"
-        private const val updateProjectionKey ="UPDATE_PROJECTION_KEY"
+        private const val updateProjection = "UPDATE_PROJECTION"
+        private const val updateProjectionKey = "UPDATE_PROJECTION_KEY"
 
-        private const val updateLensProjection ="UPDATE_LENS_PROJECTION"
-        private const val updateLensProjectionKey ="UPDATE_LENS_PROJECTION_KEY"
+        private const val updateLensProjection = "UPDATE_LENS_PROJECTION"
+        private const val updateLensProjectionKey = "UPDATE_LENS_PROJECTION_KEY"
 
-        private const val updateCameraShift ="UPDATE_CAMERA_SHIFT"
-        private const val updateCameraShiftKey ="UPDATE_CAMERA_SHIFT_KEY"
+        private const val updateCameraShift = "UPDATE_CAMERA_SHIFT"
+        private const val updateCameraShiftKey = "UPDATE_CAMERA_SHIFT_KEY"
 
-        private const val updateCameraScaling ="UPDATE_CAMERA_SCALING"
-        private const val updateCameraScalingKey="UPDATE_CAMERA_SCALING_KEY"
+        private const val updateCameraScaling = "UPDATE_CAMERA_SCALING"
+        private const val updateCameraScalingKey = "UPDATE_CAMERA_SCALING_KEY"
 
-        private const val setDefaultCamera ="SET_DEFAULT_CAMERA"
+        private const val setDefaultCamera = "SET_DEFAULT_CAMERA"
 
-        private const val lookAtDefaultPosition ="LOOK_AT_DEFAULT_POSITION"
+        private const val lookAtDefaultPosition = "LOOK_AT_DEFAULT_POSITION"
 
-        private const val lookAtPosition ="LOOK_AT_POSITION"
-        private const val eyeArrayKey ="EYE_ARRAY_KEY"
-        private const val targetArrayKey ="TARGET_ARRAY_KEY"
-        private const val upwardArrayKey ="UPWARD_ARRAY_KEY"
+        private const val lookAtPosition = "LOOK_AT_POSITION"
+        private const val eyeArrayKey = "EYE_ARRAY_KEY"
+        private const val targetArrayKey = "TARGET_ARRAY_KEY"
+        private const val upwardArrayKey = "UPWARD_ARRAY_KEY"
 
-        private const val getLookAt ="GET_LOOK_AT"
-        private const val cameraScroll ="CAMERA_SCROLL"
+        private const val getLookAt = "GET_LOOK_AT"
+        private const val cameraScroll = "CAMERA_SCROLL"
 
-        private const val cameraScrollXKey ="CAMERA_SCROLL_X_KEY"
-        private const val cameraScrollYKey ="CAMERA_SCROLL_Y_KEY"
-        private const val cameraScrollDeltaKey ="CAMERA_SCROLL_DELTA_KEY"
+        private const val cameraScrollXKey = "CAMERA_SCROLL_X_KEY"
+        private const val cameraScrollYKey = "CAMERA_SCROLL_Y_KEY"
+        private const val cameraScrollDeltaKey = "CAMERA_SCROLL_DELTA_KEY"
 
-        private const val cameraRayCast="CAMERA_RAYCAST"
-        private const val cameraRayCastXKey="CAMERA_RAYCAST_X_KEY"
-        private const val cameraRayCastYKey="CAMERA_RAYCAST_Y_KEY"
+        private const val cameraRayCast = "CAMERA_RAYCAST"
+        private const val cameraRayCastXKey = "CAMERA_RAYCAST_X_KEY"
+        private const val cameraRayCastYKey = "CAMERA_RAYCAST_Y_KEY"
 
         private const val cameraGrabBegin = "CAMERA_GRAB_BEGIN"
         private const val cameraGrabBeginXKey = "CAMERA_GRAB_BEGIN_X_KEY"
@@ -1203,8 +1314,6 @@ class PlayxMethodHandler(
         private const val updateShapeIdKey = "UPDATE_SHAPE_ID_KEY"
 
         private const val getCurrentCreatedShapesIds = "CREATED_SHAPES_IDS"
-
-
 
 
     }

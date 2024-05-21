@@ -1,7 +1,7 @@
 package io.sourcya.playx_3d_scene.core.utils
 
 import com.google.android.filament.utils.Float4
-import com.google.android.filament.utils.pow
+
 
 typealias Color = Float4
 
@@ -22,11 +22,6 @@ fun colorOf(colorStr: String): Color {
 
 fun FloatArray.toColor() = Color(this[0], this[1], this[2], this.getOrNull(3) ?: 1.0f)
 
-/**
- * If rendering in linear space, first convert the gray scaled values to linear space by rising to
- * the power 2.2
- */
-fun Color.toLinearSpace() = transform { pow(it, 2.2f) }
 
 
 fun Color.red( )= this[0]

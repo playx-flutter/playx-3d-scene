@@ -33,4 +33,27 @@ class Shape {
         'material': material?.toJson(),
         'type': 0
       };
+
+  @override
+  String toString() {
+    return 'Shape(id: $id, centerPosition: $centerPosition normal: $normal, material: $material)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Shape &&
+        other.id == id &&
+        other.centerPosition == centerPosition &&
+        other.normal == normal &&
+        other.material == material;
+  }
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      centerPosition.hashCode ^
+      normal.hashCode ^
+      material.hashCode;
 }

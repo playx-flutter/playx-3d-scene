@@ -14,7 +14,7 @@ import java.nio.ByteBuffer
 import java.util.zip.ZipInputStream
 
 
-internal class GltfLoader constructor(
+internal class GltfLoader (
     private val modelViewer: CustomModelViewer,
     private val context: Context,
     private val flutterAssets: FlutterAssets
@@ -29,6 +29,7 @@ internal class GltfLoader constructor(
         isFallback: Boolean = false,
 
         ): Resource<String> {
+
         modelViewer.setModelState(ModelState.LOADING)
         return withContext(Dispatchers.IO) {
             when (val bufferResource = readAsset(path, flutterAssets, context)) {
@@ -87,7 +88,7 @@ internal class GltfLoader constructor(
 
         // To alleviate memory pressure, remove the old model before deflating the zip.
         withContext(Dispatchers.Main) {
-            modelViewer.destroyModel()
+            modelViewer.modelLoader.destroy()
         }
 
         val zipFile = NetworkClient.downloadZip(url)

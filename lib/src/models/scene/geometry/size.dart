@@ -17,4 +17,17 @@ class PlayxSize {
         'y': y,
         'z': z,
       };
+
+  @override
+  String toString() => 'PlayxSize(x: $x, y: $y, z: $z)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlayxSize && other.x == x && other.y == y && other.z == z;
+  }
+
+  @override
+  int get hashCode => x.hashCode ^ y.hashCode ^ z.hashCode;
 }

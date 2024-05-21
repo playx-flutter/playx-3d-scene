@@ -336,6 +336,13 @@ class ShapeManger(
         return currentShapesGeometries.keys.toList()
     }
 
+    fun clearShapes() {
+        for ((_, geometry) in currentShapesGeometries) {
+            geometry.removeGeometry(modelViewer)
+        }
+        currentShapesGeometries.clear()
+    }
+
 
 }
 

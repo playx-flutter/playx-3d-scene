@@ -21,4 +21,21 @@ class PlayxAnimation {
         'name': name,
         'autoPlay': autoPlay,
       };
+
+  @override
+  String toString() =>
+      'PlayxAnimation(index: $index, name: $name, autoPlay: $autoPlay)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlayxAnimation &&
+        other.index == index &&
+        other.name == name &&
+        other.autoPlay == autoPlay;
+  }
+
+  @override
+  int get hashCode => index.hashCode ^ name.hashCode ^ autoPlay.hashCode;
 }

@@ -42,4 +42,28 @@ class Exposure {
       "exposure": exposure,
     };
   }
+
+  @override
+  String toString() {
+    return 'Exposure(aperture: $aperture, shutterSpeed: $shutterSpeed, sensitivity: $sensitivity, exposure: $exposure)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Exposure &&
+        other.aperture == aperture &&
+        other.shutterSpeed == shutterSpeed &&
+        other.sensitivity == sensitivity &&
+        other.exposure == exposure;
+  }
+
+  @override
+  int get hashCode {
+    return aperture.hashCode ^
+        shutterSpeed.hashCode ^
+        sensitivity.hashCode ^
+        exposure.hashCode;
+  }
 }
